@@ -78,6 +78,15 @@ module Crybot
         providers:
           zhipu:
             api_key: ""  # Get from https://open.bigmodel.cn/
+          openai:
+            api_key: ""  # Get from https://platform.openai.com/
+          anthropic:
+            api_key: ""  # Get from https://console.anthropic.com/
+          openrouter:
+            api_key: ""  # Get from https://openrouter.ai/
+          vllm:
+            api_key: ""  # Often empty for local vLLM
+            api_base: ""  # e.g., http://localhost:8000/v1
 
         channels:
           telegram:

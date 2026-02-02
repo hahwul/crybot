@@ -21,11 +21,40 @@ module Crybot
       include YAML::Serializable
 
       property zhipu : ZhipuConfig
+      property openai : OpenAIConfig
+      property anthropic : AnthropicConfig
+      property openrouter : OpenRouterConfig
+      property vllm : VLLMConfig
 
       struct ZhipuConfig
         include YAML::Serializable
 
         property api_key : String = ""
+      end
+
+      struct OpenAIConfig
+        include YAML::Serializable
+
+        property api_key : String = ""
+      end
+
+      struct AnthropicConfig
+        include YAML::Serializable
+
+        property api_key : String = ""
+      end
+
+      struct OpenRouterConfig
+        include YAML::Serializable
+
+        property api_key : String = ""
+      end
+
+      struct VLLMConfig
+        include YAML::Serializable
+
+        property api_key : String = ""
+        property api_base : String = ""
       end
     end
 

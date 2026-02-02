@@ -4,7 +4,8 @@ Crybot is a personal AI assistant built in Crystal, inspired by nanobot (Python)
 
 ## Features
 
-- **Multiple LLM Support**: Currently supports z.ai / Zhipu GLM models (glm-4.7-flash, glm-4-plus, etc.)
+- **Multiple LLM Support**: Supports OpenAI, Anthropic, OpenRouter, vLLM, and z.ai / Zhipu GLM models
+- **Provider Auto-Detection**: Automatically selects provider based on model name prefix
 - **Tool Calling**: Built-in tools for file operations, shell commands, and web search/fetch
 - **MCP Support**: Model Context Protocol client for connecting to external tools and resources
 - **Session Management**: Persistent conversation history with JSONL storage
@@ -38,13 +39,50 @@ This creates:
 - Configuration file: `~/.crybot/config.yml`
 - Workspace directory: `~/.crybot/workspace/`
 
-Edit `~/.crybot/config.yml` to add your z.ai API key:
+Edit `~/.crybot/config.yml` to add your API keys:
 
 ```yaml
 providers:
   zhipu:
     api_key: "your_api_key_here"  # Get from https://open.bigmodel.cn/
+  openai:
+    api_key: "your_openai_key"    # Get from https://platform.openai.com/
+  anthropic:
+    api_key: "your_anthropic_key" # Get from https://console.anthropic.com/
+  openrouter:
+    api_key: "your_openrouter_key" # Get from https://openrouter.ai/
+  vllm:
+    api_key: ""                    # Often empty for local vLLM
+    api_base: "http://localhost:8000/v1"
 ```
+
+### Selecting a Model
+
+Set the default model in your config:
+
+```yaml
+agents:
+  defaults:
+    model: "gpt-4o-mini"  # Uses OpenAI
+    # model: "claude-3-5-sonnet-20241022"  # Uses Anthropic
+    # model: "anthropic/claude-3.5-sonnet"  # Uses OpenRouter
+    # model: "glm-4.7-flash"  # Uses Zhipu (default)
+```
+
+Or use the `provider/model` format to explicitly specify:
+
+```yaml
+model: "openai/gpt-4o-mini"
+model: "anthropic/claude-3-5-sonnet-20241022"
+model: "openrouter/deepseek/deepseek-chat"
+model: "vllm/my-custom-model"
+```
+
+The provider is auto-detected from model name patterns:
+- `gpt-*` → OpenAI
+- `claude-*` → Anthropic
+- `glm-*` → Zhipu
+- `deepseek-*`, `qwen-*` → OpenRouter
 
 ## Usage
 

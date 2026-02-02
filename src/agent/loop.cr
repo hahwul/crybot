@@ -1,5 +1,10 @@
 require "../config/loader"
+require "../providers/base"
 require "../providers/litellm"
+require "../providers/openai"
+require "../providers/anthropic"
+require "../providers/openrouter"
+require "../providers/vllm"
 require "./context"
 require "./tools/registry"
 require "./tools/filesystem"
@@ -12,17 +17,14 @@ module Crybot
   module Agent
     class Loop
       @config : Config::ConfigFile
-      @provider : Providers::ZhipuProvider
+      @provider : Providers::LLMProvider
       @context_builder : ContextBuilder
       @session_manager : Session::Manager
       @max_iterations : Int32
       @mcp_manager : MCP::Manager?
 
       def initialize(@config : Config::ConfigFile)
-        @provider = Providers::ZhipuProvider.new(
-          @config.providers.zhipu.api_key,
-          @config.agents.defaults.model,
-        )
+        @provider = create_provider
         @context_builder = ContextBuilder.new(@config)
         @session_manager = Session::Manager.instance
         @max_iterations = @config.agents.defaults.max_tool_iterations
@@ -32,6 +34,60 @@ module Crybot
 
         # Initialize MCP manager
         @mcp_manager = MCP::Manager.new(@config.mcp)
+      end
+
+      private def create_provider : Providers::LLMProvider
+        model = @config.agents.defaults.model
+
+        # Detect provider from model name prefix
+        # Format: provider/model or just model (defaults to zhipu)
+        provider_name, actual_model = parse_model_string(model)
+
+        case provider_name
+        when "openai", "gpt"
+          api_key = @config.providers.openai.api_key
+          raise "OpenAI API key not configured" if api_key.empty?
+          Providers::OpenAIProvider.new(api_key, actual_model)
+        when "anthropic", "claude"
+          api_key = @config.providers.anthropic.api_key
+          raise "Anthropic API key not configured" if api_key.empty?
+          Providers::AnthropicProvider.new(api_key, actual_model)
+        when "openrouter"
+          api_key = @config.providers.openrouter.api_key
+          raise "OpenRouter API key not configured" if api_key.empty?
+          Providers::OpenRouterProvider.new(api_key, actual_model)
+        when "vllm"
+          api_base = @config.providers.vllm.api_base
+          raise "vLLM api_base not configured" if api_base.empty?
+          Providers::VLLMProvider.new(@config.providers.vllm.api_key, api_base, actual_model)
+        else
+          # Default to Zhipu
+          api_key = @config.providers.zhipu.api_key
+          raise "Zhipu API key not configured" if api_key.empty?
+          Providers::ZhipuProvider.new(api_key, actual_model)
+        end
+      end
+
+      private def parse_model_string(model : String) : Tuple(String, String)
+        parts = model.split('/', 2)
+        if parts.size == 2
+          {parts[0], parts[1]}
+        else
+          # Default provider based on model name patterns
+          provider = detect_provider_from_model(model)
+          {provider, model}
+        end
+      end
+
+      private def detect_provider_from_model(model : String) : String
+        case model
+        when /^gpt-/      then "openai"
+        when /^claude-/   then "anthropic"
+        when /^glm-/      then "zhipu"
+        when /^deepseek-/ then "openrouter"
+        when /^qwen-/     then "openrouter"
+        else                   "zhipu"
+        end
       end
 
       def process(session_key : String, user_message : String) : String
