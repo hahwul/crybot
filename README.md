@@ -9,8 +9,8 @@ Crybot is a personal AI assistant built in Crystal, inspired by nanobot (Python)
 - **Tool Calling**: Built-in tools for file operations, shell commands, and web search/fetch
 - **MCP Support**: Model Context Protocol client for connecting to external tools and resources
 - **Session Management**: Persistent conversation history with JSONL storage
-- **Telegram Integration**: Full Telegram bot support with message tracking
-- **Interactive & CLI Modes**: Use via CLI or Telegram
+- **Telegram Integration**: Full Telegram bot support with message tracking and auto-restart on config changes
+- **Interactive REPL**: Fancyline-powered REPL with syntax highlighting, autocomplete, and history
 - **Workspace System**: Organized workspace with memory, skills, and bootstrap files
 
 ## Yes, it DOES work.
@@ -86,13 +86,28 @@ The provider is auto-detected from model name patterns:
 
 ## Usage
 
-### Interactive CLI Mode
+### REPL Mode (Recommended)
+
+The advanced REPL powered by [Fancyline](https://github.com/Papierkorb/fancyline) provides:
+
+- **Syntax highlighting** for built-in commands
+- **Tab autocompletion** for commands
+- **Command history** (saved to `~/.crybot/repl_history.txt`)
+- **History search** with `Ctrl+R`
+- **Navigation** with Up/Down arrows
+- **Custom prompt** showing current model
 
 ```bash
-./bin/crybot agent
+./bin/crybot repl
 ```
 
-### Single Message CLI Mode
+Built-in REPL commands:
+- `help` - Show available commands
+- `model` - Display current model
+- `clear` - Clear screen
+- `quit` / `exit` - Exit REPL
+
+### Simple Interactive Mode
 
 ```bash
 ./bin/crybot agent -m "Your message here"
@@ -115,6 +130,8 @@ channels:
 ```
 
 Get a bot token from [@BotFather](https://t.me/BotFather) on Telegram.
+
+**Auto-Restart**: The gateway automatically restarts when you modify `~/.crybot/config.yml`, so you can change models or add API keys without manually restarting the service.
 
 ## Built-in Tools
 
