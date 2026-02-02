@@ -6,6 +6,7 @@ require "./tools/filesystem"
 require "./tools/shell"
 require "./tools/web"
 require "../session/manager"
+require "../mcp/manager"
 
 module Crybot
   module Agent
@@ -15,6 +16,7 @@ module Crybot
       @context_builder : ContextBuilder
       @session_manager : Session::Manager
       @max_iterations : Int32
+      @mcp_manager : MCP::Manager?
 
       def initialize(@config : Config::ConfigFile)
         @provider = Providers::ZhipuProvider.new(
@@ -27,6 +29,9 @@ module Crybot
 
         # Register built-in tools
         register_tools
+
+        # Initialize MCP manager
+        @mcp_manager = MCP::Manager.new(@config.mcp)
       end
 
       def process(session_key : String, user_message : String) : String

@@ -63,6 +63,23 @@ module Crybot
       end
     end
 
+    struct MCPConfig
+      include YAML::Serializable
+
+      property servers : Array(MCPServerConfig) = [] of MCPServerConfig
+
+      def initialize(@servers = [] of MCPServerConfig)
+      end
+    end
+
+    struct MCPServerConfig
+      include YAML::Serializable
+
+      property name : String
+      property command : String?
+      property url : String?
+    end
+
     struct ConfigFile
       include YAML::Serializable
 
@@ -70,6 +87,7 @@ module Crybot
       property providers : ProvidersConfig
       property channels : ChannelsConfig
       property tools : ToolsConfig
+      property mcp : MCPConfig = MCPConfig.new(servers: [] of MCPServerConfig)
     end
   end
 end

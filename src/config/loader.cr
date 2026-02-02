@@ -90,6 +90,16 @@ module Crybot
             search:
               api_key: ""  # Brave Search API
               max_results: 5
+
+        mcp:
+          servers: []
+          # Example MCP servers:
+          # - name: filesystem
+          #   command: npx -y @modelcontextprotocol/server-filesystem /path/to/allowed/directory
+          # - name: github
+          #   command: npx -y @modelcontextprotocol/server-github
+          # - name: brave-search
+          #   command: npx -y @modelcontextprotocol/server-brave-search
         YAML
 
         File.write(CONFIG_FILE, default_config)
