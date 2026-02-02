@@ -11,6 +11,7 @@ module Crybot
       @allowed_users : Array(String)
       @offset_file : Path
       @processed_ids : Set(Int64) = Set(Int64).new
+      @running : Bool = true
 
       def initialize(config : Config::ChannelsConfig::TelegramConfig, agent : Agent::Loop)
         puts "[#{Time.local.to_s("%H:%M:%S")}] Creating Tourmaline client (skipping get_me)..."
@@ -42,14 +43,14 @@ module Crybot
       end
 
       def stop : Nil
-        @client.stop
+        @running = false
       end
 
       private def start_polling : Nil
         puts "[#{Time.local.to_s("%H:%M:%S")}] Entering polling loop..."
         offset = 0_i64
 
-        loop do
+        while @running
           begin
             updates = @client.get_updates(offset: offset, timeout: 30)
             updates.each do |update|
@@ -61,6 +62,8 @@ module Crybot
             sleep 1.second
           end
         end
+
+        puts "[#{Time.local.to_s("%H:%M:%S")}] Polling stopped"
       end
 
       private def load_processed_ids : Nil
@@ -174,7 +177,7 @@ module Crybot
           ctx.respond(text)
         else
           # Split message into chunks
-          chunks = text.scan(/.{1,#{max_length}}/m).map { |m| m[0] }
+          chunks = text.scan(/.{1,#{max_length}}/m).map { |match| match[0] }
           puts "[#{Time.local.to_s("%H:%M:%S")}] Sending response in #{chunks.size} chunk(s)"
           chunks.each_with_index do |chunk, index|
             chunk_start = Time.instant
