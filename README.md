@@ -12,6 +12,14 @@ Crybot is a personal AI assistant built in Crystal, inspired by nanobot (Python)
 - **Interactive & CLI Modes**: Use via CLI or Telegram
 - **Workspace System**: Organized workspace with memory, skills, and bootstrap files
 
+## Yes, it DOES work.
+
+It can even reconfigure itself.
+
+<img width="726" height="1276" alt="image" src="https://github.com/user-attachments/assets/5b8b7155-5c7a-4965-9aca-e2907f4ed641" />
+
+
+
 ## Installation
 
 1. Clone the repository
