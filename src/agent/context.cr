@@ -10,9 +10,11 @@ module Crybot
     class ContextBuilder
       @config : Config::ConfigFile
       @workspace_dir : Path
+      @memory_manager : MemoryManager
 
       def initialize(@config : Config::ConfigFile)
         @workspace_dir = Config::Loader.workspace_dir
+        @memory_manager = MemoryManager.new(@workspace_dir)
       end
 
       def build_system_prompt : String
@@ -59,8 +61,30 @@ module Crybot
         messages
       end
 
+      # Record a memory entry from agent's actions
+      def record_memory(content : String) : Nil
+        @memory_manager.append_to_daily_log(content)
+      end
+
+      # Save a long-term memory entry
+      def save_memory(content : String) : Nil
+        @memory_manager.write(content)
+      end
+
+      # Get recent memories
+      def get_recent_memories(days : Int32 = 7) : Array(String)
+        @memory_manager.get_recent(days)
+      end
+
+      # Search memories
+      def search_memories(query : String) : Array(String)
+        @memory_manager.search(query)
+      end
+
       private def build_identity_section : String
         now = Time.local
+        memory_stats = @memory_manager.stats
+
         <<-TEXT
         # Identity
 
@@ -77,6 +101,13 @@ module Crybot
 
         **Model:** #{@config.agents.defaults.model}
         **Max Tool Iterations:** #{@config.agents.defaults.max_tool_iterations}
+
+        **Memory Status:**
+        - Main memory: #{memory_stats["memory_file_size"]} bytes
+        - Log entries: #{memory_stats["log_file_count"]}
+        - Log size: #{memory_stats["log_total_size"]} bytes
+
+        When you complete important tasks or learn something worth remembering, use the record_memory() function.
         TEXT
       end
 
@@ -102,10 +133,20 @@ module Crybot
       end
 
       private def build_memory_section : String
-        memory = Memory.new(@workspace_dir)
-        content = memory.read
+        memory = @memory_manager.read
+        recent = @memory_manager.get_recent(3) # Last 3 days of logs
 
-        content.empty? ? "" : "# Memory\n\n#{content}"
+        parts = [] of String
+
+        if !memory.empty?
+          parts << "# Long-term Memory\n\n#{memory}"
+        end
+
+        if !recent.empty?
+          parts << "# Recent Activity (Last 3 Days)\n\n" + recent.join("\n\n")
+        end
+
+        parts.empty? ? "" : parts.join("\n\n---\n\n")
       end
 
       private def build_skills_section : String

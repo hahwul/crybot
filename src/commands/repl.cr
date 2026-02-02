@@ -5,6 +5,8 @@ require "fancyline"
 module Crybot
   module Commands
     class Repl
+      @cancellation_requested : Bool = false
+
       def self.start : Nil
         # Load config
         config = Config::Loader.load
@@ -36,7 +38,21 @@ module Crybot
         agent_loop = Crybot::Agent::Loop.new(config)
 
         # Start the REPL with a new instance
-        new(agent_loop, model).run
+        repl = new(agent_loop, model)
+
+        # Set up signal handler for Ctrl+C
+        Signal::INT.trap do
+          if repl.processing?
+            repl.cancel_request
+          else
+            # Exit if not processing
+            puts ""
+            puts "Goodbye!"
+            exit 0
+          end
+        end
+
+        repl.run
       end
 
       def self.detect_provider_from_model(model : String) : String
@@ -57,6 +73,7 @@ module Crybot
         @session_key = "repl"
         @fancy = Fancyline.new
         @running = true
+        @processing = false
 
         # Setup display widgets
         setup_display
@@ -66,6 +83,14 @@ module Crybot
 
         # Load history
         load_history
+      end
+
+      def processing? : Bool
+        @processing
+      end
+
+      def cancel_request : Nil
+        @cancellation_requested = true
       end
 
       def run : Nil
@@ -97,6 +122,8 @@ module Crybot
               end
 
               # Process the message
+              @cancellation_requested = false
+              @processing = true
               print "Thinking..."
 
               # Start processing in a fiber so we can handle Ctrl+C
@@ -116,9 +143,16 @@ module Crybot
 
               # Wait for completion
               done.receive
+              @processing = false
 
               # Clear the "Thinking..." message
               print "\r" + " " * 20 + "\r"
+
+              if @cancellation_requested
+                puts "\n[Request cancelled by user]"
+                puts ""
+                next
+              end
 
               if error
                 # Check if it was a Ctrl+C interrupt
