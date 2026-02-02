@@ -1,0 +1,28 @@
+# Crystal generated files
+/bin/
+/.shards/
+/.crystal/
+/lib/
+*.dwarf
+
+# Sessions and data
+/.crybot/sessions/*
+/.crybot/sessions/telegram_*
+
+# Editor
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+*.env
+
+.claude/
+*.local.json

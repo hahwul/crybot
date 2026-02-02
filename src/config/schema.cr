@@ -1,0 +1,75 @@
+require "yaml"
+
+module Crybot
+  module Config
+    struct AgentsConfig
+      include YAML::Serializable
+
+      property defaults : Defaults
+
+      struct Defaults
+        include YAML::Serializable
+
+        property model : String = "glm-4.7-flash"
+        property max_tokens : Int32 = 8192
+        property temperature : Float64 = 0.7
+        property max_tool_iterations : Int32 = 20
+      end
+    end
+
+    struct ProvidersConfig
+      include YAML::Serializable
+
+      property zhipu : ZhipuConfig
+
+      struct ZhipuConfig
+        include YAML::Serializable
+
+        property api_key : String = ""
+      end
+    end
+
+    struct ChannelsConfig
+      include YAML::Serializable
+
+      property telegram : TelegramConfig
+
+      struct TelegramConfig
+        include YAML::Serializable
+
+        # ameba:disable Naming/QueryBoolMethods
+        property enabled : Bool = false
+        property token : String = ""
+        property allow_from : Array(String) = [] of String
+      end
+    end
+
+    struct ToolsConfig
+      include YAML::Serializable
+
+      property web : WebConfig
+
+      struct WebConfig
+        include YAML::Serializable
+
+        property search : SearchConfig
+
+        struct SearchConfig
+          include YAML::Serializable
+
+          property api_key : String = ""
+          property max_results : Int32 = 5
+        end
+      end
+    end
+
+    struct ConfigFile
+      include YAML::Serializable
+
+      property agents : AgentsConfig
+      property providers : ProvidersConfig
+      property channels : ChannelsConfig
+      property tools : ToolsConfig
+    end
+  end
+end

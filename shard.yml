@@ -1,0 +1,23 @@
+name: crybot
+version: 0.1.0
+
+authors:
+  - ralsina <ralsina@kth.se>
+
+targets:
+  crybot:
+    main: src/main.cr
+
+dependencies:
+  docopt:
+    github: chenkovsky/docopt.cr
+  tourmaline:
+    github: protoncr/tourmaline
+
+development_dependencies:
+  ameba:
+    github: crystal-ameba/ameba
+
+crystal: 1.13.0
+
+license: MIT

@@ -1,0 +1,99 @@
+require "file_utils"
+require "./schema"
+
+module Crybot
+  module Config
+    class Loader
+      CONFIG_DIR    = Path.home / ".crybot"
+      CONFIG_FILE   = CONFIG_DIR / "config.yml"
+      WORKSPACE_DIR = CONFIG_DIR / "workspace"
+      SESSIONS_DIR  = CONFIG_DIR / "sessions"
+      MEMORY_DIR    = WORKSPACE_DIR / "memory"
+      SKILLS_DIR    = WORKSPACE_DIR / "skills"
+
+      @@config : ConfigFile?
+
+      def self.config_dir : Path
+        CONFIG_DIR
+      end
+
+      def self.config_file : Path
+        CONFIG_FILE
+      end
+
+      def self.workspace_dir : Path
+        WORKSPACE_DIR
+      end
+
+      def self.sessions_dir : Path
+        SESSIONS_DIR
+      end
+
+      def self.memory_dir : Path
+        MEMORY_DIR
+      end
+
+      def self.skills_dir : Path
+        SKILLS_DIR
+      end
+
+      def self.load : ConfigFile
+        cached = @@config
+        return cached unless cached.nil?
+
+        unless File.exists?(CONFIG_FILE)
+          raise "Config file not found: #{CONFIG_FILE}. Run 'crybot onboard' to initialize."
+        end
+
+        content = File.read(CONFIG_FILE)
+        result = ConfigFile.from_yaml(content)
+        @@config = result
+        result
+      end
+
+      def self.reload : ConfigFile
+        @@config = nil
+        load
+      end
+
+      def self.ensure_directories : Nil
+        Dir.mkdir_p(CONFIG_DIR) unless Dir.exists?(CONFIG_DIR)
+        Dir.mkdir_p(WORKSPACE_DIR) unless Dir.exists?(WORKSPACE_DIR)
+        Dir.mkdir_p(SESSIONS_DIR) unless Dir.exists?(SESSIONS_DIR)
+        Dir.mkdir_p(MEMORY_DIR) unless Dir.exists?(MEMORY_DIR)
+        Dir.mkdir_p(SKILLS_DIR) unless Dir.exists?(SKILLS_DIR)
+      end
+
+      def self.create_default_config : Nil
+        return if File.exists?(CONFIG_FILE)
+
+        default_config = <<-YAML
+        agents:
+          defaults:
+            model: glm-4.7-flash
+            max_tokens: 8192
+            temperature: 0.7
+            max_tool_iterations: 20
+
+        providers:
+          zhipu:
+            api_key: ""  # Get from https://open.bigmodel.cn/
+
+        channels:
+          telegram:
+            enabled: false
+            token: ""
+            allow_from: []
+
+        tools:
+          web:
+            search:
+              api_key: ""  # Brave Search API
+              max_results: 5
+        YAML
+
+        File.write(CONFIG_FILE, default_config)
+      end
+    end
+  end
+end

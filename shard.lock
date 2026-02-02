@@ -1,0 +1,34 @@
+version: 2.0
+shards:
+  ameba:
+    git: https://github.com/crystal-ameba/ameba.git
+    version: 1.6.4
+
+  db:
+    git: https://github.com/crystal-lang/crystal-db.git
+    version: 0.11.0
+
+  docopt:
+    git: https://github.com/chenkovsky/docopt.cr.git
+    version: 0.2.0+git.commit.620fce4f334ff15d7321e5ecb6665ad258fe9297
+
+  fnv:
+    git: https://github.com/naqvis/crystal-fnv.git
+    version: 0.1.3
+
+  html5:
+    git: https://github.com/naqvis/crystal-html5.git
+    version: 0.4.0
+
+  http_proxy:
+    git: https://github.com/mamantoha/http_proxy.git
+    version: 0.13.1+git.commit.456718949b12e504da60bf823b67dcd9f97e988b
+
+  tourmaline:
+    git: https://github.com/protoncr/tourmaline.git
+    version: 0.28.0
+
+  xpath2:
+    git: https://github.com/naqvis/crystal-xpath2.git
+    version: 0.1.3
+
