@@ -1,6 +1,7 @@
 require "../config/loader"
 require "../config/watcher"
 require "../channels/manager"
+require "../web/handlers/logs_handler"
 
 module Crybot
   module Commands
@@ -25,6 +26,8 @@ module Crybot
 
         puts "[#{Time.local.to_s("%H:%M:%S")}] Starting gateway..."
         puts "[#{Time.local.to_s("%H:%M:%S")}] Watching for config changes (restarts automatically)..."
+        # TODO: Fix logging
+        # Crybot::Web::Handlers::LogsHandler.log("INFO", "Gateway started")
 
         # Create and start channel manager
         manager = Channels::Manager.new(config)

@@ -1,5 +1,6 @@
 require "../config/loader"
 require "../web/server"
+require "../web/handlers/logs_handler"
 
 module Crybot
   module Commands
@@ -19,6 +20,8 @@ module Crybot
 
         puts "[#{Time.local.to_s("%H:%M:%S")}] Starting Crybot Web Server..."
         puts "[#{Time.local.to_s("%H:%M:%S")}] Listening on http://#{config.web.host}:#{config.web.port}"
+        # TODO: Fix logging - commented out for now
+        # Crybot::Web::Handlers::LogsHandler.log("INFO", "Web server started on http://#{config.web.host}:#{config.web.port}")
 
         server = Crybot::Web::Server.new(config)
         server.start

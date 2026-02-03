@@ -98,6 +98,39 @@ module Crybot
           handler = Handlers::ConfigHandler.new(@config)
           handler.update_config(env)
         end
+
+        # API: Telegram conversations
+        get "/api/telegram/conversations" do |env|
+          handler = Handlers::TelegramHandler.new(@sessions)
+          handler.list_conversations(env)
+        end
+
+        get "/api/telegram/conversations/:id" do |env|
+          handler = Handlers::TelegramHandler.new(@sessions)
+          handler.get_conversation(env)
+        end
+
+        post "/api/telegram/conversations/:id/message" do |env|
+          handler = Handlers::TelegramHandler.new(@sessions)
+          handler.send_message(env)
+        end
+
+        # API: Voice conversations
+        get "/api/voice/conversations" do |env|
+          handler = Handlers::VoiceHandler.new(@sessions)
+          handler.list_conversations(env)
+        end
+
+        get "/api/voice/conversation/current" do |env|
+          handler = Handlers::VoiceHandler.new(@sessions)
+          handler.get_current(env)
+        end
+
+        # API: Logs
+        get "/api/logs" do |env|
+          handler = Handlers::LogsHandler.new
+          handler.get_logs(env)
+        end
       end
 
       private def handle_chat_websocket(socket) : Nil

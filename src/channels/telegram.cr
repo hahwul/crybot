@@ -2,6 +2,7 @@ require "tourmaline"
 require "../agent/loop"
 require "../config/loader"
 require "../bus/events"
+require "../web/handlers/logs_handler"
 
 module Crybot
   module Channels
@@ -39,6 +40,8 @@ module Crybot
 
       def start : Nil
         puts "[#{Time.local.to_s("%H:%M:%S")}] Starting polling (skipping webhook deletion)..."
+        # TODO: Fix logging
+        # Crybot::Web::Handlers::LogsHandler.log("INFO", "Connected to Telegram")
         start_polling
       end
 

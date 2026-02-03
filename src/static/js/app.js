@@ -2,328 +2,314 @@ class CrybotWeb {
   constructor() {
     this.ws = null;
     this.sessionId = null;
-    this.socketId = null;
-    this.reconnectDelay = 1000;
-    this.maxReconnectDelay = 30000;
-    this.connect();
-    this.setupEventListeners();
+    this.currentSection = 'chat';
+    this.currentTab = 'chat-tab';
+    this.currentTelegramChat = null;
+
+    this.init();
   }
 
-  connect() {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws/chat`;
-
-    try {
-      this.ws = new WebSocket(wsUrl);
-
-      this.ws.onopen = () => {
-        console.log('Connected to Crybot');
-        this.updateConnectionStatus('connected');
-        this.reconnectDelay = 1000;
-      };
-
-      this.ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          this.handleMessage(data);
-        } catch (e) {
-          console.error('Failed to parse message:', e);
-        }
-      };
-
-      this.ws.onclose = () => {
-        console.log('Disconnected from Crybot');
-        this.updateConnectionStatus('disconnected');
-        this.scheduleReconnect();
-      };
-
-      this.ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-        this.updateConnectionStatus('error');
-      };
-    } catch (e) {
-      console.error('Failed to connect:', e);
-      this.scheduleReconnect();
-    }
+  init() {
+    this.setupNavigation();
+    this.setupTabs();
+    this.setupForms();
+    this.connectWebSocket();
+    this.loadConfiguration();
+    this.loadLogs();
   }
 
-  scheduleReconnect() {
-    setTimeout(() => {
-      console.log(`Reconnecting in ${this.reconnectDelay}ms...`);
-      this.connect();
-      this.reconnectDelay = Math.min(this.reconnectDelay * 2, this.maxReconnectDelay);
-    }, this.reconnectDelay);
+  setupNavigation() {
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const section = item.dataset.section;
+        this.showSection(section);
+      });
+    });
   }
 
-  updateConnectionStatus(status) {
-    const statusEl = document.getElementById('connection-status');
-    const span = statusEl.querySelector('span');
-
-    statusEl.className = 'connection-status';
-    span.className = '';
-
-    switch (status) {
-      case 'connected':
-        statusEl.classList.add('connected');
-        span.classList.add('connected');
-        span.textContent = 'Connected';
-        break;
-      case 'disconnected':
-        statusEl.classList.add('disconnected');
-        span.classList.add('disconnected');
-        span.textContent = 'Disconnected - Reconnecting...';
-        break;
-      case 'error':
-        statusEl.classList.add('error');
-        span.classList.add('error');
-        span.textContent = 'Connection Error';
-        break;
-      default:
-        statusEl.classList.add('connecting');
-        span.classList.add('connecting');
-        span.textContent = 'Connecting...';
-    }
-  }
-
-  handleMessage(data) {
-    switch (data.type) {
-      case 'connected':
-        this.sessionId = data.session_id;
-        this.socketId = data.socket_id;
-        console.log('Session initialized:', this.sessionId);
-        break;
-      case 'response':
-        this.addMessage(data.content, 'assistant');
-        this.setTyping(false);
-        break;
-      case 'status':
-        if (data.status === 'processing') {
-          this.setTyping(true);
-        }
-        break;
-      case 'history':
-        this.displayHistory(data.messages);
-        break;
-      case 'session_switched':
-        this.sessionId = data.session_id;
-        this.addMessage(`Switched to session: ${data.session_id}`, 'system');
-        break;
-      case 'error':
-        this.addMessage(`Error: ${data.message}`, 'system');
-        this.setTyping(false);
-        break;
-      default:
-        console.log('Unknown message type:', data.type);
-    }
-  }
-
-  sendMessage(content) {
-    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      this.addMessage('Not connected to server', 'system');
-      return;
-    }
-
-    this.addMessage(content, 'user');
-
-    this.ws.send(JSON.stringify({
-      type: 'message',
-      session_id: this.sessionId,
-      content: content,
-    }));
-  }
-
-  requestHistory() {
-    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      return;
-    }
-
-    this.ws.send(JSON.stringify({
-      type: 'history_request',
-      session_id: this.sessionId,
-    }));
-  }
-
-  switchSession(sessionId) {
-    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      return;
-    }
-
-    this.ws.send(JSON.stringify({
-      type: 'session_switch',
-      session_id: sessionId || null,
-    }));
-  }
-
-  addMessage(content, role) {
-    const messagesDiv = document.getElementById('messages');
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${role}`;
-
-    // Handle multiline content
-    const contentDiv = document.createElement('div');
-    contentDiv.className = 'message-content';
-    contentDiv.textContent = content;
-    messageDiv.appendChild(contentDiv);
-
-    const timeDiv = document.createElement('div');
-    timeDiv.className = 'message-time';
-    timeDiv.textContent = new Date().toLocaleTimeString();
-    messageDiv.appendChild(timeDiv);
-
-    messagesDiv.appendChild(messageDiv);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-  }
-
-  displayHistory(messages) {
-    const messagesDiv = document.getElementById('messages');
-    messagesDiv.innerHTML = '';
-
-    for (const msg of messages) {
-      this.addMessage(msg.content, msg.role);
-    }
-  }
-
-  setTyping(typing) {
-    let indicator = document.getElementById('typing-indicator');
-
-    if (typing) {
-      if (!indicator) {
-        indicator = document.createElement('div');
-        indicator.id = 'typing-indicator';
-        indicator.className = 'message assistant typing';
-        indicator.innerHTML = '<span class="message-content">Thinking...</span>';
-        document.getElementById('messages').appendChild(indicator);
-      }
-      const messagesDiv = document.getElementById('messages');
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    } else {
-      if (indicator) {
-        indicator.remove();
-      }
-    }
-  }
-
-  setupEventListeners() {
-    const chatForm = document.getElementById('chat-form');
-    const userInput = document.getElementById('user-input');
-
-    chatForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      if (userInput.value.trim()) {
-        this.sendMessage(userInput.value.trim());
-        userInput.value = '';
+  showSection(section) {
+    // Update nav items
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.remove('active');
+      if (item.dataset.section === section) {
+        item.classList.add('active');
       }
     });
 
-    // Handle Enter key (without Shift)
-    userInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        chatForm.dispatchEvent(new Event('submit'));
+    // Update sections
+    document.querySelectorAll('.section').forEach(sec => {
+      sec.classList.remove('active');
+    });
+    document.getElementById(`section-${section}`).classList.add('active');
+
+    this.currentSection = section;
+  }
+
+  setupTabs() {
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabId = tab.dataset.tab;
+        this.showTab(tabId);
+      });
+    });
+  }
+
+  showTab(tabId) {
+    // Update tab buttons
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.classList.remove('active');
+      if (tab.dataset.tab === tabId) {
+        tab.classList.add('active');
       }
+    });
+
+    // Update tab content
+    document.querySelectorAll('.tab-content').forEach(content => {
+      content.classList.remove('active');
+    });
+    document.getElementById(tabId).classList.add('active');
+
+    this.currentTab = tabId;
+
+    // Load content based on tab
+    if (tabId === 'telegram-tab') {
+      this.loadTelegramConversations();
+    }
+  }
+
+  setupForms() {
+    // Chat form
+    document.getElementById('chat-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.sendChatMessage('chat');
+    });
+
+    // Telegram form
+    document.getElementById('telegram-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.sendChatMessage('telegram');
+    });
+
+    // Voice form
+    document.getElementById('voice-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.sendChatMessage('voice');
     });
 
     // Config form
-    const configForm = document.getElementById('config-form');
-    if (configForm) {
-      configForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await this.saveConfig();
-      });
+    document.getElementById('config-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.saveConfiguration();
+    });
+
+    // Telegram back button
+    document.getElementById('telegram-back').addEventListener('click', () => {
+      this.showTelegramList();
+    });
+  }
+
+  connectWebSocket() {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws/chat`;
+
+    this.ws = new WebSocket(wsUrl);
+
+    this.ws.onopen = () => {
+      console.log('Connected to Crybot');
+    };
+
+    this.ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      this.handleWebSocketMessage(data);
+    };
+
+    this.ws.onclose = () => {
+      console.log('Disconnected from Crybot');
+      setTimeout(() => this.connectWebSocket(), 3000);
+    };
+
+    this.ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+  }
+
+  handleWebSocketMessage(data) {
+    switch (data.type) {
+      case 'connected':
+        this.sessionId = data.session_id;
+        break;
+      case 'response':
+        this.addMessage(data.content, 'assistant', this.getCurrentContainer());
+        break;
+      case 'error':
+        this.addMessage(`Error: ${data.message}`, 'system', this.getCurrentContainer());
+        break;
     }
   }
 
-  async loadSessions() {
+  getCurrentContainer() {
+    switch (this.currentTab) {
+      case 'chat-tab':
+        return 'chat-messages';
+      case 'telegram-tab':
+        return 'telegram-messages';
+      case 'voice-tab':
+        return 'voice-messages';
+      default:
+        return 'chat-messages';
+    }
+  }
+
+  sendChatMessage(context) {
+    const formId = context === 'chat' ? 'chat-form' :
+                    context === 'telegram' ? 'telegram-form' : 'voice-form';
+    const form = document.getElementById(formId);
+    const input = form.querySelector('.message-input');
+    const content = input.value.trim();
+
+    if (!content) return;
+
+    this.addMessage(content, 'user', this.getCurrentContainer());
+    input.value = '';
+
+    // Send via WebSocket
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify({
+        type: 'message',
+        session_id: this.sessionId || '',
+        content: content,
+      }));
+    } else {
+      // Fallback to REST API
+      this.sendViaAPI(content);
+    }
+  }
+
+  async sendViaAPI(content) {
     try {
-      const response = await fetch('/api/sessions');
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: this.sessionId || '',
+          content: content,
+        }),
+      });
+
       const data = await response.json();
-      this.displaySessions(data.sessions);
-    } catch (e) {
-      console.error('Failed to load sessions:', e);
+      if (data.content) {
+        this.addMessage(data.content, 'assistant', this.getCurrentContainer());
+      }
+    } catch (error) {
+      this.addMessage('Failed to send message', 'system', this.getCurrentContainer());
     }
   }
 
-  displaySessions(sessions) {
-    const listDiv = document.getElementById('sessions-list');
-    listDiv.innerHTML = '';
+  addMessage(content, role, containerId) {
+    const container = document.getElementById(containerId);
+    const messageEl = document.createElement('div');
+    messageEl.className = `message ${role}`;
 
-    if (!sessions || sessions.length === 0) {
-      listDiv.innerHTML = '<p>No sessions found.</p>';
-      return;
-    }
+    const avatar = role === 'user' ? 'U' : role === 'assistant' ? 'C' : '!';
+    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    const table = document.createElement('table');
-    table.role = 'table';
+    messageEl.innerHTML = `
+      <div class="message-avatar">${avatar}</div>
+      <div class="message-content">
+        <div class="message-bubble">${this.escapeHtml(content)}</div>
+        <div class="message-time">${time}</div>
+      </div>
+    `;
 
-    const thead = document.createElement('thead');
-    thead.innerHTML = '<tr><th>Session ID</th><th>Actions</th></tr>';
-    table.appendChild(thead);
-
-    const tbody = document.createElement('tbody');
-
-    for (const sessionId of sessions) {
-      const tr = document.createElement('tr');
-
-      const tdId = document.createElement('td');
-      tdId.textContent = sessionId;
-      tr.appendChild(tdId);
-
-      const tdActions = document.createElement('td');
-
-      const loadBtn = document.createElement('button');
-      loadBtn.textContent = 'Load';
-      loadBtn.onclick = () => {
-        this.switchSession(sessionId);
-        showChat();
-      };
-      tdActions.appendChild(loadBtn);
-
-      const deleteBtn = document.createElement('button');
-      deleteBtn.textContent = 'Delete';
-      deleteBtn.className = 'secondary';
-      deleteBtn.onclick = async () => {
-        if (confirm(`Delete session ${sessionId}?`)) {
-          await this.deleteSession(sessionId);
-          this.loadSessions();
-        }
-      };
-      tdActions.appendChild(deleteBtn);
-
-      tr.appendChild(tdActions);
-      tbody.appendChild(tr);
-    }
-
-    table.appendChild(tbody);
-    listDiv.appendChild(table);
+    container.appendChild(messageEl);
+    container.scrollTop = container.scrollHeight;
   }
 
-  async deleteSession(sessionId) {
+  async loadTelegramConversations() {
+    const listContainer = document.getElementById('telegram-list');
+    listContainer.innerHTML = '<p style="color: #666;">Loading conversations...</p>';
+
     try {
-      await fetch(`/api/sessions/${encodeURIComponent(sessionId)}`, {
-        method: 'DELETE',
+      const response = await fetch('/api/telegram/conversations');
+      const data = await response.json();
+
+      if (!data.conversations || data.conversations.length === 0) {
+        listContainer.innerHTML = '<p style="color: #666;">No conversations found.</p>';
+        return;
+      }
+
+      listContainer.innerHTML = '';
+      data.conversations.forEach(conv => {
+        const item = document.createElement('div');
+        item.className = 'telegram-conversation-item';
+        item.innerHTML = `
+          <div class="telegram-conversation-title">${this.escapeHtml(conv.title || 'Unknown')}</div>
+          <div class="telegram-conversation-preview">${this.escapeHtml(conv.preview || 'No messages')}</div>
+          <div class="telegram-conversation-time">${conv.time || ''}</div>
+        `;
+        item.addEventListener('click', () => this.openTelegramChat(conv.id));
+        listContainer.appendChild(item);
       });
-    } catch (e) {
-      console.error('Failed to delete session:', e);
+    } catch (error) {
+      listContainer.innerHTML = '<p style="color: #e74c3c;">Failed to load conversations.</p>';
     }
   }
 
-  async loadConfig() {
+  openTelegramChat(chatId) {
+    this.currentTelegramChat = chatId;
+    document.getElementById('telegram-list').classList.add('hidden');
+    document.getElementById('telegram-chat-view').classList.remove('hidden');
+
+    // Load messages for this chat
+    const messagesContainer = document.getElementById('telegram-messages');
+    messagesContainer.innerHTML = '<p style="color: #666;">Loading messages...</p>';
+
+    // TODO: Load actual messages from API
+    setTimeout(() => {
+      messagesContainer.innerHTML = '<p style="color: #666;">No messages yet.</p>';
+    }, 500);
+  }
+
+  showTelegramList() {
+    this.currentTelegramChat = null;
+    document.getElementById('telegram-list').classList.remove('hidden');
+    document.getElementById('telegram-chat-view').classList.add('hidden');
+  }
+
+  async loadConfiguration() {
     try {
       const response = await fetch('/api/config');
       const config = await response.json();
 
+      // Web
       document.getElementById('web-enabled').checked = config.web?.enabled || false;
       document.getElementById('web-host').value = config.web?.host || '127.0.0.1';
       document.getElementById('web-port').value = config.web?.port || 3000;
-      document.getElementById('web-auth-token').value = config.web?.auth_token || '';
+      document.getElementById('web-auth-token').value = '';
+
+      // Agents
       document.getElementById('agent-model').value = config.agents?.defaults?.model || 'glm-4.7-flash';
       document.getElementById('agent-temperature').value = config.agents?.defaults?.temperature || 0.7;
-    } catch (e) {
-      console.error('Failed to load config:', e);
+      document.getElementById('agent-max-tokens').value = config.agents?.defaults?.max_tokens || 4096;
+
+      // Providers
+      document.getElementById('provider-zhipu-key').value = '';
+      document.getElementById('provider-openai-key').value = '';
+      document.getElementById('provider-anthropic-key').value = '';
+
+      // Channels - Telegram
+      document.getElementById('telegram-enabled').checked = config.channels?.telegram?.enabled || false;
+      document.getElementById('telegram-token').value = '';
+      document.getElementById('telegram-allow-from').value = (config.channels?.telegram?.allow_from || []).join(', ');
+    } catch (error) {
+      console.error('Failed to load configuration:', error);
     }
   }
 
-  async saveConfig() {
+  async saveConfiguration() {
     const config = {
       web: {
         enabled: document.getElementById('web-enabled').checked,
@@ -335,6 +321,19 @@ class CrybotWeb {
         defaults: {
           model: document.getElementById('agent-model').value,
           temperature: parseFloat(document.getElementById('agent-temperature').value),
+          max_tokens: parseInt(document.getElementById('agent-max-tokens').value),
+        },
+      },
+      providers: {
+        zhipu: { api_key: document.getElementById('provider-zhipu-key').value },
+        openai: { api_key: document.getElementById('provider-openai-key').value },
+        anthropic: { api_key: document.getElementById('provider-anthropic-key').value },
+      },
+      channels: {
+        telegram: {
+          enabled: document.getElementById('telegram-enabled').checked,
+          token: document.getElementById('telegram-token').value,
+          allow_from: document.getElementById('telegram-allow-from').value.split(',').map(s => s.trim()).filter(s => s),
         },
       },
     };
@@ -342,65 +341,42 @@ class CrybotWeb {
     try {
       const response = await fetch('/api/config', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(config),
       });
 
       if (response.ok) {
-        this.showConfigStatus('Configuration saved successfully. Changes may require restarting the server.', 'success');
+        alert('Configuration saved successfully!');
       } else {
         const error = await response.json();
-        this.showConfigStatus(`Failed to save: ${error.error || 'Unknown error'}`, 'error');
+        alert(`Failed to save: ${error.error || 'Unknown error'}`);
       }
-    } catch (e) {
-      console.error('Failed to save config:', e);
-      this.showConfigStatus('Failed to save configuration', 'error');
+    } catch (error) {
+      alert('Failed to save configuration');
     }
   }
 
-  showConfigStatus(message, type) {
-    const statusEl = document.getElementById('config-status');
-    statusEl.textContent = message;
-    statusEl.className = `status-msg ${type}`;
-    statusEl.hidden = false;
+  loadLogs() {
+    const logsContainer = document.getElementById('logs-container');
+    logsContainer.innerHTML = `
+      <div class="log-entry">
+        <span class="log-time">[${new Date().toISOString()}]</span>
+        <span class="log-level-info">[INFO]</span>
+        <span class="log-message">Crybot Web UI initialized</span>
+      </div>
+    `;
 
-    setTimeout(() => {
-      statusEl.hidden = true;
-    }, 5000);
+    // TODO: Implement real-time log streaming via WebSocket or polling
+  }
+
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   }
 }
 
-// Global instance
-let app = null;
-
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-  app = new CrybotWeb();
+  new CrybotWeb();
 });
-
-// View switching functions
-function showChat() {
-  document.getElementById('chat-view').hidden = false;
-  document.getElementById('sessions-view').hidden = true;
-  document.getElementById('config-view').hidden = true;
-}
-
-function showSessions() {
-  document.getElementById('chat-view').hidden = true;
-  document.getElementById('sessions-view').hidden = false;
-  document.getElementById('config-view').hidden = true;
-  if (app) app.loadSessions();
-}
-
-function showConfig() {
-  document.getElementById('chat-view').hidden = true;
-  document.getElementById('sessions-view').hidden = true;
-  document.getElementById('config-view').hidden = false;
-  if (app) app.loadConfig();
-}
-
-function refreshSessions() {
-  if (app) app.loadSessions();
-}

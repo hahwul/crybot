@@ -3,72 +3,169 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Crybot Web</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <title>Crybot</title>
   <link rel="stylesheet" href="/css/app.css">
 </head>
 <body>
-  <nav class="container-fluid">
-    <ul>
-      <li><strong>Crybot</strong></li>
-    </ul>
-    <ul>
-      <li><a href="#" onclick="showChat()">Chat</a></li>
-      <li><a href="#" onclick="showSessions()">Sessions</a></li>
-      <li><a href="#" onclick="showConfig()">Config</a></li>
-    </ul>
-  </nav>
-
-  <main class="container">
-    <section id="chat-view">
-      <div class="connection-status" id="connection-status">
-        <span class="disconnected">Connecting...</span>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 6a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2zm0 6a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2z"/>
+          </svg>
+          <span>Crybot</span>
+        </div>
       </div>
-      <div id="messages"></div>
-      <form id="chat-form">
-        <input type="text" id="user-input" placeholder="Type your message..." required>
-        <button type="submit">Send</button>
-      </form>
-    </section>
-
-    <section id="sessions-view" hidden>
-      <div class="header-row">
-        <h2>Sessions</h2>
-        <button onclick="refreshSessions()">Refresh</button>
+      <div class="separator"></div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-section="chat">Chat</a>
+        <a href="#" class="nav-item" data-section="configuration">Configuration</a>
+        <a href="#" class="nav-item" data-section="logs">Logs</a>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="push-to-talk-btn">Push to talk</button>
       </div>
-      <div id="sessions-list"></div>
-    </section>
+    </aside>
 
-    <section id="config-view" hidden>
-      <h2>Configuration</h2>
-      <div id="config-status" role="alert" class="status-msg" hidden></div>
-      <form id="config-form">
-        <h4>Web Server</h4>
-        <label for="web-enabled">Enabled
-          <input type="checkbox" id="web-enabled" name="web_enabled">
-        </label>
-        <label for="web-host">Host
-          <input type="text" id="web-host" name="web_host" value="127.0.0.1">
-        </label>
-        <label for="web-port">Port
-          <input type="number" id="web-port" name="web_port" value="3000">
-        </label>
-        <label for="web-auth-token">Auth Token (leave empty to disable)
-          <input type="password" id="web-auth-token" name="web_auth_token">
-        </label>
+    <!-- Main Area -->
+    <main class="main-area">
+      <!-- Chat Section -->
+      <section id="section-chat" class="section active">
+        <div class="tabs">
+          <button class="tab active" data-tab="chat-tab">Chat</button>
+          <button class="tab" data-tab="telegram-tab">Telegram Chats</button>
+          <button class="tab" data-tab="voice-tab">Voice</button>
+        </div>
 
-        <h4>Agent Defaults</h4>
-        <label for="agent-model">Model
-          <input type="text" id="agent-model" name="agent_model" value="glm-4.7-flash">
-        </label>
-        <label for="agent-temperature">Temperature
-          <input type="number" id="agent-temperature" name="agent_temperature" step="0.1" min="0" max="2" value="0.7">
-        </label>
+        <!-- Chat Tab -->
+        <div id="chat-tab" class="tab-content active">
+          <div class="messages-container" id="chat-messages"></div>
+          <div class="input-area">
+            <form id="chat-form" class="message-form">
+              <input type="text" class="message-input" placeholder="Type a message..." required>
+              <button type="submit" class="send-btn">Send</button>
+            </form>
+          </div>
+        </div>
 
-        <button type="submit">Save Configuration</button>
-      </form>
-    </section>
-  </main>
+        <!-- Telegram Tab -->
+        <div id="telegram-tab" class="tab-content">
+          <div class="telegram-list" id="telegram-list">
+            <!-- Conversations loaded dynamically -->
+          </div>
+          <div class="telegram-chat-view hidden" id="telegram-chat-view">
+            <button class="back-btn" id="telegram-back">← Back to list</button>
+            <div class="messages-container" id="telegram-messages"></div>
+            <div class="input-area">
+              <form id="telegram-form" class="message-form">
+                <input type="text" class="message-input" placeholder="Type a message..." required>
+                <button type="submit" class="send-btn">Send</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Voice Tab -->
+        <div id="voice-tab" class="tab-content">
+          <div class="messages-container" id="voice-messages"></div>
+          <div class="input-area">
+            <form id="voice-form" class="message-form">
+              <input type="text" class="message-input" placeholder="Type a message..." required>
+              <button type="submit" class="send-btn">Send</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- Configuration Section -->
+      <section id="section-configuration" class="section">
+        <h2>Configuration</h2>
+        <form id="config-form" class="config-form">
+          <div class="config-section">
+            <h3>Web Server</h3>
+            <div class="form-group">
+              <label for="web-enabled">Enabled</label>
+              <input type="checkbox" id="web-enabled" name="web_enabled">
+            </div>
+            <div class="form-group">
+              <label for="web-host">Host</label>
+              <input type="text" id="web-host" name="web_host" value="127.0.0.1">
+            </div>
+            <div class="form-group">
+              <label for="web-port">Port</label>
+              <input type="number" id="web-port" name="web_port" value="3000">
+            </div>
+            <div class="form-group">
+              <label for="web-auth-token">Auth Token</label>
+              <input type="password" id="web-auth-token" name="web_auth_token">
+            </div>
+          </div>
+
+          <div class="config-section">
+            <h3>Agents</h3>
+            <div class="form-group">
+              <label for="agent-model">Model</label>
+              <input type="text" id="agent-model" name="agent_model" value="glm-4.7-flash">
+            </div>
+            <div class="form-group">
+              <label for="agent-temperature">Temperature</label>
+              <input type="number" id="agent-temperature" name="agent_temperature" step="0.1" min="0" max="2" value="0.7">
+            </div>
+            <div class="form-group">
+              <label for="agent-max-tokens">Max Tokens</label>
+              <input type="number" id="agent-max-tokens" name="agent_max_tokens" value="4096">
+            </div>
+          </div>
+
+          <div class="config-section">
+            <h3>Providers</h3>
+            <div class="form-group">
+              <label for="provider-zhipu-key">Zhipu API Key</label>
+              <input type="password" id="provider-zhipu-key" name="provider_zhipu_key">
+            </div>
+            <div class="form-group">
+              <label for="provider-openai-key">OpenAI API Key</label>
+              <input type="password" id="provider-openai-key" name="provider_openai_key">
+            </div>
+            <div class="form-group">
+              <label for="provider-anthropic-key">Anthropic API Key</label>
+              <input type="password" id="provider-anthropic-key" name="provider_anthropic_key">
+            </div>
+          </div>
+
+          <div class="config-section">
+            <h3>Channels - Telegram</h3>
+            <div class="form-group">
+              <label for="telegram-enabled">Enabled</label>
+              <input type="checkbox" id="telegram-enabled" name="telegram_enabled">
+            </div>
+            <div class="form-group">
+              <label for="telegram-token">Token</label>
+              <input type="password" id="telegram-token" name="telegram_token">
+            </div>
+            <div class="form-group">
+              <label for="telegram-allow-from">Allow From (comma-separated)</label>
+              <input type="text" id="telegram-allow-from" name="telegram_allow_from">
+            </div>
+          </div>
+
+          <div class="config-actions">
+            <button type="submit" class="btn-primary">Save Configuration</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Logs Section -->
+      <section id="section-logs" class="section">
+        <h2>Logs</h2>
+        <div class="logs-container" id="logs-container">
+          <!-- Logs loaded dynamically -->
+        </div>
+      </section>
+    </main>
+  </div>
 
   <script src="/js/app.js"></script>
 </body>

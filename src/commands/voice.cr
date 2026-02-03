@@ -1,6 +1,7 @@
 require "../config/loader"
 require "../agent/loop"
 require "../agent/voice_listener"
+require "../web/handlers/logs_handler"
 
 module Crybot
   module Commands
@@ -56,9 +57,13 @@ module Crybot
         # Create and start voice listener
         listener = Crybot::Agent::VoiceListener.new(agent_loop)
 
+        # TODO: Fix logging
+        # Crybot::Web::Handlers::LogsHandler.log("INFO", "Voice activated")
+
         # Handle Ctrl+C gracefully
         Signal::INT.trap do
           listener.stop
+          # Crybot::Web::Handlers::LogsHandler.log("INFO", "Voice deactivated")
           exit
         end
 

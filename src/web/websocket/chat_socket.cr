@@ -3,6 +3,7 @@ require "json"
 require "random/secure"
 require "../../session/manager"
 require "../../agent/loop"
+require "../handlers/logs_handler"
 
 module Crybot
   module Web
@@ -21,6 +22,9 @@ module Crybot
 
         # Store session_id on the socket for later use
         socket.__session_id = @session_id
+
+        # TODO: Fix logging
+        # Crybot::Web::Handlers::LogsHandler.log("INFO", "Web client connected (session: #{@session_id})")
 
         # Send welcome message
         socket.send({
