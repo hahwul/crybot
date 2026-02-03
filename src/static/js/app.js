@@ -5,6 +5,7 @@ class CrybotWeb {
     this.currentSection = 'chat';
     this.currentTab = 'chat-tab';
     this.currentTelegramChat = null;
+    this.pushToTalkActive = false;
 
     this.init();
   }
@@ -77,6 +78,8 @@ class CrybotWeb {
     // Load content based on tab
     if (tabId === 'telegram-tab') {
       this.loadTelegramConversations();
+    } else if (tabId === 'voice-tab') {
+      this.loadVoiceConversation();
     }
   }
 
@@ -109,6 +112,34 @@ class CrybotWeb {
     document.getElementById('telegram-back').addEventListener('click', () => {
       this.showTelegramList();
     });
+
+    // Push-to-talk button
+    const pttBtn = document.querySelector('.push-to-talk-btn');
+    if (pttBtn) {
+      // Mouse events
+      pttBtn.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        this.activatePushToTalk();
+      });
+      pttBtn.addEventListener('mouseup', () => {
+        this.deactivatePushToTalk();
+      });
+      pttBtn.addEventListener('mouseleave', () => {
+        if (this.pushToTalkActive) {
+          this.deactivatePushToTalk();
+        }
+      });
+
+      // Touch events for mobile
+      pttBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        this.activatePushToTalk();
+      });
+      pttBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        this.deactivatePushToTalk();
+      });
+    }
   }
 
   connectWebSocket() {
@@ -144,9 +175,32 @@ class CrybotWeb {
       case 'response':
         this.addMessage(data.content, 'assistant', this.getCurrentContainer());
         break;
+      case 'telegram_message':
+        // New message arrived via Telegram
+        this.handleExternalMessage('telegram', data);
+        break;
+      case 'voice_message':
+        // New message arrived via Voice
+        this.handleExternalMessage('voice', data);
+        break;
       case 'error':
         this.addMessage(`Error: ${data.message}`, 'system', this.getCurrentContainer());
         break;
+    }
+  }
+
+  handleExternalMessage(source, data) {
+    // If we're currently viewing the corresponding tab, refresh the conversation
+    if (this.currentTab === `${source}-tab`) {
+      if (source === 'telegram') {
+        // Reload the current telegram chat if we're viewing it
+        if (this.currentTelegramChat) {
+          this.openTelegramChat(this.currentTelegramChat);
+        }
+      } else if (source === 'voice') {
+        // Reload voice conversation
+        this.loadVoiceConversation();
+      }
     }
   }
 
@@ -216,10 +270,19 @@ class CrybotWeb {
     const avatar = role === 'user' ? 'U' : role === 'assistant' ? 'C' : '!';
     const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+    // Parse markdown for assistant messages, escape HTML for user messages
+    let renderedContent;
+    if (role === 'assistant') {
+      // Parse markdown for assistant messages
+      renderedContent = typeof marked !== 'undefined' ? marked.parse(content) : this.escapeHtml(content);
+    } else {
+      renderedContent = this.escapeHtml(content);
+    }
+
     messageEl.innerHTML = `
       <div class="message-avatar">${avatar}</div>
       <div class="message-content">
-        <div class="message-bubble">${this.escapeHtml(content)}</div>
+        <div class="message-bubble">${renderedContent}</div>
         <div class="message-time">${time}</div>
       </div>
     `;
@@ -258,7 +321,7 @@ class CrybotWeb {
     }
   }
 
-  openTelegramChat(chatId) {
+  async openTelegramChat(chatId) {
     this.currentTelegramChat = chatId;
     document.getElementById('telegram-list').classList.add('hidden');
     document.getElementById('telegram-chat-view').classList.remove('hidden');
@@ -267,16 +330,62 @@ class CrybotWeb {
     const messagesContainer = document.getElementById('telegram-messages');
     messagesContainer.innerHTML = '<p style="color: #666;">Loading messages...</p>';
 
-    // TODO: Load actual messages from API
-    setTimeout(() => {
-      messagesContainer.innerHTML = '<p style="color: #666;">No messages yet.</p>';
-    }, 500);
+    try {
+      const response = await fetch(`/api/telegram/conversations/${encodeURIComponent(chatId)}`);
+      const data = await response.json();
+
+      messagesContainer.innerHTML = '';
+
+      if (!data.messages || data.messages.length === 0) {
+        messagesContainer.innerHTML = '<p style="color: #666;">No messages yet.</p>';
+        return;
+      }
+
+      // Display messages (filter out system messages)
+      data.messages.forEach(msg => {
+        // Only show user and assistant messages, skip system/tool messages
+        if (msg.content && (msg.role === 'user' || msg.role === 'assistant')) {
+          this.addMessage(msg.content, msg.role, 'telegram-messages');
+        }
+      });
+    } catch (error) {
+      console.error('Failed to load messages:', error);
+      messagesContainer.innerHTML = '<p style="color: #e74c3c;">Failed to load messages.</p>';
+    }
   }
 
   showTelegramList() {
     this.currentTelegramChat = null;
     document.getElementById('telegram-list').classList.remove('hidden');
     document.getElementById('telegram-chat-view').classList.add('hidden');
+  }
+
+  async loadVoiceConversation() {
+    const messagesContainer = document.getElementById('voice-messages');
+    messagesContainer.innerHTML = '<p style="color: #666;">Loading voice conversation...</p>';
+
+    try {
+      const response = await fetch('/api/voice/conversation/current');
+      const data = await response.json();
+
+      messagesContainer.innerHTML = '';
+
+      if (!data.messages || data.messages.length === 0) {
+        messagesContainer.innerHTML = '<p style="color: #666;">No voice conversations yet. Use voice mode to start chatting.</p>';
+        return;
+      }
+
+      // Display messages (filter out system messages)
+      data.messages.forEach(msg => {
+        // Only show user and assistant messages, skip system/tool messages
+        if (msg.content && (msg.role === 'user' || msg.role === 'assistant')) {
+          this.addMessage(msg.content, msg.role, 'voice-messages');
+        }
+      });
+    } catch (error) {
+      console.error('Failed to load voice conversation:', error);
+      messagesContainer.innerHTML = '<p style="color: #e74c3c;">Failed to load voice conversation.</p>';
+    }
   }
 
   async loadConfiguration() {
@@ -373,6 +482,48 @@ class CrybotWeb {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+  }
+
+  async activatePushToTalk() {
+    if (this.pushToTalkActive) return;
+
+    try {
+      const response = await fetch('/api/voice/push-to-talk', {
+        method: 'POST',
+      });
+
+      if (response.ok) {
+        this.pushToTalkActive = true;
+        const pttBtn = document.querySelector('.push-to-talk-btn');
+        if (pttBtn) {
+          pttBtn.textContent = 'Listening...';
+          pttBtn.style.backgroundColor = '#27ae60';
+        }
+      }
+    } catch (error) {
+      console.error('Failed to activate push-to-talk:', error);
+    }
+  }
+
+  async deactivatePushToTalk() {
+    if (!this.pushToTalkActive) return;
+
+    try {
+      const response = await fetch('/api/voice/push-to-talk', {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        this.pushToTalkActive = false;
+        const pttBtn = document.querySelector('.push-to-talk-btn');
+        if (pttBtn) {
+          pttBtn.textContent = 'Push to talk';
+          pttBtn.style.backgroundColor = '';
+        }
+      }
+    } catch (error) {
+      console.error('Failed to deactivate push-to-talk:', error);
+    }
   }
 }
 

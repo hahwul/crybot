@@ -22,6 +22,9 @@ module Crybot
         Kemal.config.port = @config.web.port
         Kemal.config.host_binding = @config.web.host
 
+        # Setup session save callback for broadcasting updates
+        setup_session_callbacks
+
         # Setup middleware
         setup_middleware
 
@@ -30,6 +33,38 @@ module Crybot
 
         # Start Kemal
         Kemal.run
+      end
+
+      private def setup_session_callbacks : Nil
+        @sessions.on_save do |session_key, messages|
+          # Broadcast update to connected clients
+          # Only broadcast for telegram and voice sessions (not web chat)
+          if session_key.starts_with?("telegram:") || session_key == "voice"
+            last_message = messages.last?
+            if last_message && last_message.role == "assistant"
+              # Get the chat ID for telegram sessions
+              chat_id = session_key
+              if session_key.starts_with?("telegram:")
+                parts = session_key.split(":", 2)
+                chat_id = parts.size >= 2 ? parts[1] : session_key
+              end
+
+              # Prepare the data for broadcast
+              data = Hash(String, JSON::Any).new
+              data["session_key"] = JSON::Any.new(session_key)
+              data["chat_id"] = JSON::Any.new(chat_id)
+              data["role"] = JSON::Any.new(last_message.role)
+              data["content"] = JSON::Any.new(last_message.content || "")
+              data["timestamp"] = JSON::Any.new(Time.local.to_s("%Y-%m-%dT%H:%M:%S%:z"))
+
+              # Determine the message type based on session
+              message_type = session_key == "voice" ? "voice_message" : "telegram_message"
+
+              # Broadcast to all connected clients
+              Crybot::Web::ChatSocket.broadcast(message_type, data)
+            end
+          end
+        end
       end
 
       private def setup_middleware : Nil
@@ -124,6 +159,22 @@ module Crybot
         get "/api/voice/conversation/current" do |env|
           handler = Handlers::VoiceHandler.new(@sessions)
           handler.get_current(env)
+        end
+
+        # API: Voice push-to-talk
+        post "/api/voice/push-to-talk" do |env|
+          handler = Handlers::VoiceHandler.new(@sessions)
+          handler.activate_push_to_talk(env)
+        end
+
+        delete "/api/voice/push-to-talk" do |env|
+          handler = Handlers::VoiceHandler.new(@sessions)
+          handler.deactivate_push_to_talk(env)
+        end
+
+        get "/api/voice/push-to-talk/status" do |env|
+          handler = Handlers::VoiceHandler.new(@sessions)
+          handler.push_to_talk_status(env)
         end
 
         # API: Logs

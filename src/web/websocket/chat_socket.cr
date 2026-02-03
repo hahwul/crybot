@@ -10,9 +10,38 @@ module Crybot
     class ChatSocket
       property socket_id : String
 
+      @@connections = Array(HTTP::WebSocket).new
+      @@mutex = Mutex.new
+
       def initialize(@agent : Agent::Loop, @sessions : Session::Manager)
         @socket_id = ""
         @session_id = ""
+      end
+
+      def self.broadcast(message_type : String, data : Hash(String, JSON::Any)) : Nil
+        @@mutex.synchronize do
+          # Build payload hash
+          payload_hash = Hash(String, JSON::Any).new
+          payload_hash["type"] = JSON::Any.new(message_type)
+
+          data.each do |key, value|
+            payload_hash[key] = value
+          end
+
+          payload = payload_hash.to_json
+
+          @@connections.each do |socket|
+            begin
+              socket.send(payload)
+            rescue e : Exception
+              # Connection may be closed, ignore
+            end
+          end
+        end
+      end
+
+      def self.connections_count : Int32
+        @@mutex.synchronize { @@connections.size }
       end
 
       def on_open(socket) : Nil
@@ -22,6 +51,11 @@ module Crybot
 
         # Store session_id on the socket for later use
         socket.__session_id = @session_id
+
+        # Add to connections list
+        @@mutex.synchronize do
+          @@connections << socket
+        end
 
         # TODO: Fix logging
         # Crybot::Web::Handlers::LogsHandler.log("INFO", "Web client connected (session: #{@session_id})")
@@ -64,7 +98,10 @@ module Crybot
       end
 
       def on_close(socket) : Nil
-        # Clean up if needed
+        # Remove from connections list
+        @@mutex.synchronize do
+          @@connections.delete(socket)
+        end
       end
 
       private def generate_session_key : String

@@ -50,6 +50,7 @@ module Crybot
         puts "  Language: #{@language}"
         puts "  Say '#{@wake_word}' followed by your command"
         puts "  Press Ctrl+C to stop"
+        puts "  Web UI push-to-talk also supported"
         puts "---"
 
         # Start whisper-stream process
@@ -59,13 +60,48 @@ module Crybot
         conversational_mode = false
         last_response_time = Time.unix(0)
 
-        # Spawn a fiber to manage conversational timeout
+        # Track transcriptions to avoid processing duplicates
+        # We use a Set to track what we've already processed
+        processed_transcriptions = Set(String).new
+        pending_transcription = ""
+        last_transcription_time = Time.unix(0)
+        last_processed_time = Time.unix(0)
+
+        # Push-to-talk flag file path
+        ptt_flag_path = Config::Loader.config_dir / "voice_ptt_active"
+
+        # Spawn a fiber to manage conversational timeout, check push-to-talk, and flush pending transcriptions
         spawn do
           while @running
-            sleep 1.second
-            if conversational_mode && (Time.utc - last_response_time) > @conversational_timeout.seconds
+            sleep 0.1.seconds
+
+            # Check push-to-talk flag from web UI
+            ptt_active = File.exists?(ptt_flag_path)
+
+            if ptt_active && !conversational_mode
+              conversational_mode = true
+              puts "--- [Push-to-talk activated]"
+            elsif !ptt_active && conversational_mode && (Time.utc - last_response_time) > @conversational_timeout.seconds
               conversational_mode = false
-              puts "--- [Conversational window closed, say '#{@wake_word}' to activate]"
+              puts "--- [Conversational window closed, say '#{@wake_word}' or use push-to-talk to activate]"
+            end
+
+            # Flush pending transcription after 1.5 seconds of silence
+            # Also ensure we don't process too frequently (min 1.5s between processes)
+            if !pending_transcription.empty? && (Time.utc - last_transcription_time) > 1.5.seconds && (Time.utc - last_processed_time) > 1.5.seconds
+              unless processed_transcriptions.includes?(pending_transcription)
+                process_transcription(pending_transcription, conversational_mode)
+                processed_transcriptions.add(pending_transcription)
+                last_processed_time = Time.utc
+
+                if contains_wake_word?(pending_transcription) && !conversational_mode
+                  conversational_mode = true
+                  last_response_time = Time.utc
+                  puts "--- [Conversational window open (#{@conversational_timeout}s)]"
+                  puts "--- Listening for wake word..."
+                end
+              end
+              pending_transcription = ""
             end
           end
         end
@@ -77,36 +113,28 @@ module Crybot
             line = line.strip
             next if line.empty?
 
-            # whisper-stream outputs transcriptions
-            puts "[Heard: #{line}]"
+            # Clean whisper-stream output (remove ANSI escape codes)
+            cleaned_line = clean_transcription(line)
+            next if cleaned_line.empty?
 
-            if conversational_mode
-              # In conversational mode, treat everything as a command
-              puts "[Conversational mode: #{line}]"
+            # Skip very short transcriptions (likely noise)
+            next if cleaned_line.size < 3
 
-              unless line.empty?
-                process_command(line)
-                last_response_time = Time.utc # Reset timeout after response
-              end
-            elsif contains_wake_word?(line)
-              # Wake word detected! Extract command from same line
-              clean_command = extract_command(line)
-              puts "[Wake word detected! Command: #{clean_command}]"
+            # Skip if already processed
+            next if processed_transcriptions.includes?(cleaned_line)
 
-              unless clean_command.empty?
-                process_command(clean_command)
-                conversational_mode = true
-                last_response_time = Time.utc
-                puts "--- [Conversational window open (#{@conversational_timeout}s)]"
-              end
-
-              puts "--- Listening for wake word..."
+            # Update pending transcription (keep the longest version)
+            if cleaned_line.size > pending_transcription.size
+              pending_transcription = cleaned_line
+              last_transcription_time = Time.utc
             end
           end
         rescue e : Exception
           puts "[Error reading from whisper-stream: #{e.message}]"
         ensure
           process.terminate if process.exists?
+          # Clean up push-to-talk flag
+          File.delete(ptt_flag_path) if File.exists?(ptt_flag_path)
         end
       end
 
@@ -122,12 +150,26 @@ module Crybot
           @whisper_stream_path,
           args,
           output: Process::Redirect::Pipe,
-          error: Process::Redirect::Inherit
+          error: Process::Redirect::Pipe  # Capture stderr instead of inheriting
         )
       end
 
       private def build_whisper_args : Array(String)
-        args = ["-c", @threads.to_s, "-l", @language]
+        # Get whisper options from config, with defaults
+        config = @config
+        step_ms = config.voice.try(&.step_ms) || 3000
+        audio_length_ms = config.voice.try(&.audio_length_ms) || 10000
+        audio_keep_ms = config.voice.try(&.audio_keep_ms) || 200
+        vad_threshold = config.voice.try(&.vad_threshold) || 0.6_f32
+
+        args = [
+          "-c", @threads.to_s,
+          "-l", @language,
+          "--step", step_ms.to_s,
+          "--length", audio_length_ms.to_s,
+          "--keep", audio_keep_ms.to_s,
+          "--vad-thold", vad_threshold.to_s,
+        ]
 
         if model = @model_path
           args += ["-m", model]
@@ -189,7 +231,7 @@ module Crybot
         # Use a special session key for voice commands
         session_key = "voice"
 
-        # Send to agent loop
+        # Send to agent loop (the filtering improvements should handle most errors)
         response = @agent_loop.process(session_key, command)
 
         # Output response
@@ -200,6 +242,25 @@ module Crybot
 
         # Speak the response
         speak(response)
+      end
+
+      private def process_transcription(text : String, conversational_mode : Bool) : Nil
+        # whisper-stream outputs transcriptions
+        puts "[Heard: #{text}]"
+
+        if conversational_mode
+          # In conversational mode, treat everything as a command
+          puts "[Conversational mode: #{text}]"
+          process_command(text)
+        elsif contains_wake_word?(text)
+          # Wake word detected! Extract command from same line
+          clean_command = extract_command(text)
+          puts "[Wake word detected! Command: #{clean_command}]"
+
+          unless clean_command.empty?
+            process_command(clean_command)
+          end
+        end
       end
 
       private def speak(text : String) : Nil
@@ -274,6 +335,32 @@ module Crybot
         text = text.gsub(/`([^`]+)`/, "\\1")       # inline code
         # Clean up extra whitespace
         text = text.gsub(/[ \t]+/, " ").gsub(/\n{3,}/, "\n\n")
+        text
+      end
+
+      private def clean_transcription(text : String) : String
+        # Remove ANSI escape codes (like \u001b[2K\r)
+        # These are used by whisper-stream for line clearing/redrawing
+        text = text.gsub(/\e\[[0-9;]*[A-Za-z]/, "")  # CSI sequences
+        text = text.gsub(/\e\[K/, "")                  # EL (erase to end of line)
+        text = text.gsub(/\r\$/, "")                   # trailing CR
+        text = text.gsub(/\[2K\r/, "")                 # literal [2K\r (sometimes not escaped)
+        text = text.strip
+
+        # Also clean up the [BLANK_AUDIO] placeholder if present
+        text = text.gsub(/\[BLANK_AUDIO\]/, "").strip
+
+        # Filter out anything in parentheses (non-speech sounds like "(wind blowing)")
+        # Remove text within parentheses
+        text = text.gsub(/\([^)]*\)/, "").strip
+
+        # Remove leading punctuation and spaces (common with partial transcriptions)
+        # This handles ", try my joke." -> "try my joke."
+        text = text.gsub(/^[,\.\s]+/, "").strip
+
+        # If nothing left after cleaning, return empty
+        return "" if text.empty?
+
         text
       end
 

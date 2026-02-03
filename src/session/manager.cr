@@ -5,9 +5,13 @@ require "../providers/base"
 
 module Crybot
   module Session
+    # Callback type for when messages are saved
+      alias SaveCallback = Proc(String, Array(Providers::Message), Nil)
+
     class Manager
       @sessions_dir : Path
       @cache : Hash(String, Array(Providers::Message))
+      @save_callbacks = Array(SaveCallback).new
 
       def initialize
         @sessions_dir = Config::Loader.sessions_dir
@@ -16,6 +20,10 @@ module Crybot
 
       def self.instance : Manager
         @@instance ||= Manager.new
+      end
+
+      def on_save(&callback : SaveCallback) : Nil
+        @save_callbacks << callback
       end
 
       def get_or_create(session_key : String) : Array(Providers::Message)
@@ -117,6 +125,15 @@ module Crybot
         end
 
         @cache[session_key] = messages
+
+        # Trigger save callbacks
+        @save_callbacks.each do |callback|
+          begin
+            callback.call(session_key, messages)
+          rescue e : Exception
+            # Don't let one callback failure break others
+          end
+        end
       end
 
       def delete(session_key : String) : Nil

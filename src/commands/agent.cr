@@ -1,5 +1,6 @@
 require "../config/loader"
 require "../agent/loop"
+require "../features/repl"
 
 module Crybot
   module Commands
@@ -27,15 +28,30 @@ module Crybot
           print "\r" + " " * 20 + "\r" # Clear the "Thinking..." message
           puts response
         else
-          # Interactive mode
-          run_interactive(agent_loop)
+          # Interactive mode - use the fancyline REPL
+          run_fancyline_repl(agent_loop, config)
         end
       end
 
-      private def self.run_interactive(agent_loop : Crybot::Agent::Loop) : Nil
-        session_key = "cli_interactive"
+      private def self.run_fancyline_repl(agent_loop : Crybot::Agent::Loop, config : Config::ConfigFile) : Nil
+        model = config.agents.defaults.model
+        # Create a custom REPL instance with "agent" session key
+        # Use ->{ true } as running_check so it continues until user quits
+        repl_instance = Features::ReplFeature::ReplInstance.new(agent_loop, model, "agent", ->{ true })
 
-        puts "Crybot Interactive Mode"
+        # Check if stdin is a TTY (interactive terminal)
+        if STDIN.tty?
+          repl_instance.run
+        else
+          # Non-interactive mode (piped input), fall back to simple mode
+          run_simple_interactive(agent_loop)
+        end
+      end
+
+      private def self.run_simple_interactive(agent_loop : Crybot::Agent::Loop) : Nil
+        session_key = "agent"
+
+        puts "Crybot Agent Mode"
         puts "Type 'quit' or 'exit' to end the session."
         puts "---"
 

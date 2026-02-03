@@ -8,26 +8,21 @@ Crybot - Crystal-based Personal AI Assistant
 Usage:
   crybot onboard
   crybot agent [-m <message>]
-  crybot repl
-  crybot voice
   crybot status
-  crybot gateway
-  crybot web [-p <port>]
-  crybot -h | --help
+  crybot [-h | --help]
 
 Options:
   -h --help     Show this help message
   -m <message>  Message to send to the agent (non-interactive mode)
-  -p <port>     Override port for web server (default: from config)
 
 Commands:
   onboard    Initialize configuration and workspace
   agent      Interact with the AI agent directly
-  repl       Start an advanced REPL with line editing and history
-  voice      Start voice-activated listener (requires whisper.cpp)
   status     Show configuration status
-  gateway    Start the full service with Telegram integration
-  web        Start the web UI server
+
+Running Crybot:
+  When run without arguments, crybot starts all enabled features.
+  Enable features in config.yml under the 'features:' section.
 DOC
 
 module Crybot
@@ -43,30 +38,20 @@ module Crybot
     begin
       onboard_val = args["onboard"]
       agent_val = args["agent"]
-      repl_val = args["repl"]
-      voice_val = args["voice"]
       status_val = args["status"]
-      gateway_val = args["gateway"]
-      web_val = args["web"]
 
-      if onboard_val.is_a?(Bool) && onboard_val
+      # Check if any specific command was given (not nil)
+      if onboard_val == true
         Commands::Onboard.execute
-      elsif agent_val.is_a?(Bool) && agent_val
+      elsif agent_val == true
         message = args["-m"]
         message_str = message.is_a?(String) ? message : nil
         Commands::Agent.execute(message_str)
-      elsif repl_val.is_a?(Bool) && repl_val
-        Commands::Repl.start
-      elsif voice_val.is_a?(Bool) && voice_val
-        Commands::Voice.execute
-      elsif status_val.is_a?(Bool) && status_val
+      elsif status_val == true
         Commands::Status.execute
-      elsif gateway_val.is_a?(Bool) && gateway_val
-        Commands::Gateway.execute
-      elsif web_val.is_a?(Bool) && web_val
-        port = args["-p"]
-        port_int = port.is_a?(String) ? port.to_i : nil
-        Commands::Web.execute(port_int)
+      else
+        # Default: start the unified command with all enabled features
+        Commands::Start.execute
       end
     rescue e : Exception
       puts "Error: #{e.message}"

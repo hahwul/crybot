@@ -56,6 +56,29 @@ module Crybot
         load
       end
 
+      def self.migrate_config(config : ConfigFile) : ConfigFile
+        needs_migration = false
+        new_features = config.features
+
+        # Migrate old channels.telegram.enabled to features.gateway
+        if config.channels.telegram.enabled && !config.features.gateway
+          new_features = new_features.with_gateway(true)
+          needs_migration = true
+        end
+
+        # Migrate old web.enabled to features.web
+        if config.web.enabled? && !config.features.web
+          new_features = new_features.with_web(true)
+          needs_migration = true
+        end
+
+        if needs_migration
+          config = config.with_features(new_features)
+        end
+
+        config
+      end
+
       def self.ensure_directories : Nil
         Dir.mkdir_p(CONFIG_DIR) unless Dir.exists?(CONFIG_DIR)
         Dir.mkdir_p(WORKSPACE_DIR) unless Dir.exists?(WORKSPACE_DIR)
@@ -109,6 +132,27 @@ module Crybot
           #   command: npx -y @modelcontextprotocol/server-github
           # - name: brave-search
           #   command: npx -y @modelcontextprotocol/server-brave-search
+
+        features:
+          gateway: false  # Enable Telegram gateway
+          web: false      # Enable web UI server
+          voice: false    # Enable voice listener
+          repl: false     # Enable interactive REPL
+
+        voice:
+          wake_word: "crybot"
+          whisper_stream_path: ""  # Auto-detect by default
+          model_path: ""
+          language: "en"
+          threads: 4
+          piper_model: ""  # Optional: path to piper TTS model
+          piper_path: ""   # Optional: path to piper-tts binary
+          conversational_timeout: 3
+          # whisper-stream options:
+          step_ms: 3000          # How often to transcribe (ms) - higher = less frequent updates
+          audio_length_ms: 10000 # Audio length per chunk (ms)
+          audio_keep_ms: 200     # Audio to keep from previous step (ms) - overlap for continuity
+          vad_threshold: 0.6     # Voice activity detection (0.0-1.0) - higher = less sensitive
 
         web:
           enabled: false

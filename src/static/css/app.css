@@ -456,3 +456,132 @@ body {
 .hidden {
   display: none !important;
 }
+
+/* Markdown content styling within message bubbles */
+.message-bubble {
+  overflow-wrap: break-word;
+}
+
+.message-bubble h1,
+.message-bubble h2,
+.message-bubble h3,
+.message-bubble h4,
+.message-bubble h5,
+.message-bubble h6 {
+  margin-top: 12px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.message-bubble h1:first-child,
+.message-bubble h2:first-child,
+.message-bubble h3:first-child,
+.message-bubble h4:first-child,
+.message-bubble h5:first-child,
+.message-bubble h6:first-child {
+  margin-top: 0;
+}
+
+.message-bubble p {
+  margin-bottom: 8px;
+}
+
+.message-bubble p:last-child {
+  margin-bottom: 0;
+}
+
+.message-bubble ul,
+.message-bubble ol {
+  margin-left: 20px;
+  margin-bottom: 8px;
+}
+
+.message-bubble li {
+  margin-bottom: 4px;
+}
+
+.message-bubble li:last-child {
+  margin-bottom: 0;
+}
+
+.message-bubble code {
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 13px;
+}
+
+.message.assistant .message-bubble code {
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+.message-bubble pre {
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 8px;
+  border-radius: 4px;
+  overflow-x: auto;
+  margin-bottom: 8px;
+}
+
+.message.assistant .message-bubble pre {
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+.message-bubble pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.message-bubble blockquote {
+  border-left: 3px solid #ddd;
+  padding-left: 12px;
+  margin-left: 0;
+  margin-bottom: 8px;
+  color: #666;
+}
+
+.message-bubble a {
+  color: #3498db;
+  text-decoration: none;
+}
+
+.message-bubble a:hover {
+  text-decoration: underline;
+}
+
+.message-bubble table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.message-bubble th,
+.message-bubble td {
+  border: 1px solid #ddd;
+  padding: 6px 8px;
+  text-align: left;
+}
+
+.message-bubble th {
+  background-color: rgba(0, 0, 0, 0.05);
+  font-weight: 600;
+}
+
+.message.assistant .message-bubble th {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.message-bubble hr {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 12px 0;
+}
+
+.message-bubble strong {
+  font-weight: 600;
+}
+
+.message-bubble em {
+  font-style: italic;
+}

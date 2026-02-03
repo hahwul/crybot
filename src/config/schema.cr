@@ -156,6 +156,12 @@ module Crybot
       property piper_path : String? = nil
       property conversational_timeout : Int32? = nil
 
+      # whisper-stream options for better transcription
+      property step_ms : Int32 = 3000        # Audio step size in ms (how often to transcribe)
+      property audio_length_ms : Int32 = 10000 # Audio length in ms per chunk
+      property audio_keep_ms : Int32 = 200     # Audio to keep from previous step
+      property vad_threshold : Float32 = 0.6_f32  # Voice activity detection threshold
+
       def initialize(@wake_word = nil, @whisper_stream_path = nil, @model_path = nil, @language = nil, @threads = nil, @piper_model = nil, @piper_path = nil, @conversational_timeout = nil)
       end
     end
@@ -193,6 +199,38 @@ module Crybot
       end
     end
 
+    struct FeaturesConfig
+      include YAML::Serializable
+
+      # ameba:disable Naming/QueryBoolMethods
+      property gateway : Bool = false
+      # ameba:disable Naming/QueryBoolMethods
+      property web : Bool = false
+      # ameba:disable Naming/QueryBoolMethods
+      property voice : Bool = false
+      # ameba:disable Naming/QueryBoolMethods
+      property repl : Bool = false
+
+      def initialize(@gateway = false, @web = false, @voice = false, @repl = false)
+      end
+
+      def with_gateway(@gateway : Bool) : FeaturesConfig
+        self
+      end
+
+      def with_web(@web : Bool) : FeaturesConfig
+        self
+      end
+
+      def with_voice(@voice : Bool) : FeaturesConfig
+        self
+      end
+
+      def with_repl(@repl : Bool) : FeaturesConfig
+        self
+      end
+    end
+
     struct ConfigFile
       include YAML::Serializable
 
@@ -203,8 +241,13 @@ module Crybot
       property mcp : MCPConfig = MCPConfig.new(servers: [] of MCPServerConfig)
       property voice : VoiceConfig? = nil
       property web : WebServerConfig = WebServerConfig.new
+      property features : FeaturesConfig = FeaturesConfig.new
 
       def with_web(@web : WebServerConfig) : ConfigFile
+        self
+      end
+
+      def with_features(@features : FeaturesConfig) : ConfigFile
         self
       end
     end
