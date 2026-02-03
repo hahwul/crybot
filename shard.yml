@@ -15,6 +15,13 @@ dependencies:
     github: protoncr/tourmaline
   fancyline:
     github: Papierkorb/fancyline
+  kemal:
+    github: kemalcr/kemal
+    branch: master
+  baked_file_system:
+    github: ralsina/baked_file_system
+  baked_file_handler:
+    github: ralsina/baked_file_handler
 
 development_dependencies:
   ameba:

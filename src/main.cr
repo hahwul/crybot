@@ -12,11 +12,13 @@ Usage:
   crybot voice
   crybot status
   crybot gateway
+  crybot web [-p <port>]
   crybot -h | --help
 
 Options:
   -h --help     Show this help message
   -m <message>  Message to send to the agent (non-interactive mode)
+  -p <port>     Override port for web server (default: from config)
 
 Commands:
   onboard    Initialize configuration and workspace
@@ -25,6 +27,7 @@ Commands:
   voice      Start voice-activated listener (requires whisper.cpp)
   status     Show configuration status
   gateway    Start the full service with Telegram integration
+  web        Start the web UI server
 DOC
 
 module Crybot
@@ -44,6 +47,7 @@ module Crybot
       voice_val = args["voice"]
       status_val = args["status"]
       gateway_val = args["gateway"]
+      web_val = args["web"]
 
       if onboard_val.is_a?(Bool) && onboard_val
         Commands::Onboard.execute
@@ -59,6 +63,10 @@ module Crybot
         Commands::Status.execute
       elsif gateway_val.is_a?(Bool) && gateway_val
         Commands::Gateway.execute
+      elsif web_val.is_a?(Bool) && web_val
+        port = args["-p"]
+        port_int = port.is_a?(String) ? port.to_i : nil
+        Commands::Web.execute(port_int)
       end
     rescue e : Exception
       puts "Error: #{e.message}"

@@ -111,9 +111,9 @@ module Crybot
     struct ToolsConfig
       include YAML::Serializable
 
-      property web : WebConfig
+      property web : ToolsWebConfig
 
-      struct WebConfig
+      struct ToolsWebConfig
         include YAML::Serializable
 
         property search : SearchConfig
@@ -160,6 +160,37 @@ module Crybot
       end
     end
 
+    struct WebServerConfig
+      include YAML::Serializable
+
+      property enabled : Bool = false
+      property host : String = "127.0.0.1"
+      property port : Int32 = 3000
+      property path_prefix : String = ""
+      property auth_token : String = ""
+      property allowed_origins : Array(String) = ["http://localhost:3000"]
+      property enable_cors : Bool = true
+
+      def initialize(@enabled = false, @host = "127.0.0.1", @port = 3000, @path_prefix = "", @auth_token = "", @allowed_origins = ["http://localhost:3000"], @enable_cors = true)
+      end
+
+      def with_port(@port : Int32) : WebServerConfig
+        self
+      end
+
+      def with_enabled(@enabled : Bool) : WebServerConfig
+        self
+      end
+
+      def with_host(@host : String) : WebServerConfig
+        self
+      end
+
+      def with_auth_token(@auth_token : String) : WebServerConfig
+        self
+      end
+    end
+
     struct ConfigFile
       include YAML::Serializable
 
@@ -169,6 +200,11 @@ module Crybot
       property tools : ToolsConfig
       property mcp : MCPConfig = MCPConfig.new(servers: [] of MCPServerConfig)
       property voice : VoiceConfig? = nil
+      property web : WebServerConfig = WebServerConfig.new
+
+      def with_web(@web : WebServerConfig) : ConfigFile
+        self
+      end
     end
   end
 end

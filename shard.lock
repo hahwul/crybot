@@ -4,6 +4,18 @@ shards:
     git: https://github.com/crystal-ameba/ameba.git
     version: 1.6.4
 
+  backtracer:
+    git: https://github.com/sija/backtracer.cr.git
+    version: 1.2.4
+
+  baked_file_handler:
+    git: https://github.com/ralsina/baked_file_handler.git
+    version: 0.1.5
+
+  baked_file_system:
+    git: https://github.com/ralsina/baked_file_system.git
+    version: 0.10.0+git.commit.beb373124c7a235cfb9cd94e36849d8168eaa04b
+
   cute:
     git: https://github.com/papierkorb/cute.git
     version: 0.4.0
@@ -15,6 +27,10 @@ shards:
   docopt:
     git: https://github.com/chenkovsky/docopt.cr.git
     version: 0.2.0+git.commit.620fce4f334ff15d7321e5ecb6665ad258fe9297
+
+  exception_page:
+    git: https://github.com/crystal-loot/exception_page.git
+    version: 0.5.0
 
   fancyline:
     git: https://github.com/papierkorb/fancyline.git
@@ -35,6 +51,14 @@ shards:
   http_proxy:
     git: https://github.com/mamantoha/http_proxy.git
     version: 0.13.1+git.commit.456718949b12e504da60bf823b67dcd9f97e988b
+
+  kemal:
+    git: https://github.com/kemalcr/kemal.git
+    version: 1.9.0+git.commit.669c867482bb9a70e47d4d0683f32e2c101c5c76
+
+  radix:
+    git: https://github.com/luislavena/radix.git
+    version: 0.4.1
 
   tourmaline:
     git: https://github.com/protoncr/tourmaline.git

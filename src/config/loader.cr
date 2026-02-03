@@ -109,6 +109,16 @@ module Crybot
           #   command: npx -y @modelcontextprotocol/server-github
           # - name: brave-search
           #   command: npx -y @modelcontextprotocol/server-brave-search
+
+        web:
+          enabled: false
+          host: "127.0.0.1"
+          port: 3000
+          path_prefix: ""
+          auth_token: ""  # Set to enable authentication
+          allowed_origins:
+            - "http://localhost:3000"
+          enable_cors: true
         YAML
 
         File.write(CONFIG_FILE, default_config)

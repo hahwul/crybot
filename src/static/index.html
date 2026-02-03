@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crybot Web</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <nav class="container-fluid">
+    <ul>
+      <li><strong>Crybot</strong></li>
+    </ul>
+    <ul>
+      <li><a href="#" onclick="showChat()">Chat</a></li>
+      <li><a href="#" onclick="showSessions()">Sessions</a></li>
+      <li><a href="#" onclick="showConfig()">Config</a></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <section id="chat-view">
+      <div class="connection-status" id="connection-status">
+        <span class="disconnected">Connecting...</span>
+      </div>
+      <div id="messages"></div>
+      <form id="chat-form">
+        <input type="text" id="user-input" placeholder="Type your message..." required>
+        <button type="submit">Send</button>
+      </form>
+    </section>
+
+    <section id="sessions-view" hidden>
+      <div class="header-row">
+        <h2>Sessions</h2>
+        <button onclick="refreshSessions()">Refresh</button>
+      </div>
+      <div id="sessions-list"></div>
+    </section>
+
+    <section id="config-view" hidden>
+      <h2>Configuration</h2>
+      <div id="config-status" role="alert" class="status-msg" hidden></div>
+      <form id="config-form">
+        <h4>Web Server</h4>
+        <label for="web-enabled">Enabled
+          <input type="checkbox" id="web-enabled" name="web_enabled">
+        </label>
+        <label for="web-host">Host
+          <input type="text" id="web-host" name="web_host" value="127.0.0.1">
+        </label>
+        <label for="web-port">Port
+          <input type="number" id="web-port" name="web_port" value="3000">
+        </label>
+        <label for="web-auth-token">Auth Token (leave empty to disable)
+          <input type="password" id="web-auth-token" name="web_auth_token">
+        </label>
+
+        <h4>Agent Defaults</h4>
+        <label for="agent-model">Model
+          <input type="text" id="agent-model" name="agent_model" value="glm-4.7-flash">
+        </label>
+        <label for="agent-temperature">Temperature
+          <input type="number" id="agent-temperature" name="agent_temperature" step="0.1" min="0" max="2" value="0.7">
+        </label>
+
+        <button type="submit">Save Configuration</button>
+      </form>
+    </section>
+  </main>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
