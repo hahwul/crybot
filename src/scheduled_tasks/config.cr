@@ -14,9 +14,10 @@ module Crybot
       property enabled : Bool = true
       property last_run : Time?
       property next_run : Time?
-      property forward_to : String? # e.g., "telegram:chat_id" or "web"
+      property forward_to : String?        # e.g., "telegram:chat_id" or "web"
+      property memory_expiration : String? # e.g., "1 hour", "30 minutes", "none" (nil = no expiration)
 
-      def initialize(@id : String, @name : String, @prompt : String, @interval : String, @description : String? = nil, @enabled : Bool = true, @forward_to : String? = nil)
+      def initialize(@id : String, @name : String, @prompt : String, @interval : String, @description : String? = nil, @enabled : Bool = true, @forward_to : String? = nil, @memory_expiration : String? = nil)
       end
 
       def to_h : Hash(String, JSON::Any)
@@ -38,6 +39,12 @@ module Crybot
                              else
                                JSON::Any.new(nil)
                              end
+
+        hash["memory_expiration"] = if exp = @memory_expiration
+                                      JSON::Any.new(exp)
+                                    else
+                                      JSON::Any.new(nil)
+                                    end
 
         hash["last_run"] = if last = @last_run
                              JSON::Any.new(last.to_s("%Y-%m-%dT%H:%M:%SZ"))

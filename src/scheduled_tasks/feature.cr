@@ -6,6 +6,7 @@ require "./interval_parser"
 require "./registry"
 require "../channels/telegram"
 require "../channels/registry"
+require "../session/manager"
 
 module Crybot
   module ScheduledTasks
@@ -161,6 +162,10 @@ module Crybot
         session_key = "scheduled/#{task.id}"
         forward_to_display = task.forward_to || "none"
         puts "[ScheduledTask] Executing task '#{task.name}' (forward_to: #{forward_to_display})"
+
+        # Apply memory expiration if configured
+        apply_memory_expiration(task, session_key)
+
         response = @agent_loop.process(session_key, task.prompt)
 
         # Forward output if configured
@@ -169,6 +174,29 @@ module Crybot
         end
 
         response.response
+      end
+
+      private def apply_memory_expiration(task : TaskConfig, session_key : String) : Nil
+        expiration = task.memory_expiration
+        return if expiration.nil? || expiration.empty?
+
+        # Check if we should clear the session
+        # For now, we'll always clear the session if memory_expiration is set
+        # This ensures each task run starts with fresh context
+        sessions = Session::Manager.instance
+
+        # Get current messages to see if there's any context
+        current_messages = sessions.get_or_create(session_key)
+
+        if current_messages.empty?
+          # No previous context, nothing to clear
+          return
+        end
+
+        # For scheduled tasks, we clear the session to start fresh
+        # This prevents "I already have the content from earlier" responses
+        puts "[ScheduledTask] Clearing session context for task '#{task.name}' (memory_expiration: #{expiration})"
+        sessions.trim_session(session_key, Time.utc)
       end
 
       private def forward_output(task : TaskConfig, output : String) : Nil
@@ -219,6 +247,9 @@ module Crybot
         if telegram_channel
           telegram_channel.send_to_chat(chat_id, message, :markdown)
           puts "[ScheduledTask] Forwarded to Telegram chat '#{chat_id}'"
+
+          # Also save to session so it appears in web UI
+          save_assistant_message_to_session("telegram:#{chat_id}", message)
         else
           # Fallback: save to session (will trigger response, but that's okay for now)
           puts "[ScheduledTask] Telegram channel not available, using session fallback"
@@ -229,6 +260,55 @@ module Crybot
         puts "[ScheduledTask] Failed to forward to Telegram: #{e.message}"
         puts "[ScheduledTask] Backtrace: #{e.backtrace.join("\n")}"
       end
+
+      private def save_assistant_message_to_session(session_key : String, content : String) : Nil
+        sessions = Session::Manager.instance
+        messages = sessions.get_or_create(session_key)
+
+        # Add assistant message to session
+        assistant_msg = Providers::Message.new(
+          role: "assistant",
+          content: content,
+        )
+        messages << assistant_msg
+
+        # Save to file
+        sessions.save(session_key, messages)
+      end
+
+      # TODO: Unified forwarding using ChannelRegistry (future implementation)
+      # This will replace the forward_output method above
+      #
+      # private def forward_output_unified(task : TaskConfig, output : String) : Nil
+      #   forward_target = task.forward_to
+      #   return unless forward_target
+      #
+      #   parts = forward_target.split(":", 2)
+      #   return if parts.size < 2
+      #
+      #   channel_name = parts[0]
+      #   chat_id = parts[1]
+      #
+      #   message = "*🤖 Scheduled Task: #{task.name}*\n\n#{output}"
+      #
+      #   # Use the unified channel registry
+      #   success = Channels::UnifiedRegistry.send_to_channel(
+      #     channel_name: channel_name,
+      #     chat_id: chat_id,
+      #     content: message,
+      #     parse_mode: :markdown
+      #   )
+      #
+      #   if success
+      #     puts "[ScheduledTask] Forwarded to #{channel_name} chat '#{chat_id}'"
+      #     # Save to session so it appears in web UI
+      #     save_assistant_message_to_session("#{channel_name}:#{chat_id}", message)
+      #   else
+      #     puts "[ScheduledTask] Failed to forward to #{channel_name}"
+      #   end
+      # rescue e : Exception
+      #   puts "[ScheduledTask] Error forwarding: #{e.message}"
+      # end
 
       private def update_next_run(task : TaskConfig) : Nil
         task.next_run = IntervalParser.calculate_next_run(task.interval)

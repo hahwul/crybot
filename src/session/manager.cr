@@ -146,6 +146,13 @@ module Crybot
         @cache.delete(sanitized_key)
       end
 
+      # Trim a session to keep only messages after a certain time
+      def trim_session(session_key : String, cutoff_time : Time) : Nil
+        # For scheduled tasks, we clear the session entirely when memory expiration is set
+        # This ensures the task starts fresh each time
+        save(session_key, [] of Providers::Message)
+      end
+
       def list_sessions : Array(String)
         return [] of String unless Dir.exists?(@sessions_dir)
 

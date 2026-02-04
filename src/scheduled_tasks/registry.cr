@@ -29,7 +29,7 @@ module Crybot
           config = @config ||= Config::Loader.load
           agent_loop = Agent::Loop.new(config)
           feature = Feature.new(config, agent_loop)
-          feature.load_tasks_from_disk  # Load tasks from disk
+          feature.load_tasks_from_disk # Load tasks from disk
           @feature = feature
           puts "[ScheduledTasks] Lazily created feature instance for web access (loaded #{feature.tasks.size} tasks)"
           feature
@@ -45,4 +45,3 @@ module Crybot
     end
   end
 end
-

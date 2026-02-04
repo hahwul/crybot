@@ -31,6 +31,8 @@ module Crybot
           interval = data["interval"]?.try(&.as_s)
           description = data["description"]?.try(&.as_s)
           enabled = data["enabled"]?.try(&.as_bool) || true
+          forward_to = data["forward_to"]?.try(&.as_s)
+          memory_expiration = data["memory_expiration"]?.try(&.as_s)
 
           # Validate required fields
           if name.nil? || name.empty?
@@ -65,7 +67,9 @@ module Crybot
             prompt: prompt,
             interval: interval,
             description: description,
-            enabled: enabled
+            enabled: enabled,
+            forward_to: forward_to,
+            memory_expiration: memory_expiration
           )
 
           # Calculate next run time
@@ -104,6 +108,7 @@ module Crybot
             description = data["description"]?.try(&.as_s)
             enabled = data["enabled"]?.try(&.as_bool) || existing_task.enabled
             forward_to = data["forward_to"]?.try(&.as_s) || existing_task.forward_to
+            memory_expiration = data["memory_expiration"]?.try(&.as_s)
 
             # Validate interval if changed
             if interval != existing_task.interval
@@ -120,7 +125,8 @@ module Crybot
               interval: interval,
               description: description,
               enabled: enabled,
-              forward_to: forward_to
+              forward_to: forward_to,
+              memory_expiration: memory_expiration
             )
             task.last_run = existing_task.last_run
 

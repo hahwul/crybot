@@ -1954,6 +1954,7 @@ execution:
       document.getElementById('task-interval').value = task.interval;
       document.getElementById('task-enabled').checked = task.enabled;
       document.getElementById('task-forward-to').value = task.forward_to || '';
+      document.getElementById('task-memory-expiration').value = task.memory_expiration || '';
     } else {
       title.textContent = 'Add Scheduled Task';
       document.getElementById('task-name').value = '';
@@ -1962,6 +1963,7 @@ execution:
       document.getElementById('task-interval').value = '';
       document.getElementById('task-enabled').checked = true;
       document.getElementById('task-forward-to').value = '';
+      document.getElementById('task-memory-expiration').value = '';
     }
 
     document.getElementById('task-modal').classList.remove('hidden');
@@ -1986,6 +1988,7 @@ execution:
     const interval = document.getElementById('task-interval').value.trim();
     const enabled = document.getElementById('task-enabled').checked;
     const forwardTo = document.getElementById('task-forward-to').value.trim() || null;
+    const memoryExpiration = document.getElementById('task-memory-expiration').value.trim() || null;
 
     if (!name || !prompt || !interval) {
       alert('Name, prompt, and interval are required');
@@ -2006,6 +2009,7 @@ execution:
           interval,
           enabled,
           forward_to: forwardTo,
+          memory_expiration: memoryExpiration,
         }),
       });
 

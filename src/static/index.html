@@ -388,6 +388,11 @@
             <small>Forward task output to a chat. Examples: "telegram:123456789" or "web"</small>
             <div id="telegram-chats-list" class="telegram-chats-list hidden"></div>
           </div>
+          <div class="form-group">
+            <label for="task-memory-expiration">Memory Expiration (optional)</label>
+            <input type="text" id="task-memory-expiration" placeholder="e.g., 1 hour, 30 minutes, or leave empty for no expiration">
+            <small>Clear conversation context before each run. Prevents "I already have the content" responses. Leave empty to keep context between runs.</small>
+          </div>
         </div>
         <div class="modal-footer">
           <button id="cancel-task-btn" class="btn-secondary">Cancel</button>
