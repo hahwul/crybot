@@ -30,6 +30,7 @@
       <nav class="sidebar-nav">
         <a href="#" class="nav-item active" data-section="chat">Chat</a>
         <a href="#" class="nav-item" data-section="skills">Skills</a>
+        <a href="#" class="nav-item" data-section="scheduled-tasks">Scheduled Tasks</a>
         <a href="#" class="nav-item" data-section="mcp">MCP</a>
         <a href="#" class="nav-item" data-section="configuration">Configuration</a>
         <a href="#" class="nav-item" data-section="logs">Logs</a>
@@ -287,6 +288,23 @@
         </div>
       </section>
 
+      <!-- Scheduled Tasks Section -->
+      <section id="section-scheduled-tasks" class="section">
+        <div class="section-header">
+          <h2>Scheduled Tasks</h2>
+          <div class="section-actions">
+            <button id="add-task-btn" class="btn-primary">+ Add Task</button>
+            <button id="reload-tasks-btn" class="btn-secondary">Reload</button>
+          </div>
+        </div>
+
+        <p class="section-description">Configure tasks that run automatically on a schedule.</p>
+
+        <div id="scheduled-tasks-grid" class="tasks-grid">
+          <!-- Tasks loaded dynamically -->
+        </div>
+      </section>
+
       <!-- MCP Section -->
       <section id="section-mcp" class="section">
         <div class="section-header">
@@ -330,6 +348,73 @@
     </main>
 
     <!-- Global Modals (outside sections) -->
+    <!-- Scheduled Task Modal -->
+    <div id="task-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="task-modal-title">Add Scheduled Task</h3>
+          <button class="modal-close" id="close-task-modal-btn">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="task-name">Task Name</label>
+            <input type="text" id="task-name" placeholder="Daily Summary" required>
+          </div>
+          <div class="form-group">
+            <label for="task-description">Description</label>
+            <input type="text" id="task-description" placeholder="Generate daily summary">
+          </div>
+          <div class="form-group">
+            <label for="task-prompt">Prompt</label>
+            <textarea id="task-prompt" rows="4" placeholder="Generate a summary of today's activities..." required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="task-interval">Schedule</label>
+            <input type="text" id="task-interval" placeholder="daily" required>
+            <small>Examples: "hourly", "daily", "every 30 minutes", "every 6 hours", "weekly"</small>
+          </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="task-enabled" checked>
+              Enabled
+            </label>
+          </div>
+          <div class="form-group">
+            <label for="task-forward-to">Forward Output (optional)</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="task-forward-to" placeholder="telegram:chat_id or leave empty" style="flex: 1;">
+              <button type="button" id="load-telegram-chats-btn" class="btn-secondary btn-sm">📋 Load Chats</button>
+            </div>
+            <small>Forward task output to a chat. Examples: "telegram:123456789" or "web"</small>
+            <div id="telegram-chats-list" class="telegram-chats-list hidden"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="cancel-task-btn" class="btn-secondary">Cancel</button>
+          <button id="save-task-btn" class="btn-primary">Save Task</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Task Output Modal -->
+    <div id="task-output-modal" class="modal hidden">
+      <div class="modal-content task-output-modal-content">
+        <div class="modal-header">
+          <h3 id="task-output-modal-title">Task Output</h3>
+          <button class="modal-close" id="close-task-output-modal-btn">×</button>
+        </div>
+        <div class="modal-body">
+          <div id="task-output-messages" class="task-output-messages"></div>
+          <div class="task-output-input-area">
+            <form id="task-output-form" class="task-output-form">
+              <input type="text" class="task-output-input" placeholder="Add a message to the task context..." required>
+              <button type="submit" class="btn-send">Send</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Create Skill Modal -->
     <div id="create-skill-modal" class="modal hidden">
       <div class="modal-content">

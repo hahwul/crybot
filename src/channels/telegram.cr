@@ -216,22 +216,38 @@ module Crybot
       end
 
       # Send a message to a specific chat ID (used by web UI)
-      def send_to_chat(chat_id : String, text : String) : Nil
+      def send_to_chat(chat_id : String, text : String, parse_mode : Symbol? = nil) : Nil
         puts "[#{Time.local.to_s("%H:%M:%S")}] Sending to Telegram chat #{chat_id} (from web UI): #{text[0..100]}..."
 
         # Convert chat_id string to Int64 for Tourmaline
         chat_id_int = chat_id.to_i64
 
+        # Convert symbol to ParseMode enum
+        actual_parse_mode = case parse_mode
+                            when :markdown    then Tourmaline::ParseMode::Markdown
+                            when :html        then Tourmaline::ParseMode::HTML
+                            when :markdown_v2 then Tourmaline::ParseMode::MarkdownV2
+                            else                   nil
+                            end
+
         # Handle long messages by splitting them
         max_length = 4096
         if text.size <= max_length
-          @client.send_message(chat_id_int, text)
+          if actual_parse_mode
+            @client.send_message(chat_id_int, text, parse_mode: actual_parse_mode)
+          else
+            @client.send_message(chat_id_int, text)
+          end
         else
           # Split message into chunks
           chunks = text.scan(/.{1,#{max_length}}/m).map { |match| match[0] }
           puts "[#{Time.local.to_s("%H:%M:%S")}] Sending response in #{chunks.size} chunk(s)"
           chunks.each_with_index do |chunk, index|
-            @client.send_message(chat_id_int, chunk)
+            if actual_parse_mode
+              @client.send_message(chat_id_int, chunk, parse_mode: actual_parse_mode)
+            else
+              @client.send_message(chat_id_int, chunk)
+            end
             puts "[#{Time.local.to_s("%H:%M:%S")}] Chunk #{index + 1}/#{chunks.size} sent"
           end
         end

@@ -11,6 +11,8 @@ class CrybotWeb {
     this.docsEditor = null;
     this.mcpServers = [];
     this.editingMCPServer = null;
+    this.scheduledTasks = [];
+    this.editingTaskId = null;
 
     this.init();
   }
@@ -68,6 +70,11 @@ class CrybotWeb {
     // Load MCP servers when navigating to MCP section
     if (section === 'mcp') {
       this.loadMCPServers();
+    }
+
+    // Load scheduled tasks when navigating to scheduled tasks section
+    if (section === 'scheduled-tasks') {
+      this.loadScheduledTasks();
     }
   }
 
@@ -255,6 +262,53 @@ class CrybotWeb {
     document.getElementById('mcp-connection-type').addEventListener('change', (e) => {
       this.toggleMCPConnectionType(e.target.value);
     });
+
+    // Scheduled tasks handlers
+    const addTaskBtn = document.getElementById('add-task-btn');
+    if (addTaskBtn) {
+      addTaskBtn.addEventListener('click', () => {
+        this.openTaskModal();
+      });
+    }
+
+    const reloadTasksBtn = document.getElementById('reload-tasks-btn');
+    if (reloadTasksBtn) {
+      reloadTasksBtn.addEventListener('click', () => {
+        this.reloadScheduledTasks();
+      });
+    }
+
+    // Task modal handlers
+    document.getElementById('close-task-modal-btn').addEventListener('click', () => {
+      this.closeTaskModal();
+    });
+
+    document.getElementById('cancel-task-btn').addEventListener('click', () => {
+      this.closeTaskModal();
+    });
+
+    document.getElementById('save-task-btn').addEventListener('click', () => {
+      this.saveTask();
+    });
+
+    // Task output modal handlers
+    document.getElementById('close-task-output-modal-btn').addEventListener('click', () => {
+      this.closeTaskOutputModal();
+    });
+
+    // Task output form
+    document.getElementById('task-output-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.sendTaskOutputMessage();
+    });
+
+    // Load telegram chats button
+    const loadTelegramChatsBtn = document.getElementById('load-telegram-chats-btn');
+    if (loadTelegramChatsBtn) {
+      loadTelegramChatsBtn.addEventListener('click', () => {
+        this.loadTelegramChatsForForwarding();
+      });
+    }
   }
 
   openAddMCPServerModal() {
@@ -1821,6 +1875,446 @@ execution:
 `,
     };
     return templates[type] || templates.blank;
+  }
+
+  // Scheduled Tasks Management
+  async loadScheduledTasks() {
+    const grid = document.getElementById('scheduled-tasks-grid');
+    grid.innerHTML = '<p style="color: #666; grid-column: 1/-1;">Loading tasks...</p>';
+
+    try {
+      const response = await fetch('/api/scheduled-tasks');
+      const data = await response.json();
+
+      if (!data.tasks || data.tasks.length === 0) {
+        grid.innerHTML = '<p style="color: #999; grid-column: 1/-1; text-align: center; padding: 40px;">No scheduled tasks. Click "+ Add Task" to create one.</p>';
+        return;
+      }
+
+      this.scheduledTasks = data.tasks;
+      grid.innerHTML = '';
+      data.tasks.forEach(task => {
+        const card = this.createTaskCard(task);
+        grid.appendChild(card);
+      });
+    } catch (error) {
+      console.error('Failed to load scheduled tasks:', error);
+      grid.innerHTML = '<p style="color: #e74c3c; grid-column: 1/-1;">Failed to load tasks.</p>';
+    }
+  }
+
+  createTaskCard(task) {
+    const card = document.createElement('div');
+    card.className = 'task-card';
+
+    const enabledBadge = task.enabled ?
+      '<span class="task-badge task-badge-green">Enabled</span>' :
+      '<span class="task-badge task-badge-gray">Disabled</span>';
+
+    const lastRun = task.last_run ? new Date(task.last_run).toLocaleString() : 'Never';
+    const nextRun = task.next_run ? new Date(task.next_run).toLocaleString() : 'Not scheduled';
+
+    card.innerHTML = `
+      <div class="task-card-header">
+        <h3>${this.escapeHtml(task.name)}</h3>
+        ${enabledBadge}
+      </div>
+      ${task.description ? `<p class="task-card-description">${this.escapeHtml(task.description)}</p>` : ''}
+      <div class="task-card-meta">
+        <span><strong>Interval:</strong> ${this.escapeHtml(task.interval)}</span>
+        <span><strong>Last Run:</strong> ${lastRun}</span>
+        <span><strong>Next Run:</strong> ${nextRun}</span>
+      </div>
+      <div class="task-card-actions">
+        <button class="btn-sm btn-view" data-task="${task.id}">View Output</button>
+        <button class="btn-sm btn-run" data-task="${task.id}">Run Now</button>
+        <button class="btn-sm btn-edit" data-task="${task.id}">Edit</button>
+        <button class="btn-sm btn-delete" data-task="${task.id}">Delete</button>
+      </div>
+    `;
+
+    // Add click handlers
+    card.querySelector('.btn-view').addEventListener('click', () => this.viewTaskOutput(task.id));
+    card.querySelector('.btn-run').addEventListener('click', () => this.runTask(task.id));
+    card.querySelector('.btn-edit').addEventListener('click', () => this.editTask(task.id));
+    card.querySelector('.btn-delete').addEventListener('click', () => this.deleteTask(task.id));
+
+    return card;
+  }
+
+  openTaskModal(task = null) {
+    this.editingTaskId = task ? task.id : null;
+    const title = document.getElementById('task-modal-title');
+
+    if (task) {
+      title.textContent = 'Edit Scheduled Task';
+      document.getElementById('task-name').value = task.name;
+      document.getElementById('task-description').value = task.description || '';
+      document.getElementById('task-prompt').value = task.prompt;
+      document.getElementById('task-interval').value = task.interval;
+      document.getElementById('task-enabled').checked = task.enabled;
+      document.getElementById('task-forward-to').value = task.forward_to || '';
+    } else {
+      title.textContent = 'Add Scheduled Task';
+      document.getElementById('task-name').value = '';
+      document.getElementById('task-description').value = '';
+      document.getElementById('task-prompt').value = '';
+      document.getElementById('task-interval').value = '';
+      document.getElementById('task-enabled').checked = true;
+      document.getElementById('task-forward-to').value = '';
+    }
+
+    document.getElementById('task-modal').classList.remove('hidden');
+  }
+
+  closeTaskModal() {
+    document.getElementById('task-modal').classList.add('hidden');
+    this.editingTaskId = null;
+  }
+
+  editTask(taskId) {
+    const task = this.scheduledTasks.find(t => t.id === taskId);
+    if (task) {
+      this.openTaskModal(task);
+    }
+  }
+
+  async saveTask() {
+    const name = document.getElementById('task-name').value.trim();
+    const description = document.getElementById('task-description').value.trim();
+    const prompt = document.getElementById('task-prompt').value.trim();
+    const interval = document.getElementById('task-interval').value.trim();
+    const enabled = document.getElementById('task-enabled').checked;
+    const forwardTo = document.getElementById('task-forward-to').value.trim() || null;
+
+    if (!name || !prompt || !interval) {
+      alert('Name, prompt, and interval are required');
+      return;
+    }
+
+    try {
+      const method = this.editingTaskId ? 'PUT' : 'POST';
+      const url = this.editingTaskId ? `/api/scheduled-tasks/${this.editingTaskId}` : '/api/scheduled-tasks';
+
+      const response = await fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          description: description || null,
+          prompt,
+          interval,
+          enabled,
+          forward_to: forwardTo,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success || (data.task && data.task.id)) {
+        this.closeTaskModal();
+        this.loadScheduledTasks();
+        alert(this.editingTaskId ? 'Task updated successfully!' : 'Task created successfully!');
+      } else {
+        alert(`Failed to save task: ${data.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Failed to save task:', error);
+      alert('Failed to save task');
+    }
+  }
+
+  async deleteTask(taskId) {
+    const task = this.scheduledTasks.find(t => t.id === taskId);
+    if (!confirm(`Are you sure you want to delete the task "${task.name}"?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/scheduled-tasks/${taskId}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        this.loadScheduledTasks();
+      } else {
+        alert(`Failed to delete task: ${data.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Failed to delete task:', error);
+      alert('Failed to delete task');
+    }
+  }
+
+  async runTask(taskId) {
+    const task = this.scheduledTasks.find(t => t.id === taskId);
+    if (!confirm(`Run task "${task.name}" now?`)) {
+      return;
+    }
+
+    // Show loading indicator
+    const runBtn = document.querySelector(`.btn-run[data-task="${taskId}"]`);
+    if (runBtn) {
+      runBtn.disabled = true;
+      runBtn.textContent = 'Running...';
+    }
+
+    try {
+      const response = await fetch(`/api/scheduled-tasks/${taskId}/run`, {
+        method: 'POST',
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Refresh task list to update last_run time
+        await this.loadScheduledTasks();
+
+        // Show success message and offer to view output
+        const viewOutput = confirm(`Task "${task.name}" executed successfully!\n\nClick OK to view the output, or Cancel to close.`);
+        if (viewOutput) {
+          this.viewTaskOutput(taskId);
+        }
+      } else {
+        alert(`Failed to run task: ${data.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Failed to run task:', error);
+      alert('Failed to run task: ' + error.message);
+    } finally {
+      // Re-enable button
+      const runBtn = document.querySelector(`.btn-run[data-task="${taskId}"]`);
+      if (runBtn) {
+        runBtn.disabled = false;
+        runBtn.textContent = 'Run Now';
+      }
+    }
+  }
+
+  async viewTaskOutput(taskId) {
+    const sessionKey = `scheduled/${taskId}`;
+    const modal = document.getElementById('task-output-modal');
+    const title = document.getElementById('task-output-modal-title');
+    const messagesContainer = document.getElementById('task-output-messages');
+
+    // Store the current task session for sending messages
+    this.currentTaskSession = sessionKey;
+
+    title.textContent = `Task Output - ${taskId}`;
+    messagesContainer.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">Loading...</p>';
+    modal.classList.remove('hidden');
+
+    try {
+      const response = await fetch(`/api/sessions/${encodeURIComponent(sessionKey)}`);
+      const data = await response.json();
+
+      if (!data.messages || data.messages.length === 0) {
+        messagesContainer.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No output yet. Run the task to generate output, or add a message below to start.</p>';
+        return;
+      }
+
+      // Display messages as chat
+      this.renderTaskMessages(data.messages);
+    } catch (error) {
+      console.error('Failed to load task output:', error);
+      messagesContainer.innerHTML = '<p style="color: #e74c3c;">Failed to load task output.</p>';
+    }
+
+    // Scroll to bottom
+    this.scrollToTaskBottom();
+  }
+
+  renderTaskMessages(messages) {
+    const container = document.getElementById('task-output-messages');
+    container.innerHTML = '';
+
+    if (!messages || messages.length === 0) {
+      container.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No messages yet.</p>';
+      return;
+    }
+
+    messages.forEach(msg => {
+      if (msg.content && (msg.role === 'user' || msg.role === 'assistant')) {
+        this.addTaskMessage(msg.content, msg.role);
+      }
+    });
+  }
+
+  addTaskMessage(content, role) {
+    const container = document.getElementById('task-output-messages');
+    const messageEl = document.createElement('div');
+    messageEl.className = `task-message ${role}`;
+
+    const avatar = role === 'user' ? 'U' : 'C';
+
+    // Parse markdown for assistant messages
+    let renderedContent;
+    if (role === 'assistant') {
+      renderedContent = typeof marked !== 'undefined' ? marked.parse(content) : this.escapeHtml(content);
+    } else {
+      renderedContent = this.escapeHtml(content);
+    }
+
+    messageEl.innerHTML = `
+      <div class="task-message-avatar">${avatar}</div>
+      <div class="task-message-content">
+        <div class="task-message-bubble">${renderedContent}</div>
+      </div>
+    `;
+
+    container.appendChild(messageEl);
+  }
+
+  scrollToTaskBottom() {
+    const container = document.getElementById('task-output-messages');
+    container.scrollTop = container.scrollHeight;
+  }
+
+  async sendTaskOutputMessage() {
+    const form = document.getElementById('task-output-form');
+    const input = form.querySelector('.task-output-input');
+    const content = input.value.trim();
+
+    if (!content || !this.currentTaskSession) return;
+
+    // Add user message to UI
+    this.addTaskMessage(content, 'user');
+    input.value = '';
+    this.scrollToTaskBottom();
+
+    // Show typing indicator
+    this.showTaskTypingIndicator();
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: this.currentTaskSession,
+          content: content,
+        }),
+      });
+
+      const data = await response.json();
+
+      // Hide typing indicator
+      this.hideTaskTypingIndicator();
+
+      // Add assistant response
+      if (data.content) {
+        this.addTaskMessage(data.content, 'assistant');
+        this.scrollToTaskBottom();
+      }
+    } catch (error) {
+      console.error('Failed to send message:', error);
+      this.hideTaskTypingIndicator();
+      this.addTaskMessage('Failed to send message', 'system');
+    }
+  }
+
+  showTaskTypingIndicator() {
+    const container = document.getElementById('task-output-messages');
+    const indicator = document.createElement('div');
+    indicator.className = 'task-message assistant typing';
+    indicator.id = 'task-typing-indicator';
+    indicator.innerHTML = `
+      <div class="task-message-avatar">C</div>
+      <div class="task-message-content">
+        <div class="task-message-bubble">
+          <div class="typing-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </div>
+    `;
+    container.appendChild(indicator);
+    this.scrollToTaskBottom();
+  }
+
+  hideTaskTypingIndicator() {
+    const indicator = document.getElementById('task-typing-indicator');
+    if (indicator) {
+      indicator.remove();
+    }
+  }
+
+  closeTaskOutputModal() {
+    document.getElementById('task-output-modal').classList.add('hidden');
+    this.currentTaskSession = null;
+  }
+
+  async loadTelegramChatsForForwarding() {
+    const listContainer = document.getElementById('telegram-chats-list');
+    listContainer.innerHTML = '<p style="color: #666;">Loading chats...</p>';
+    listContainer.classList.remove('hidden');
+
+    try {
+      const response = await fetch('/api/telegram/conversations');
+      const data = await response.json();
+
+      if (!data.conversations || data.conversations.length === 0) {
+        listContainer.innerHTML = '<p style="color: #999;">No Telegram conversations found.</p>';
+        return;
+      }
+
+      listContainer.innerHTML = '<div style="margin-top: 8px;"><strong>Select a chat to forward to:</strong></div>';
+
+      data.conversations.forEach(conv => {
+        const item = document.createElement('div');
+        item.className = 'telegram-chat-option';
+        item.textContent = conv.title || conv.id;
+        item.style.cursor = 'pointer';
+        item.style.padding = '4px 8px';
+        item.style.borderRadius = '4px';
+        item.style.marginTop = '4px';
+        item.style.backgroundColor = '#f5f5f5';
+
+        item.addEventListener('click', () => {
+          // Extract actual chat_id from session_id (format: telegram_<chat_id>)
+          // The session_id uses underscore instead of colon for filesystem safety
+          const actualChatId = conv.id.replace(/^telegram_/, '');
+          document.getElementById('task-forward-to').value = `telegram:${actualChatId}`;
+          listContainer.classList.add('hidden');
+        });
+
+        item.addEventListener('mouseover', () => {
+          item.style.backgroundColor = '#e3f2fd';
+        });
+
+        item.addEventListener('mouseout', () => {
+          item.style.backgroundColor = '#f5f5f5';
+        });
+
+        listContainer.appendChild(item);
+      });
+    } catch (error) {
+      console.error('Failed to load telegram chats:', error);
+      listContainer.innerHTML = '<p style="color: #e74c3c;">Failed to load chats.</p>';
+    }
+  }
+
+  async reloadScheduledTasks() {
+    try {
+      const response = await fetch('/api/scheduled-tasks/reload', {
+        method: 'POST',
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        this.loadScheduledTasks();
+        alert('Tasks reloaded successfully!');
+      } else {
+        alert(`Failed to reload tasks: ${data.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Failed to reload tasks:', error);
+      alert('Failed to reload tasks');
+    }
   }
 }
 

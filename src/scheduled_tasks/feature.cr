@@ -204,32 +204,30 @@ module Crybot
       end
 
       private def forward_to_telegram(chat_id : String, task_name : String, output : String) : Nil
-        begin
-          # Create a properly formatted message
-          # Truncate if too long (Telegram has message size limits)
-          max_length = 4000
-          message = "🤖 *Scheduled Task: #{task_name}*\n\n"
-          message += output
+        # Create a properly formatted message with Markdown
+        # Truncate if too long (Telegram has message size limits)
+        max_length = 4000
+        message = "*🤖 Scheduled Task: #{task_name}*\n\n"
+        message += output
 
-          if message.size > max_length
-            message = message[0...max_length] + "\n\n... (truncated)"
-          end
-
-          # Try to get the Telegram channel and send directly
-          telegram_channel = Channels::Registry.telegram
-          if telegram_channel
-            telegram_channel.send_to_chat(chat_id, message)
-            puts "[ScheduledTask] Forwarded to Telegram chat '#{chat_id}'"
-          else
-            # Fallback: save to session (will trigger response, but that's okay for now)
-            puts "[ScheduledTask] Telegram channel not available, using session fallback"
-            session_key = "telegram:#{chat_id}"
-            @agent_loop.process(session_key, message)
-          end
-        rescue e : Exception
-          puts "[ScheduledTask] Failed to forward to Telegram: #{e.message}"
-          puts "[ScheduledTask] Backtrace: #{e.backtrace.join("\n")}"
+        if message.size > max_length
+          message = message[0...max_length] + "\n\n... (truncated)"
         end
+
+        # Try to get the Telegram channel and send directly with Markdown parsing
+        telegram_channel = Channels::Registry.telegram
+        if telegram_channel
+          telegram_channel.send_to_chat(chat_id, message, :markdown)
+          puts "[ScheduledTask] Forwarded to Telegram chat '#{chat_id}'"
+        else
+          # Fallback: save to session (will trigger response, but that's okay for now)
+          puts "[ScheduledTask] Telegram channel not available, using session fallback"
+          session_key = "telegram:#{chat_id}"
+          @agent_loop.process(session_key, message)
+        end
+      rescue e : Exception
+        puts "[ScheduledTask] Failed to forward to Telegram: #{e.message}"
+        puts "[ScheduledTask] Backtrace: #{e.backtrace.join("\n")}"
       end
 
       private def update_next_run(task : TaskConfig) : Nil

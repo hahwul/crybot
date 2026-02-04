@@ -1,6 +1,7 @@
 require "kemal"
 require "../agent/loop"
 require "../session/manager"
+require "../scheduled_tasks/registry"
 require "./handlers/*"
 require "./websocket/*"
 require "./middleware/*"
@@ -18,6 +19,9 @@ module Crybot
       end
 
       def start : Nil
+        # Register config for scheduled tasks lazy initialization
+        ScheduledTasks::Registry.instance.config = @config
+
         # Setup Kemal configuration
         Kemal.config.port = @config.web.port
         Kemal.config.host_binding = @config.web.host
@@ -269,6 +273,37 @@ module Crybot
               }
             end,
           }.to_json
+        end
+
+        # API: Scheduled Tasks
+        get "/api/scheduled-tasks" do |env|
+          handler = Handlers::ScheduledTasksHandler.new
+          handler.list_tasks(env)
+        end
+
+        post "/api/scheduled-tasks" do |env|
+          handler = Handlers::ScheduledTasksHandler.new
+          handler.create_task(env)
+        end
+
+        put "/api/scheduled-tasks/:id" do |env|
+          handler = Handlers::ScheduledTasksHandler.new
+          handler.update_task(env)
+        end
+
+        delete "/api/scheduled-tasks/:id" do |env|
+          handler = Handlers::ScheduledTasksHandler.new
+          handler.delete_task(env)
+        end
+
+        post "/api/scheduled-tasks/:id/run" do |env|
+          handler = Handlers::ScheduledTasksHandler.new
+          handler.run_task(env)
+        end
+
+        post "/api/scheduled-tasks/reload" do |env|
+          handler = Handlers::ScheduledTasksHandler.new
+          handler.reload_tasks(env)
         end
       end
 

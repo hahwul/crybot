@@ -6,6 +6,7 @@ require "./gateway"
 require "./web"
 require "./voice"
 require "./repl"
+require "../scheduled_tasks/feature"
 
 module Crybot
   module Features
@@ -30,12 +31,12 @@ module Crybot
 
         if @features.empty?
           puts "No features enabled. Enable features in config.yml under 'features:'"
-          puts "Available features: gateway, web, voice, repl"
+          puts "Available features: gateway, web, voice, repl, scheduled_tasks"
           return
         end
 
         feature_names = @features.map do |feature|
-          feature.class.name.gsub(/Crybot::Features::/, "").gsub(/Feature$/, "")
+          feature.class.name.gsub(/Crybot::Features::/, "").gsub(/Crybot::ScheduledTasks::/, "").gsub(/Feature$/, "")
         end
         puts "Started features: #{feature_names.join(", ")}"
         puts "Press Ctrl+C to stop"
@@ -103,12 +104,21 @@ module Crybot
           @features << feature
           feature.start
         end
+
+        # Scheduled Tasks feature
+        if features_config.scheduled_tasks
+          # Need agent loop for scheduled tasks
+          agent_loop = @agent_loop || Agent::Loop.new(@config)
+          feature = ScheduledTasks::Feature.new(@config, agent_loop)
+          @features << feature
+          feature.start
+        end
       end
 
       private def validate_configuration : Bool
         # Check if at least one feature is enabled
         features_config = @config.features
-        unless features_config.gateway || features_config.web || features_config.voice || features_config.repl
+        unless features_config.gateway || features_config.web || features_config.voice || features_config.repl || features_config.scheduled_tasks
           puts "Error: No features enabled."
           puts "Enable features in #{Config::Loader.config_file}"
           puts "\nExample:"
@@ -117,6 +127,7 @@ module Crybot
           puts "    web: true"
           puts "    voice: false"
           puts "    repl: false"
+          puts "    scheduled_tasks: false"
           return false
         end
 

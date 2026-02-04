@@ -210,8 +210,10 @@ module Crybot
       property voice : Bool = false
       # ameba:disable Naming/QueryBoolMethods
       property repl : Bool = false
+      # ameba:disable Naming/QueryBoolMethods
+      property scheduled_tasks : Bool = false
 
-      def initialize(@gateway = false, @web = false, @voice = false, @repl = false)
+      def initialize(@gateway = false, @web = false, @voice = false, @repl = false, @scheduled_tasks = false)
       end
 
       def with_gateway(@gateway : Bool) : FeaturesConfig
@@ -227,6 +229,10 @@ module Crybot
       end
 
       def with_repl(@repl : Bool) : FeaturesConfig
+        self
+      end
+
+      def with_scheduled_tasks(@scheduled_tasks : Bool) : FeaturesConfig
         self
       end
     end

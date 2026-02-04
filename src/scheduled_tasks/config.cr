@@ -2,7 +2,7 @@ require "yaml"
 
 module Crybot
   module ScheduledTasks
-    struct TaskConfig
+    class TaskConfig
       include YAML::Serializable
 
       property id : String
@@ -14,7 +14,7 @@ module Crybot
       property enabled : Bool = true
       property last_run : Time?
       property next_run : Time?
-      property forward_to : String?  # e.g., "telegram:chat_id" or "web"
+      property forward_to : String? # e.g., "telegram:chat_id" or "web"
 
       def initialize(@id : String, @name : String, @prompt : String, @interval : String, @description : String? = nil, @enabled : Bool = true, @forward_to : String? = nil)
       end
@@ -55,7 +55,7 @@ module Crybot
       end
     end
 
-    struct TasksFile
+    class TasksFile
       include YAML::Serializable
 
       property tasks : Array(TaskConfig) = [] of TaskConfig
