@@ -12,6 +12,8 @@ Crybot is a modular personal AI assistant built in Crystal. It provides multiple
 - **Multiple Interfaces**: REPL, Web UI, Telegram bot, and Voice interaction modes
 - **Real-time Updates**: WebSocket support for live message streaming in web UI
 - **Telegram Integration**: Full Telegram bot support with two-way messaging (from Telegram and web UI)
+- **Scheduled Tasks**: Automate recurring AI tasks with natural language scheduling (e.g., "daily at 9AM", "every 30 minutes")
+- **Skills System**: Bootstrap and manage reusable AI behaviors/skills
 
 ## Installation
 
@@ -192,6 +194,69 @@ Get a bot token from [@BotFather](https://t.me/BotFather) on Telegram.
 - Reply from both Telegram and the web UI
 - **Web UI Integration**: Messages sent from the web UI to Telegram chats show as "You said on the web UI: {message}" followed by the response
 - **Auto-Restart**: The gateway automatically restarts when you modify `~/.crybot/config.yml`
+
+### Scheduled Tasks
+
+Schedule recurring AI tasks that run automatically without user intervention.
+
+**Dependencies:** None (built-in)
+
+Enable in `~/.crybot/config.yml`:
+
+```yaml
+features:
+  scheduled_tasks: true
+```
+
+**Manage via Web UI:**
+1. Start Crybot: `./bin/crybot start`
+2. Open `http://127.0.0.1:3000`
+3. Navigate to "Scheduled Tasks" section
+4. Create tasks with natural language schedules
+
+**Supported Schedule Formats:**
+- `hourly` - Every hour
+- `daily` - Every day at midnight
+- `daily at 9AM` - Daily at 9:00 AM (local time)
+- `daily at 9:30 PM` - Daily at 9:30 PM
+- `every 30 minutes` - Every 30 minutes
+- `every 6 hours` - Every 6 hours
+- `weekly` - Every week
+- `monthly` - Every month
+
+**Task Features:**
+- **Persistent Storage**: Tasks saved to `~/.crybot/workspace/scheduled_tasks.yml`
+- **Dedicated Sessions**: Each task has its own session context (`scheduled/{task_id}`)
+- **Manual Execution**: Run tasks immediately via "Run Now" button
+- **Output Viewing**: View task results in a chat interface with ability to add context
+- **Telegram Forwarding**: Forward task output to Telegram chats (no AI response triggered)
+- **Hot-Reload**: Changes take effect immediately without restart
+- **Enable/Disable**: Toggle tasks without deleting them
+
+### Skills System
+
+Bootstrap and manage reusable AI behaviors/skills. Skills are stored in `~/.crybot/workspace/skills/` as markdown files that the agent can reference.
+
+**Dependencies:** None (built-in)
+
+**Skill Structure:**
+Each skill is a directory containing a `SKILL.md` file that describes:
+- What the skill does
+- When to use it
+- Instructions for the AI
+
+**Manage via Web UI:**
+1. Start Crybot: `./bin/crybot start`
+2. Open `http://127.0.0.1:3000`
+3. Navigate to "Skills" section
+4. Create, edit, delete, and execute skills
+
+**Skill Features:**
+- **HTTP Request Skills**: Execute HTTP requests with method, URL, headers, and body
+- **MCP Skills**: Run commands through MCP servers
+- **Command Skills**: Execute shell commands
+- **Code Execution**: Write and run code in CodeMirror editor
+- **Auto-Discovery**: Skills are automatically included in agent context
 
 ## Built-in Tools
 
