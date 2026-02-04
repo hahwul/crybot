@@ -22,6 +22,7 @@
       <div class="separator"></div>
       <nav class="sidebar-nav">
         <a href="#" class="nav-item active" data-section="chat">Chat</a>
+        <a href="#" class="nav-item" data-section="skills">Skills</a>
         <a href="#" class="nav-item" data-section="configuration">Configuration</a>
         <a href="#" class="nav-item" data-section="logs">Logs</a>
       </nav>
@@ -201,6 +202,108 @@
             <button type="submit" class="btn-primary">Save Configuration</button>
           </div>
         </form>
+      </section>
+
+      <!-- Skills Section -->
+      <section id="section-skills" class="section">
+        <div class="section-header">
+          <h2>Skills</h2>
+          <div class="section-actions">
+            <button id="add-skill-btn" class="btn-primary">+ Add Skill</button>
+            <button id="reload-skills-btn" class="btn-secondary">Reload Skills</button>
+          </div>
+        </div>
+
+        <!-- Skills List View -->
+        <div id="skills-list-view" class="skills-list-view">
+          <div class="skills-grid" id="skills-grid">
+            <!-- Skills loaded dynamically -->
+          </div>
+        </div>
+
+        <!-- Skill Editor View -->
+        <div id="skill-editor-view" class="skill-editor-view hidden">
+          <div class="skill-editor-header">
+            <button id="skill-back-btn" class="back-btn">← Back to Skills</button>
+            <h3 id="skill-editor-title">Edit Skill</h3>
+          </div>
+          <div class="skill-editor-content">
+            <div class="skill-editor-tabs">
+              <button class="skill-tab active" data-tab="config-tab">Configuration</button>
+              <button class="skill-tab" data-tab="docs-tab">Documentation</button>
+              <button class="skill-tab" data-tab="credentials-tab">Credentials</button>
+            </div>
+            <div class="skill-editor-body">
+              <div id="config-tab" class="skill-tab-content active">
+                <div class="form-group">
+                  <label for="skill-dir-name">Skill Directory Name</label>
+                  <input type="text" id="skill-dir-name" placeholder="my-skill" readonly>
+                  <small>Cannot be changed after creation</small>
+                </div>
+                <div class="form-group">
+                  <label for="skill-config">skill.yml Configuration</label>
+                  <textarea id="skill-config" class="code-editor" rows="20" placeholder="# Enter your skill configuration in YAML format"></textarea>
+                  <small>Edit the YAML configuration for your skill.</small>
+                </div>
+                <div class="skill-actions">
+                  <button id="validate-skill-btn" class="btn-secondary">Validate</button>
+                  <button id="save-skill-btn" class="btn-primary">Save Skill</button>
+                </div>
+              </div>
+              <div id="docs-tab" class="skill-tab-content">
+                <div class="form-group">
+                  <label for="skill-docs">SKILL.md Documentation</label>
+                  <textarea id="skill-docs" class="code-editor" rows="20" placeholder="# Skill Name&#10;&#10;Description of what this skill does..."></textarea>
+                  <small>Write documentation for users of this skill.</small>
+                </div>
+                <div class="skill-actions">
+                  <button id="save-docs-btn" class="btn-primary">Save Documentation</button>
+                </div>
+              </div>
+              <div id="credentials-tab" class="skill-tab-content">
+                <div id="credentials-container">
+                  <!-- Credentials loaded dynamically -->
+                </div>
+                <div class="credential-note">
+                  <strong>How it works:</strong> Credentials are stored in <code>~/.crybot/workspace/skills/your-skill/credentials.yml</code>.
+                  They never leave your local system.
+                </div>
+                <div class="skill-actions">
+                  <button id="save-credentials-btn" class="btn-primary">Save Credentials</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Skill Creation Modal -->
+        <div id="create-skill-modal" class="modal hidden">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3>Create New Skill</h3>
+              <button class="modal-close" id="close-modal-btn">×</button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group">
+                <label for="new-skill-name">Skill Directory Name</label>
+                <input type="text" id="new-skill-name" placeholder="my-skill" pattern="[a-z0-9_\-]+" required>
+                <small>Use lowercase letters, numbers, hyphens, and underscores only.</small>
+              </div>
+              <div class="form-group">
+                <label for="new-skill-template">Start from template</label>
+                <select id="new-skill-template">
+                  <option value="blank">Blank Skill</option>
+                  <option value="weather">Weather Skill (HTTP API)</option>
+                  <option value="command">Command Skill</option>
+                </select>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button id="cancel-create-btn" class="btn-secondary">Cancel</button>
+              <button id="create-skill-confirm-btn" class="btn-primary">Create Skill</button>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- Logs Section -->

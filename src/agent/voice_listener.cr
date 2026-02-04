@@ -231,8 +231,15 @@ module Crybot
         # Use a special session key for voice commands
         session_key = "voice"
 
+        # Log incoming voice command
+        puts "[Voice] User: #{command}"
+
         # Send to agent loop (the filtering improvements should handle most errors)
         agent_response = @agent_loop.process(session_key, command)
+
+        # Log response
+        response_preview = agent_response.response.size > 200 ? "#{agent_response.response[0..200]}..." : agent_response.response
+        puts "[Voice] Assistant: #{response_preview}"
 
         # Log tool executions
         agent_response.tool_executions.each do |exec|

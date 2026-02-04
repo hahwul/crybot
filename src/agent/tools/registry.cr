@@ -8,6 +8,10 @@ module Crybot
           @@tools[tool.name] = tool
         end
 
+        def self.unregister(name : String) : Nil
+          @@tools.delete(name)
+        end
+
         def self.get(name : String) : Tool?
           @@tools[name]?
         end

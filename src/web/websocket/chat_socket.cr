@@ -120,6 +120,10 @@ module Crybot
           return
         end
 
+        # Log incoming message
+        puts "[Web] [Chat] Session: #{session_id}"
+        puts "[Web] [Chat] User: #{content}"
+
         # Send acknowledgment that message is being processed
         socket.send({
           type:   "status",
@@ -128,6 +132,10 @@ module Crybot
 
         # Process with agent (this blocks until complete)
         agent_response = @agent.process(session_id, content)
+
+        # Log response (truncated if long)
+        response_preview = agent_response.response.size > 200 ? "#{agent_response.response[0..200]}..." : agent_response.response
+        puts "[Web] [Chat] Assistant: #{response_preview}"
 
         # Log tool executions
         agent_response.tool_executions.each do |exec|

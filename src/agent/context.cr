@@ -3,6 +3,7 @@ require "../config/loader"
 require "../providers/base"
 require "./memory"
 require "./skills"
+require "./skill_manager"
 require "./tools/registry"
 
 module Crybot
@@ -11,8 +12,9 @@ module Crybot
       @config : Config::ConfigFile
       @workspace_dir : Path
       @memory_manager : MemoryManager
+      @skill_manager : SkillManager
 
-      def initialize(@config : Config::ConfigFile)
+      def initialize(@config : Config::ConfigFile, @skill_manager : SkillManager)
         @workspace_dir = Config::Loader.workspace_dir
         @memory_manager = MemoryManager.new(@workspace_dir)
       end
@@ -162,10 +164,18 @@ module Crybot
       end
 
       private def build_skills_section : String
-        skills = Skills.new(@workspace_dir)
-        summary = skills.build_summary
+        # Build skills summary from loaded skills manager
+        skills_summary = @skill_manager.build_summary
 
-        summary.empty? ? "" : "# Available Skills\n\n#{summary}"
+        # Also include legacy SKILL.md files for documentation
+        skills = Skills.new(@workspace_dir)
+        legacy_summary = skills.build_summary
+
+        parts = [] of String
+        parts << skills_summary unless skills_summary.empty?
+        parts << legacy_summary unless legacy_summary.empty?
+
+        parts.empty? ? "" : "# Available Skills\n\n#{parts.join("\n\n")}"
       end
     end
   end

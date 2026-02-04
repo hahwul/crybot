@@ -2,7 +2,7 @@ class CrybotWeb {
   constructor() {
     this.ws = null;
     this.sessionId = null;
-    this.currentSection = 'chat';
+    this.currentSection = localStorage.getItem('crybotSection') || 'chat';
     this.currentTab = localStorage.getItem('crybotTab') || 'chat-tab';
     this.currentTelegramChat = null;
     this.pushToTalkActive = false;
@@ -15,11 +15,13 @@ class CrybotWeb {
     this.setupNavigation();
     this.setupTabs();
     this.setupForms();
+    this.setupSkillsHandlers();
     this.connectWebSocket();
     this.loadConfiguration();
     this.loadLogs();
 
-    // Restore the saved tab
+    // Restore the saved section and tab
+    this.showSection(this.currentSection);
     this.showTab(this.currentTab);
   }
 
@@ -50,6 +52,14 @@ class CrybotWeb {
     document.getElementById(`section-${section}`).classList.add('active');
 
     this.currentSection = section;
+
+    // Save to localStorage
+    localStorage.setItem('crybotSection', section);
+
+    // Load skills when navigating to skills section
+    if (section === 'skills') {
+      this.loadSkills();
+    }
   }
 
   setupTabs() {
@@ -163,6 +173,51 @@ class CrybotWeb {
         this.deactivatePushToTalk();
       });
     }
+  }
+
+  setupSkillsHandlers() {
+    // Add skill button
+    document.getElementById('add-skill-btn').addEventListener('click', () => {
+      this.openCreateSkillModal();
+    });
+
+    // Reload skills button
+    document.getElementById('reload-skills-btn').addEventListener('click', () => {
+      this.reloadSkills();
+    });
+
+    // Skill back button
+    document.getElementById('skill-back-btn').addEventListener('click', () => {
+      this.closeSkillEditor();
+    });
+
+    // Save skill button
+    document.getElementById('save-skill-btn').addEventListener('click', () => {
+      this.saveSkill();
+    });
+
+    // Save docs button
+    document.getElementById('save-docs-btn').addEventListener('click', () => {
+      this.saveSkill();
+    });
+
+    // Save credentials button
+    document.getElementById('save-credentials-btn').addEventListener('click', () => {
+      this.saveCredentials();
+    });
+
+    // Create skill modal
+    document.getElementById('create-skill-confirm-btn').addEventListener('click', () => {
+      this.createSkill();
+    });
+
+    document.getElementById('cancel-create-btn').addEventListener('click', () => {
+      this.closeCreateSkillModal();
+    });
+
+    document.getElementById('close-modal-btn').addEventListener('click', () => {
+      this.closeCreateSkillModal();
+    });
   }
 
   connectWebSocket() {
@@ -1060,6 +1115,464 @@ class CrybotWeb {
         session_id: '', // Empty means create new
       }));
     }
+  }
+
+  // Skills Management
+  async loadSkills() {
+    const grid = document.getElementById('skills-grid');
+    grid.innerHTML = '<p style="color: #666; grid-column: 1/-1;">Loading skills...</p>';
+
+    try {
+      const response = await fetch('/api/skills');
+      const data = await response.json();
+
+      if (!data.skills || data.skills.length === 0) {
+        grid.innerHTML = '<p style="color: #999; grid-column: 1/-1; text-align: center; padding: 40px;">No skills found. Click "+ Add Skill" to create one.</p>';
+        return;
+      }
+
+      grid.innerHTML = '';
+      data.skills.forEach(skill => {
+        const card = this.createSkillCard(skill);
+        grid.appendChild(card);
+      });
+    } catch (error) {
+      console.error('Failed to load skills:', error);
+      grid.innerHTML = '<p style="color: #e74c3c; grid-column: 1/-1;">Failed to load skills.</p>';
+    }
+  }
+
+  createSkillCard(skill) {
+    const card = document.createElement('div');
+    card.className = 'skill-card';
+    card.dataset.skillName = skill.dir_name;
+
+    const isLoaded = skill.loaded;
+    const hasConfig = skill.has_config;
+    const configValid = skill.config_valid;
+    const envStatus = skill.env_status;
+
+    let statusBadge = '<span class="skill-badge skill-badge-gray">No Config</span>';
+    if (hasConfig) {
+      if (!configValid) {
+        statusBadge = '<span class="skill-badge skill-badge-red">Invalid Config</span>';
+      } else if (envStatus === 'missing') {
+        statusBadge = '<span class="skill-badge skill-badge-yellow">Missing Env</span>';
+      } else if (isLoaded) {
+        statusBadge = '<span class="skill-badge skill-badge-green">Loaded</span>';
+      } else {
+        statusBadge = '<span class="skill-badge skill-badge-blue">Configured</span>';
+      }
+    }
+
+    const toolName = skill.config?.tool_name || skill.dir_name;
+    const description = skill.config?.description || skill.config?.tool_description || 'No description';
+    const version = skill.config?.version || '?';
+
+    card.innerHTML = `
+      <div class="skill-card-header">
+        <h3>${this.escapeHtml(toolName)}</h3>
+        ${statusBadge}
+      </div>
+      <p class="skill-card-description">${this.escapeHtml(description)}</p>
+      <div class="skill-card-meta">
+        <span>v${this.escapeHtml(version)}</span>
+        ${skill.has_docs ? '<span title="Has documentation">📄</span>' : ''}
+      </div>
+      ${skill.config_error ? `<p class="skill-card-error">Error: ${this.escapeHtml(skill.config_error)}</p>` : ''}
+      ${skill.missing_env && skill.missing_env.length > 0 ? `
+        <p class="skill-card-warning">
+          Missing env vars: ${skill.missing_env.map(e => `<code>${this.escapeHtml(e)}</code>`).join(', ')}
+        </p>
+      ` : ''}
+      <div class="skill-card-actions">
+        <button class="btn-sm btn-edit" data-skill="${skill.dir_name}">Edit</button>
+        <button class="btn-sm btn-delete" data-skill="${skill.dir_name}">Delete</button>
+      </div>
+    `;
+
+    // Add click handlers
+    card.querySelector('.btn-edit').addEventListener('click', () => this.openSkillEditor(skill.dir_name));
+    card.querySelector('.btn-delete').addEventListener('click', () => this.deleteSkill(skill.dir_name));
+
+    return card;
+  }
+
+  openSkillEditor(skillName) {
+    const listView = document.getElementById('skills-list-view');
+    const editorView = document.getElementById('skill-editor-view');
+    const title = document.getElementById('skill-editor-title');
+
+    listView.classList.add('hidden');
+    editorView.classList.remove('hidden');
+    title.textContent = `Edit Skill: ${skillName}`;
+
+    // Load skill data
+    this.loadSkillForEditor(skillName);
+
+    // Setup skill editor tabs
+    this.setupSkillEditorTabs();
+  }
+
+  async loadSkillForEditor(skillName) {
+    try {
+      const response = await fetch(`/api/skills/${encodeURIComponent(skillName)}`);
+      const data = await response.json();
+
+      document.getElementById('skill-dir-name').value = data.name || skillName;
+      document.getElementById('skill-config').value = data.config_yaml || '';
+      document.getElementById('skill-docs').value = data.docs || '';
+
+      // Load credentials
+      this.loadCredentials(data.config);
+    } catch (error) {
+      console.error('Failed to load skill:', error);
+      alert('Failed to load skill data');
+    }
+  }
+
+  loadCredentials(config) {
+    const container = document.getElementById('credentials-container');
+    container.innerHTML = '';
+
+    if (!config || !config.credentials || config.credentials.length === 0) {
+      container.innerHTML = '<p style="color: #999;">No credentials required for this skill.</p>';
+      return;
+    }
+
+    config.credentials.forEach(cred => {
+      const div = document.createElement('div');
+      div.className = 'form-group';
+      div.innerHTML = `
+        <label>${this.escapeHtml(cred.description)}</label>
+        <input type="password" class="credential-input" data-cred="${cred.name}" placeholder="${cred.placeholder || 'Enter ' + cred.name + '...'}">
+        ${cred.required ? '<small>Required</small>' : '<small>Optional</small>'}
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  setupSkillEditorTabs() {
+    const tabs = document.querySelectorAll('.skill-tab');
+    tabs.forEach(tab => {
+      tab.onclick = (e) => {
+        const tabId = tab.dataset.tab;
+        document.querySelectorAll('.skill-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.skill-tab-content').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+      };
+    });
+  }
+
+  closeSkillEditor() {
+    const listView = document.getElementById('skills-list-view');
+    const editorView = document.getElementById('skill-editor-view');
+
+    listView.classList.remove('hidden');
+    editorView.classList.add('hidden');
+
+    // Reload skills list
+    this.loadSkills();
+  }
+
+  async saveSkill() {
+    const skillName = document.getElementById('skill-dir-name').value;
+    const config = document.getElementById('skill-config').value;
+    const docs = document.getElementById('skill-docs').value;
+
+    try {
+      const response = await fetch(`/api/skills/${encodeURIComponent(skillName)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: skillName,
+          config: config,
+          docs: docs || null,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert('Skill saved successfully! Reload skills to apply changes.');
+        // Optionally auto-reload
+        // this.reloadSkills();
+      } else {
+        alert(`Failed to save: ${data.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Failed to save skill:', error);
+      alert('Failed to save skill');
+    }
+  }
+
+  async deleteSkill(skillName) {
+    if (!confirm(`Are you sure you want to delete the skill "${skillName}"?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/skills/${encodeURIComponent(skillName)}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert('Skill deleted successfully');
+        this.loadSkills();
+      } else {
+        alert(`Failed to delete: ${data.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Failed to delete skill:', error);
+      alert('Failed to delete skill');
+    }
+  }
+
+  async reloadSkills() {
+    try {
+      const response = await fetch('/api/agent/reload-skills', {
+        method: 'POST',
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        let message = `Skills reloaded: ${data.loaded} loaded successfully`;
+        if (data.missing > 0) {
+          message += `, ${data.missing} missing credentials`;
+        }
+        if (data.errors > 0) {
+          message += `, ${data.errors} errors`;
+        }
+
+        // Show detailed results if there are issues
+        if (data.results && data.results.length > 0) {
+          const errorResults = data.results.filter(r => r.status !== 'loaded');
+          if (errorResults.length > 0) {
+            message += '\n\nDetails:\n';
+            errorResults.forEach(r => {
+              if (r.status === 'missing_credentials') {
+                message += `\n⚠️ ${r.name}: ${r.error}`;
+              } else if (r.status === 'error') {
+                message += `\n❌ ${r.name}: ${r.error}`;
+              }
+            });
+          }
+        }
+
+        if (data.loaded > 0 && data.missing === 0 && data.errors === 0) {
+          message += '\n\n✓ All skills loaded and ready to use!';
+        } else if (data.loaded > 0) {
+          message += '\n\n✓ Loaded skills are ready to use.';
+        }
+
+        alert(message);
+        this.loadSkills();
+      } else {
+        alert('Failed to reload skills');
+      }
+    } catch (error) {
+      console.error('Failed to reload skills:', error);
+      alert('Failed to reload skills: ' + error.message);
+    }
+  }
+
+  openCreateSkillModal() {
+    const modal = document.getElementById('create-skill-modal');
+    modal.classList.remove('hidden');
+  }
+
+  closeCreateSkillModal() {
+    const modal = document.getElementById('create-skill-modal');
+    modal.classList.add('hidden');
+    document.getElementById('new-skill-name').value = '';
+  }
+
+  async createSkill() {
+    const name = document.getElementById('new-skill-name').value.trim();
+    const template = document.getElementById('new-skill-template').value;
+
+    if (!name) {
+      alert('Please enter a skill name');
+      return;
+    }
+
+    // Validate name format
+    if (!/^[a-z0-9_\-]+$/.test(name)) {
+      alert('Skill name must contain only lowercase letters, numbers, hyphens, and underscores');
+      return;
+    }
+
+    // Get template and replace name placeholder
+    let config = this.getSkillTemplate(template);
+    config = config.replace(/^name: new_skill$/m, `name: ${name}`);
+
+    try {
+      const response = await fetch('/api/skills', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name,
+          config: config,
+          docs: `# ${name}\n\nDescription of your skill goes here.`,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        this.closeCreateSkillModal();
+        alert('Skill created successfully!');
+        this.loadSkills();
+        this.openSkillEditor(name);
+      } else {
+        alert(`Failed to create: ${data.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Failed to create skill:', error);
+      alert('Failed to create skill');
+    }
+  }
+
+  async saveCredentials() {
+    const inputs = document.querySelectorAll('.credential-input');
+    const skillName = document.getElementById('skill-dir-name').value;
+    const credentials = {};
+
+    inputs.forEach(input => {
+      if (input.value.trim()) {
+        credentials[input.dataset.cred] = input.value.trim();
+      }
+    });
+
+    try {
+      const response = await fetch('/api/skills/credentials', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          skill: skillName,
+          credentials: credentials,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert('Credentials saved successfully! Reload skills to apply changes.');
+        // Optionally auto-reload
+        // this.reloadSkills();
+      } else {
+        alert('Failed to save credentials: ' + (data.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Failed to save credentials:', error);
+      alert('Failed to save credentials');
+    }
+  }
+
+  // Create skill templates
+  getSkillTemplate(type) {
+    const templates = {
+      blank: String.raw`name: new_skill
+version: 1.0.0
+description: Description of your skill
+
+tool:
+  name: tool_name
+  description: What this tool does
+  parameters:
+    type: object
+    properties:
+      input:
+        type: string
+        description: Input parameter description
+    required:
+      - input
+
+execution:
+  type: http
+  http:
+    url: https://api.example.com/endpoint
+    method: GET
+    params:
+      param: "{{input}}"
+    response_format: |
+      Result: {{field}}
+`,
+      weather: String.raw`name: weather
+version: 1.0.0
+description: Get current weather information for any location
+
+tool:
+  name: get_weather
+  description: Get current weather for a location using OpenWeatherMap API
+  parameters:
+    type: object
+    properties:
+      location:
+        type: string
+        description: City name, state code, or country code (e.g., "London", "New York", "Tokyo")
+      units:
+        type: string
+        description: Temperature units
+        enum_values:
+          - celsius
+          - fahrenheit
+        default: celsius
+    required:
+      - location
+
+execution:
+  type: http
+  http:
+    url: https://api.openweathermap.org/data/2.5/weather
+    method: GET
+    params:
+      q: "{{location}}"
+      units: "{% if units == 'fahrenheit' %}imperial{% else %}metric{% endif %}"
+      appid: "\${credential:api_key}"
+    response_format: |
+      Weather in {{name}}, {{sys.country}}: {{weather[0].description}}
+      Temperature: {{main.temp}}° {{main.feels_like}}° (feels like)
+      Humidity: {{main.humidity}}%
+      Wind: {{wind.speed}} m/s
+      Conditions: {{weather[0].main}}
+
+credentials:
+  - name: api_key
+    description: OpenWeatherMap API Key
+    required: true
+    placeholder: Get your free API key at https://openweathermap.org/api
+`,
+      command: String.raw`name: new_skill
+version: 1.0.0
+description: Execute an external command
+
+tool:
+  name: tool_name
+  description: What this tool does
+  parameters:
+    type: object
+    properties:
+      input:
+        type: string
+        description: Input parameter
+    required:
+      - input
+
+execution:
+  type: command
+  command:
+    command: /path/to/script
+    args:
+      - "{{input}}"
+    working_dir: /optional/path
+`,
+    };
+    return templates[type] || templates.blank;
   }
 }
 

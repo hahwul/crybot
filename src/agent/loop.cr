@@ -11,6 +11,10 @@ require "./tools/filesystem"
 require "./tools/shell"
 require "./tools/web"
 require "./tools/memory"
+require "./tools/skill_builder"
+require "./tools/web_scraper_skill"
+require "./skill_manager"
+require "./skill_tool_wrapper"
 require "../session/manager"
 require "../mcp/manager"
 require "json"
@@ -63,10 +67,14 @@ module Crybot
       @session_manager : Session::Manager
       @max_iterations : Int32
       @mcp_manager : MCP::Manager?
+      @skill_manager : SkillManager
+
+      getter skill_manager
 
       def initialize(@config : Config::ConfigFile)
+        @skill_manager = SkillManager.new
         @provider = create_provider
-        @context_builder = ContextBuilder.new(@config)
+        @context_builder = ContextBuilder.new(@config, @skill_manager)
         @session_manager = Session::Manager.instance
         @max_iterations = @config.agents.defaults.max_tool_iterations
 
@@ -211,6 +219,78 @@ module Crybot
         Tools::Registry.register(Tools::ListRecentMemoriesTool.new)
         Tools::Registry.register(Tools::RecordMemoryTool.new)
         Tools::Registry.register(Tools::MemoryStatsTool.new)
+
+        # Skill creation tools
+        Tools::Registry.register(Tools::CreateSkillTool.new)
+        Tools::Registry.register(Tools::CreateWebScraperSkillTool.new)
+
+        # Load and register skills
+        load_skills
+      end
+
+      private def load_skills : Nil
+        results = @skill_manager.load_all
+
+        results.each do |result|
+          case result[:status]
+          when "loaded"
+            skill = result[:skill]
+            if skill
+              wrapper = Tools::SkillToolWrapper.new(skill)
+              Tools::Registry.register(wrapper)
+              Log.info { "[Skill] Loaded: #{result[:name]}" }
+            end
+          when "missing_credentials"
+            Log.warn { "[Skill] Skipped #{result[:name]}: #{result[:error]}" }
+          when "error"
+            Log.error { "[Skill] Failed to load #{result[:name]}: #{result[:error]}" }
+          end
+        end
+
+        if results.empty?
+          Log.info { "[Skill] No skills found in #{Config::Loader.skills_dir}" }
+        else
+          loaded_count = results.count { |result| result[:status] == "loaded" }
+          missing_count = results.count { |result| result[:status] == "missing_credentials" }
+          error_count = results.count { |result| result[:status] == "error" }
+          Log.info { "[Skill] Loaded #{loaded_count} skill(s), #{missing_count} missing credentials, #{error_count} error(s)" }
+        end
+
+        results
+      end
+
+      # Public method to reload skills (used by web UI)
+      def reload_skills : Array(NamedTuple(name: String, skill: Skill?, status: String, error: String?))
+        # Unregister existing skill tools
+        @skill_manager.loaded_skills.each do |name, skill|
+          wrapper = Tools::SkillToolWrapper.new(skill)
+          Tools::Registry.unregister(wrapper.name)
+        end
+
+        # Reload skills
+        results = @skill_manager.reload
+
+        # Re-register loaded skills
+        results.each do |result|
+          case result[:status]
+          when "loaded"
+            skill = result[:skill]
+            if skill
+              wrapper = Tools::SkillToolWrapper.new(skill)
+              Tools::Registry.register(wrapper)
+              Log.info { "[Skill] Reloaded: #{result[:name]}" }
+            end
+          when "missing_credentials"
+            Log.warn { "[Skill] Skipped #{result[:name]}: #{result[:error]}" }
+          when "error"
+            Log.error { "[Skill] Failed to reload #{result[:name]}: #{result[:error]}" }
+          end
+        end
+
+        # Update context builder with new skills
+        @context_builder = ContextBuilder.new(@config, @skill_manager)
+
+        results
       end
     end
   end

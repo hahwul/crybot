@@ -349,6 +349,13 @@ body {
   margin-bottom: 20px;
 }
 
+/* Skills Section */
+#section-skills {
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
 .config-form {
   max-width: 600px;
 }
@@ -393,6 +400,20 @@ body {
 .form-group input[type="text"]:focus,
 .form-group input[type="password"]:focus,
 .form-group input[type="number"]:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.form-group select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #fff;
+}
+
+.form-group select:focus {
   outline: none;
   border-color: #3498db;
 }
@@ -737,4 +758,364 @@ body {
     transform: scale(1);
     opacity: 1;
   }
+}
+
+/* Section Header */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 10px 20px;
+  flex-shrink: 0;
+}
+
+.section-header h2 {
+  margin: 0;
+}
+
+.section-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-secondary {
+  padding: 10px 20px;
+  background-color: #95a5a6;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: #7f8c8d;
+}
+
+.skills-list-view {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.skill-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  transition: box-shadow 0.2s;
+}
+
+.skill-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.skill-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.skill-card-header h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.skill-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.skill-badge-gray {
+  background-color: #95a5a6;
+  color: #fff;
+}
+
+.skill-badge-green {
+  background-color: #27ae60;
+  color: #fff;
+}
+
+.skill-badge-blue {
+  background-color: #3498db;
+  color: #fff;
+}
+
+.skill-badge-yellow {
+  background-color: #f39c12;
+  color: #fff;
+}
+
+.skill-badge-red {
+  background-color: #e74c3c;
+  color: #fff;
+}
+
+.skill-card-description {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.skill-card-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 8px;
+}
+
+.skill-card-error {
+  color: #e74c3c;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.skill-card-warning {
+  color: #f39c12;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.skill-card-warning code {
+  background-color: #fff3cd;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: 'Monaco', 'Menlo', monospace;
+}
+
+.skill-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-edit {
+  background-color: #3498db;
+  color: #fff;
+}
+
+.btn-edit:hover {
+  background-color: #2980b9;
+}
+
+.btn-delete {
+  background-color: #e74c3c;
+  color: #fff;
+}
+
+.btn-delete:hover {
+  background-color: #c0392b;
+}
+
+/* Skill Editor */
+.skill-editor-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.skill-editor-view.hidden {
+  display: none;
+}
+
+.skill-editor-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background-color: #fff;
+  border-bottom: 1px solid #ddd;
+  flex-shrink: 0;
+}
+
+.skill-editor-header h3 {
+  margin: 0;
+  flex: 1;
+}
+
+.skill-editor-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.skill-editor-tabs {
+  display: flex;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+  flex-shrink: 0;
+}
+
+.skill-tab {
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  color: #666;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.skill-tab:hover {
+  color: #333;
+}
+
+.skill-tab.active {
+  color: #3498db;
+  border-bottom-color: #3498db;
+}
+
+.skill-editor-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  background-color: #fff;
+}
+
+.skill-tab-content {
+  display: none;
+  max-width: 800px;
+}
+
+.skill-tab-content.active {
+  display: block;
+}
+
+.code-editor {
+  width: 100%;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 13px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+  tab-size: 2;
+}
+
+.code-editor:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.form-group small {
+  display: block;
+  margin-top: 4px;
+  color: #999;
+  font-size: 12px;
+}
+
+.skill-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.env-note {
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 4px;
+  padding: 12px;
+  margin: 16px 0;
+  font-size: 13px;
+}
+
+.env-note strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  background-color: #fff;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.modal-header h3 {
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.modal-close:hover {
+  background-color: #f5f5f5;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-footer {
+  padding: 16px 20px;
+  border-top: 1px solid #ddd;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }

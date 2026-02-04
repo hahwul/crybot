@@ -149,6 +149,8 @@ module Crybot
 
         # Process the message
         begin
+          puts "[#{Time.local.to_s("%H:%M:%S")}] [Telegram] Chat: #{inbound.chat_id}"
+          puts "[#{Time.local.to_s("%H:%M:%S")}] [Telegram] User: #{inbound.content}"
           puts "[#{Time.local.to_s("%H:%M:%S")}] Processing..."
           process_start = Time.instant
 
@@ -174,7 +176,7 @@ module Crybot
 
           # Log response (truncated if too long)
           response_preview = response.size > 100 ? "#{response[0..100]}..." : response
-          puts "[#{Time.local.to_s("%H:%M:%S")}] Response preview: #{response_preview}"
+          puts "[#{Time.local.to_s("%H:%M:%S")}] [Telegram] Assistant: #{response_preview}"
           puts "-" * 60
 
           # Send response back

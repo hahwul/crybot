@@ -23,8 +23,16 @@ module Crybot
             return {error: "Message content is required"}.to_json
           end
 
+          # Log incoming message
+          puts "[Web] [Chat] Session: #{session_id}"
+          puts "[Web] [Chat] User: #{content}"
+
           # Process with agent
           agent_response = @agent.process(session_id, content)
+
+          # Log response (truncated if long)
+          response_preview = agent_response.response.size > 200 ? "#{agent_response.response[0..200]}..." : agent_response.response
+          puts "[Web] [Chat] Assistant: #{response_preview}"
 
           # Log tool executions
           agent_response.tool_executions.each do |exec|

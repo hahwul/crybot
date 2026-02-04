@@ -188,6 +188,66 @@ module Crybot
           handler = Handlers::LogsHandler.new
           handler.get_logs(env)
         end
+
+        # API: Skills
+        get "/api/skills" do |env|
+          handler = Handlers::SkillsHandler.new(@agent.skill_manager)
+          handler.list_skills(env)
+        end
+
+        get "/api/skills/:skill" do |env|
+          handler = Handlers::SkillsHandler.new(@agent.skill_manager)
+          handler.get_skill(env)
+        end
+
+        put "/api/skills/:skill" do |env|
+          handler = Handlers::SkillsHandler.new(@agent.skill_manager)
+          handler.save_skill(env)
+        end
+
+        post "/api/skills" do |env|
+          handler = Handlers::SkillsHandler.new(@agent.skill_manager)
+          handler.save_skill(env)
+        end
+
+        delete "/api/skills/:skill" do |env|
+          handler = Handlers::SkillsHandler.new(@agent.skill_manager)
+          handler.delete_skill(env)
+        end
+
+        post "/api/skills/reload" do |env|
+          handler = Handlers::SkillsHandler.new(@agent.skill_manager)
+          handler.reload_skills(env)
+        end
+
+        post "/api/skills/credentials" do |env|
+          handler = Handlers::SkillsHandler.new(@agent.skill_manager)
+          handler.set_credentials(env)
+        end
+
+        # API: Reload skills in the running agent
+        post "/api/agent/reload-skills" do |env|
+          results = @agent.reload_skills
+
+          loaded_count = results.count { |r| r[:status] == "loaded" }
+          missing_count = results.count { |r| r[:status] == "missing_credentials" }
+          error_count = results.count { |r| r[:status] == "error" }
+
+          {
+            success: true,
+            message: "Skills reloaded in running agent",
+            loaded:  loaded_count,
+            missing: missing_count,
+            errors:  error_count,
+            results: results.map do |r|
+              {
+                name:   r[:name],
+                status: r[:status],
+                error:  r[:error],
+              }
+            end,
+          }.to_json
+        end
       end
 
       private def handle_chat_websocket(socket) : Nil
