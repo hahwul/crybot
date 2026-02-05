@@ -2,7 +2,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Crybot: 3 Configuration</title>
+  <title>Crybot: 1 Introduction</title>
   <meta name="description" content="A modular personal AI assistant built in Crystal with multi-modal interactions">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="canonical" href="">
@@ -104,7 +104,7 @@
       <a href="/books/user-guide/" class="breadcrumb-collapsed">Crybot User Guide</a>
     
       <span class="breadcrumb-sep breadcrumb-sep-last"> » </span>
-      <a href="/books/user-guide/02-configuration.html" class="">Configuration</a>
+      <a href="/books/user-guide/00-introduction.html" class="">Introduction</a>
     
   </nav>
   
@@ -125,13 +125,13 @@
     <nav class="book-toc">
       
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/00-introduction.html" class="toc-link ">1 Introduction</a>
+<a href="/books/user-guide/00-introduction.html" class="toc-link active">1 Introduction</a>
 </div>
 <div class="toc-item toc-level-0">
 <a href="/books/user-guide/01-installation.html" class="toc-link ">2 Installation</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/02-configuration.html" class="toc-link active">3 Configuration</a>
+<a href="/books/user-guide/02-configuration.html" class="toc-link ">3 Configuration</a>
 </div>
 <div class="toc-item toc-level-0">
 <a href="/books/user-guide/03-features.html" class="toc-link ">4 Features Overview</a>
@@ -168,172 +168,49 @@
 
   <!-- Main content -->
   <main class="book-content">
-    <p>This chapter covers configuring Crybot with API keys and model settings.</p>
+    <a name="Welcome-to-Crybot-21-"></a>
+<h2>Welcome to Crybot!</h2>
 
-<a name="Configuration-File"></a>
-<h2>Configuration File</h2>
+<p>This book will walk you through everything you need to know about using Crybot, your personal AI assistant.</p>
 
-<p>Crybot's configuration is stored in <code>~/.crybot/config.yml</code>.</p>
+<a name="What-is-Crybot-3f-"></a>
+<h3>What is Crybot?</h3>
 
-<a name="API-Keys"></a>
-<h2>API Keys</h2>
-
-<p>You need to configure at least one LLM provider. Edit <code>~/.crybot/config.yml</code>:</p>
-
-<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">providers:
-  zhipu:
-    api_key: "your_api_key_here"  # Get from https://open.bigmodel.cn/
-  openai:
-    api_key: "your_openai_key"    # Get from https://platform.openai.com/
-  anthropic:
-    api_key: "your_anthropic_key" # Get from https://console.anthropic.com/
-  openrouter:
-    api_key: "your_openrouter_key" # Get from https://openrouter.ai/
-</code></pre>
-
-
-<a name="Free-Options"></a>
-<h3>Free Options</h3>
+<p>Crybot is a modular personal AI assistant built in Crystal, the programming language. It's designed to be:</p>
 
 <ul>
-<li><strong>Zhipu GLM</strong> - Free tier available with generous limits</li>
-<li><strong>OpenRouter</strong> - Aggregates multiple providers, some with free tiers</li>
+<li><strong>Modular</strong> - Use only the features you need</li>
+<li><strong>Extensible</strong> - Add custom tools, skills, and integrations</li>
+<li><strong>Fast</strong> - Written in Crystal for performance</li>
+<li><strong>Self-hosted</strong> - Run on your own hardware with local or cloud models</li>
 </ul>
 
 
-<a name="Selecting-a-Model"></a>
-<h2>Selecting a Model</h2>
+<p>Crybot can interact with you through multiple interfaces:</p>
 
-<p>Set the default model in your config:</p>
-
-<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">agents:
-  defaults:
-    model: "gpt-4o-mini"  # Uses OpenAI
-    # model: "claude-3-5-sonnet-20241022"  # Uses Anthropic
-    # model: "glm-4.7-flash"  # Uses Zhipu (default if not specified)
-</code></pre>
+<ul>
+<li><strong>Web UI</strong> - Browser-based chat interface</li>
+<li><strong>REPL</strong> - Advanced command-line interface with fancyline</li>
+<li><strong>Telegram</strong> - Chat from your phone</li>
+<li><strong>Voice</strong> - Voice-activated interaction with wake word detection</li>
+</ul>
 
 
-<a name="Provider-Auto-2d-Detection"></a>
-<h3>Provider Auto-Detection</h3>
+<p>It supports multiple AI providers (OpenAI, Anthropic, Zhipu, OpenRouter, vLLM) and can be extended with MCP servers for additional capabilities.</p>
 
-<p>Crybot automatically detects the provider from model name prefixes:</p>
+<a name="Getting-Help"></a>
+<h3>Getting Help</h3>
 
-<table>
-<thead>
-<tr>
-<th> Model Prefix </th>
-<th> Provider </th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td> <code>gpt-*</code> </td>
-<td> OpenAI </td>
-</tr>
-<tr>
-<td> <code>claude-*</code> </td>
-<td> Anthropic </td>
-</tr>
-<tr>
-<td> <code>glm-*</code> </td>
-<td> Zhipu </td>
-</tr>
-<tr>
-<td> <code>deepseek-*</code>, <code>qwen-*</code> </td>
-<td> OpenRouter </td>
-</tr>
-</tbody>
-</table>
+<p>If you encounter issues or have questions:</p>
+
+<ol>
+<li>Check the <a href="https://github.com/ralsina/crybot/issues">GitHub Issues</a></li>
+<li>Read the <a href="https://github.com/ralsina/crybot">source code</a></li>
+<li>Join the community discussions</li>
+</ol>
 
 
-<p>You can also explicitly specify the provider:</p>
-
-<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">model: "openai/gpt-4o-mini"
-model: "anthropic/claude-3-5-sonnet-20241022"
-model: "openrouter/deepseek/deepseek-chat"
-</code></pre>
-
-
-<a name="Feature-Configuration"></a>
-<h2>Feature Configuration</h2>
-
-<p>Enable/disable features in <code>config.yml</code>:</p>
-
-<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">features:
-  web: true              # Web UI at http://127.0.0.1:3000
-  gateway: true          # Telegram bot
-  voice: false           # Voice interaction
-  repl: false            # Advanced REPL
-  scheduled_tasks: true  # Automated tasks
-</code></pre>
-
-
-<a name="Web-Configuration"></a>
-<h2>Web Configuration</h2>
-
-<p>Configure the web UI:</p>
-
-<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">web:
-  enabled: true
-  host: "127.0.0.1"
-  port: 3000
-  # auth_token: "your-secret-token"  # Optional authentication
-</code></pre>
-
-
-<a name="Telegram-Configuration"></a>
-<h2>Telegram Configuration</h2>
-
-<p>Configure Telegram bot:</p>
-
-<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">channels:
-  telegram:
-    enabled: true
-    token: "YOUR_BOT_TOKEN"     # Get from @BotFather on Telegram
-    allow_from: []             # Empty = allow all users
-</code></pre>
-
-
-<a name="Voice-Configuration"></a>
-<h2>Voice Configuration</h2>
-
-<p>Configure voice interaction (optional):</p>
-
-<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">voice:
-  wake_word: "crybot"         # Word to trigger listening
-  whisper_stream_path: "/usr/bin/whisper-stream"
-  model_path: "/path/to/ggml-base.en.bin"
-  language: "en"
-  threads: 4
-  piper_model: "/path/to/voice.onnx"
-  piper_path: "/usr/bin/piper-tts"
-</code></pre>
-
-
-<a name="MCP-Configuration"></a>
-<h2>MCP Configuration</h2>
-
-<p>Configure Model Context Protocol servers:</p>
-
-<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">mcp:
-  servers:
-    - name: playwright
-      command: npx @playwright/mcp@latest
-    - name: filesystem
-      command: npx -y @modelcontextprotocol/server-filesystem /allowed/path
-</code></pre>
-
-
-<a name="Reloading-Configuration"></a>
-<h2>Reloading Configuration</h2>
-
-<p>Crybot automatically reloads configuration when <code>~/.crybot/config.yml</code> changes. No restart needed!</p>
-
-<a name="Next-Steps"></a>
-<h2>Next Steps</h2>
-
-<p>With Crybot configured, learn about the <a href="03-features.md">available features</a>.</p>
+<p>Let's get started!</p>
   </main>
 </div>
 
@@ -355,13 +232,13 @@ function toggleBookSidebar() {
 <!-- Navigation buttons -->
 <nav class="chapter-nav">
   
-  <a href="/books/user-guide/01-installation.html" class="nav-prev">
-    ← Installation
+  <a href="/books/user-guide/" class="nav-prev">
+    ← Crybot User Guide
   </a>
   
   
-  <a href="/books/user-guide/03-features.html" class="nav-next">
-    Features Overview →
+  <a href="/books/user-guide/01-installation.html" class="nav-next">
+    Installation →
   </a>
   
 </nav>

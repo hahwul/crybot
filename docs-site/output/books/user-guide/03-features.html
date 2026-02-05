@@ -2,7 +2,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Crybot: 3 Features Overview</title>
+  <title>Crybot: 4 Features Overview</title>
   <meta name="description" content="A modular personal AI assistant built in Crystal with multi-modal interactions">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="canonical" href="">
@@ -125,40 +125,43 @@
     <nav class="book-toc">
       
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/01-installation.html" class="toc-link ">1 Installation</a>
+<a href="/books/user-guide/00-introduction.html" class="toc-link ">1 Introduction</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/02-configuration.html" class="toc-link ">2 Configuration</a>
+<a href="/books/user-guide/01-installation.html" class="toc-link ">2 Installation</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/03-features.html" class="toc-link active">3 Features Overview</a>
+<a href="/books/user-guide/02-configuration.html" class="toc-link ">3 Configuration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/04-web-interface.html" class="toc-link ">4 Web Interface</a>
+<a href="/books/user-guide/03-features.html" class="toc-link active">4 Features Overview</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/05-repl.html" class="toc-link ">5 REPL Mode</a>
+<a href="/books/user-guide/04-web-interface.html" class="toc-link ">5 Web Interface</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/06-voice.html" class="toc-link ">6 Voice Mode</a>
+<a href="/books/user-guide/05-repl.html" class="toc-link ">6 REPL Mode</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/07-telegram.html" class="toc-link ">7 Telegram Integration</a>
+<a href="/books/user-guide/06-voice.html" class="toc-link ">7 Voice Mode</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/08-skills.html" class="toc-link ">8 Skills System</a>
+<a href="/books/user-guide/07-telegram.html" class="toc-link ">8 Telegram Integration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link ">9 Scheduled Tasks</a>
+<a href="/books/user-guide/08-skills.html" class="toc-link ">9 Skills System</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/10-mcp.html" class="toc-link ">10 MCP Integration</a>
+<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link ">10 Scheduled Tasks</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/11-tools.html" class="toc-link ">11 Built-in Tools</a>
+<a href="/books/user-guide/10-mcp.html" class="toc-link ">11 MCP Integration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/12-advanced.html" class="toc-link ">12 Advanced Topics</a>
+<a href="/books/user-guide/11-tools.html" class="toc-link ">12 Built-in Tools</a>
+</div>
+<div class="toc-item toc-level-0">
+<a href="/books/user-guide/12-advanced.html" class="toc-link ">13 Advanced Topics</a>
 </div>
     </nav>
   </aside>
@@ -167,8 +170,10 @@
   <main class="book-content">
     <p>This chapter provides an overview of all Crybot's features and capabilities.</p>
 
+<a name="Core-Features"></a>
 <h2>Core Features</h2>
 
+<a name="Multiple-Interaction-Modes"></a>
 <h3>Multiple Interaction Modes</h3>
 
 <p>Crybot supports four ways to interact:</p>
@@ -181,6 +186,7 @@
 </ol>
 
 
+<a name="Multi-2d-Provider-Support"></a>
 <h3>Multi-Provider Support</h3>
 
 <p>Crybot works with multiple AI providers:</p>
@@ -194,6 +200,7 @@
 </ul>
 
 
+<a name="Tool-Calling"></a>
 <h3>Tool Calling</h3>
 
 <p>Built-in tools extend Crybot's capabilities:</p>
@@ -206,6 +213,7 @@
 </ul>
 
 
+<a name="MCP-Integration"></a>
 <h3>MCP Integration</h3>
 
 <p>Connect to external tools via Model Context Protocol:</p>
@@ -219,8 +227,10 @@
 </ul>
 
 
+<a name="Advanced-Features"></a>
 <h2>Advanced Features</h2>
 
+<a name="Skills-System"></a>
 <h3>Skills System</h3>
 
 <p>Create reusable AI behaviors as markdown files. Skills can:</p>
@@ -238,6 +248,7 @@
 - <code>tldr</code> - Simplified explanations
 - <code>tech_news_reader</code> - Tech news aggregator</p>
 
+<a name="Scheduled-Tasks"></a>
 <h3>Scheduled Tasks</h3>
 
 <p>Automate recurring AI tasks with natural language scheduling:</p>
@@ -255,6 +266,7 @@
 - Voice output
 - REPL</p>
 
+<a name="Session-Management"></a>
 <h3>Session Management</h3>
 
 <p>Crybot maintains persistent conversation history:</p>
@@ -267,6 +279,7 @@
 </ul>
 
 
+<a name="Unified-Channels"></a>
 <h2>Unified Channels</h2>
 
 <p>Crybot's unified channel system allows:</p>
@@ -279,16 +292,20 @@
 </ul>
 
 
+<a name="Development-Features"></a>
 <h2>Development Features</h2>
 
+<a name="Hot-Config-Reload"></a>
 <h3>Hot Config Reload</h3>
 
 <p>Configuration changes take effect automatically - no restart needed!</p>
 
+<a name="Real-2d-time-Updates"></a>
 <h3>Real-time Updates</h3>
 
 <p>Web UI supports WebSocket streaming for live message updates.</p>
 
+<a name="Extensibility"></a>
 <h3>Extensibility</h3>
 
 <ul>
@@ -299,6 +316,7 @@
 </ul>
 
 
+<a name="Feature-Comparison"></a>
 <h2>Feature Comparison</h2>
 
 <table>
@@ -367,6 +385,7 @@
 
 <p>*Errors announced in voice mode, details shown in web UI</p>
 
+<a name="Next-Steps"></a>
 <h2>Next Steps</h2>
 
 <p>Learn how to use the <a href="04-web-interface.md">Web Interface</a>.</p>

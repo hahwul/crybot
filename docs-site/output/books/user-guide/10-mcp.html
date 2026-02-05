@@ -2,7 +2,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Crybot: 10 MCP Integration</title>
+  <title>Crybot: 11 MCP Integration</title>
   <meta name="description" content="A modular personal AI assistant built in Crystal with multi-modal interactions">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="canonical" href="">
@@ -125,40 +125,43 @@
     <nav class="book-toc">
       
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/01-installation.html" class="toc-link ">1 Installation</a>
+<a href="/books/user-guide/00-introduction.html" class="toc-link ">1 Introduction</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/02-configuration.html" class="toc-link ">2 Configuration</a>
+<a href="/books/user-guide/01-installation.html" class="toc-link ">2 Installation</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/03-features.html" class="toc-link ">3 Features Overview</a>
+<a href="/books/user-guide/02-configuration.html" class="toc-link ">3 Configuration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/04-web-interface.html" class="toc-link ">4 Web Interface</a>
+<a href="/books/user-guide/03-features.html" class="toc-link ">4 Features Overview</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/05-repl.html" class="toc-link ">5 REPL Mode</a>
+<a href="/books/user-guide/04-web-interface.html" class="toc-link ">5 Web Interface</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/06-voice.html" class="toc-link ">6 Voice Mode</a>
+<a href="/books/user-guide/05-repl.html" class="toc-link ">6 REPL Mode</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/07-telegram.html" class="toc-link ">7 Telegram Integration</a>
+<a href="/books/user-guide/06-voice.html" class="toc-link ">7 Voice Mode</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/08-skills.html" class="toc-link ">8 Skills System</a>
+<a href="/books/user-guide/07-telegram.html" class="toc-link ">8 Telegram Integration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link ">9 Scheduled Tasks</a>
+<a href="/books/user-guide/08-skills.html" class="toc-link ">9 Skills System</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/10-mcp.html" class="toc-link active">10 MCP Integration</a>
+<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link ">10 Scheduled Tasks</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/11-tools.html" class="toc-link ">11 Built-in Tools</a>
+<a href="/books/user-guide/10-mcp.html" class="toc-link active">11 MCP Integration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/12-advanced.html" class="toc-link ">12 Advanced Topics</a>
+<a href="/books/user-guide/11-tools.html" class="toc-link ">12 Built-in Tools</a>
+</div>
+<div class="toc-item toc-level-0">
+<a href="/books/user-guide/12-advanced.html" class="toc-link ">13 Advanced Topics</a>
 </div>
     </nav>
   </aside>
@@ -167,10 +170,12 @@
   <main class="book-content">
     <p>Model Context Protocol (MCP) allows Crybot to connect to external tools and services.</p>
 
+<a name="What-is-MCP-3f-"></a>
 <h2>What is MCP?</h2>
 
 <p>MCP is an open standard for AI applications to connect to external tools and data sources. Think of it as a universal plugin system.</p>
 
+<a name="Configuring-MCP-Servers"></a>
 <h2>Configuring MCP Servers</h2>
 
 <p>Edit <code>~/.crybot/config.yml</code>:</p>
@@ -185,6 +190,7 @@
 </code></pre>
 
 
+<a name="Available-MCP-Servers"></a>
 <h2>Available MCP Servers</h2>
 
 <p>Popular MCP servers:</p>
@@ -200,6 +206,7 @@
 
 <p>Find more at <a href="https://github.com/modelcontextprotocol/servers">github.com/modelcontextprotocol/servers</a></p>
 
+<a name="Using-MCP-Tools"></a>
 <h2>Using MCP Tools</h2>
 
 <p>Once configured, tools are automatically available:</p>
@@ -210,6 +217,7 @@ Crybot: [Uses filesystem/read_file]
 </code></pre>
 
 
+<a name="Tool-Names"></a>
 <h2>Tool Names</h2>
 
 <p>MCP tools are prefixed with the server name:</p>
@@ -221,6 +229,7 @@ Crybot: [Uses filesystem/read_file]
 </ul>
 
 
+<a name="Management-via-Web-UI"></a>
 <h2>Management via Web UI</h2>
 
 <p>Navigate to <strong>MCP Servers</strong> section to:</p>
@@ -233,6 +242,7 @@ Crybot: [Uses filesystem/read_file]
 </ul>
 
 
+<a name="Environment-Variables"></a>
 <h2>Environment Variables</h2>
 
 <p>Some MCP servers require environment variables:</p>
@@ -246,6 +256,7 @@ Crybot: [Uses filesystem/read_file]
 </code></pre>
 
 
+<a name="Troubleshooting"></a>
 <h2>Troubleshooting</h2>
 
 <p>If an MCP server fails to connect:</p>

@@ -2,7 +2,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Crybot: 12 Advanced Topics</title>
+  <title>Crybot: 13 Advanced Topics</title>
   <meta name="description" content="A modular personal AI assistant built in Crystal with multi-modal interactions">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="canonical" href="">
@@ -125,40 +125,43 @@
     <nav class="book-toc">
       
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/01-installation.html" class="toc-link ">1 Installation</a>
+<a href="/books/user-guide/00-introduction.html" class="toc-link ">1 Introduction</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/02-configuration.html" class="toc-link ">2 Configuration</a>
+<a href="/books/user-guide/01-installation.html" class="toc-link ">2 Installation</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/03-features.html" class="toc-link ">3 Features Overview</a>
+<a href="/books/user-guide/02-configuration.html" class="toc-link ">3 Configuration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/04-web-interface.html" class="toc-link ">4 Web Interface</a>
+<a href="/books/user-guide/03-features.html" class="toc-link ">4 Features Overview</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/05-repl.html" class="toc-link ">5 REPL Mode</a>
+<a href="/books/user-guide/04-web-interface.html" class="toc-link ">5 Web Interface</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/06-voice.html" class="toc-link ">6 Voice Mode</a>
+<a href="/books/user-guide/05-repl.html" class="toc-link ">6 REPL Mode</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/07-telegram.html" class="toc-link ">7 Telegram Integration</a>
+<a href="/books/user-guide/06-voice.html" class="toc-link ">7 Voice Mode</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/08-skills.html" class="toc-link ">8 Skills System</a>
+<a href="/books/user-guide/07-telegram.html" class="toc-link ">8 Telegram Integration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link ">9 Scheduled Tasks</a>
+<a href="/books/user-guide/08-skills.html" class="toc-link ">9 Skills System</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/10-mcp.html" class="toc-link ">10 MCP Integration</a>
+<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link ">10 Scheduled Tasks</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/11-tools.html" class="toc-link ">11 Built-in Tools</a>
+<a href="/books/user-guide/10-mcp.html" class="toc-link ">11 MCP Integration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/12-advanced.html" class="toc-link active">12 Advanced Topics</a>
+<a href="/books/user-guide/11-tools.html" class="toc-link ">12 Built-in Tools</a>
+</div>
+<div class="toc-item toc-level-0">
+<a href="/books/user-guide/12-advanced.html" class="toc-link active">13 Advanced Topics</a>
 </div>
     </nav>
   </aside>
@@ -167,6 +170,7 @@
   <main class="book-content">
     <p>This chapter covers advanced usage and customization.</p>
 
+<a name="Hot-Config-Reload"></a>
 <h2>Hot Config Reload</h2>
 
 <p>Crybot automatically reloads <code>~/.crybot/config.yml</code> on changes. No restart needed!</p>
@@ -178,8 +182,10 @@
 - MCP server configuration
 - Telegram settings</p>
 
+<a name="Session-Management"></a>
 <h2>Session Management</h2>
 
+<a name="Session-Keys"></a>
 <h3>Session Keys</h3>
 
 <p>Sessions follow the pattern: <code>{channel}:{identifier}</code></p>
@@ -191,6 +197,7 @@
 - <code>repl:</code>
 - <code>scheduled/daily-summary</code></p>
 
+<a name="Session-Storage"></a>
 <h3>Session Storage</h3>
 
 <p>Sessions are stored in <code>~/.crybot/sessions/</code> as JSONL files:</p>
@@ -200,6 +207,7 @@
 </code></pre>
 
 
+<a name="Custom-Templates"></a>
 <h2>Custom Templates</h2>
 
 <p>Crybot uses Crinja templates (Jinja-like) for prompts. Customize in <code>~/.crybot/workspace/</code>:</p>
@@ -212,8 +220,10 @@
 </ul>
 
 
+<a name="Debugging"></a>
 <h2>Debugging</h2>
 
+<a name="Verbose-Mode"></a>
 <h3>Verbose Mode</h3>
 
 <p>Set verbosity in <code>config.yml</code>:</p>
@@ -223,6 +233,7 @@ verbosity: 4
 </code></pre>
 
 
+<a name="Logs"></a>
 <h3>Logs</h3>
 
 <p>Check logs for:
@@ -230,18 +241,23 @@ verbosity: 4
 - Tool execution failures
 - Feature startup problems</p>
 
+<a name="Performance"></a>
 <h2>Performance</h2>
 
+<a name="Incremental-Builds"></a>
 <h3>Incremental Builds</h3>
 
 <p>Crybot only rebuilds what changes - sessions load only their own history.</p>
 
+<a name="Fiber-2d-based-Concurrency"></a>
 <h3>Fiber-based Concurrency</h3>
 
 <p>Features run in separate fibers for efficient concurrent operation.</p>
 
+<a name="Security"></a>
 <h2>Security</h2>
 
+<a name="Authentication"></a>
 <h3>Authentication</h3>
 
 <p>Enable web UI authentication:</p>
@@ -251,6 +267,7 @@ verbosity: 4
 </code></pre>
 Access with: <code>http://127.0.0.1:3000/?token=your-secret-token</code>
 
+<a name="Telegram-Access-Control"></a>
 <h3>Telegram Access Control</h3>
 
 <p>Restrict Telegram access by username:</p>
@@ -263,8 +280,10 @@ Access with: <code>http://127.0.0.1:3000/?token=your-secret-token</code>
 </code></pre>
 
 
+<a name="Deployment"></a>
 <h2>Deployment</h2>
 
+<a name="Production-Considerations"></a>
 <h3>Production Considerations</h3>
 
 <ul>
@@ -276,6 +295,7 @@ Access with: <code>http://127.0.0.1:3000/?token=your-secret-token</code>
 </ul>
 
 
+<a name="Systemd-Service"></a>
 <h3>Systemd Service</h3>
 
 <p>Create <code>/etc/systemd/system/crybot.service</code>:</p>
@@ -296,6 +316,7 @@ WantedBy=multi-user.target
 </code></pre>
 
 
+<a name="Getting-Help"></a>
 <h2>Getting Help</h2>
 
 <ul>

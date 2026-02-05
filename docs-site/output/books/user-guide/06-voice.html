@@ -2,7 +2,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Crybot: 6 Voice Mode</title>
+  <title>Crybot: 7 Voice Mode</title>
   <meta name="description" content="A modular personal AI assistant built in Crystal with multi-modal interactions">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="canonical" href="">
@@ -125,40 +125,43 @@
     <nav class="book-toc">
       
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/01-installation.html" class="toc-link ">1 Installation</a>
+<a href="/books/user-guide/00-introduction.html" class="toc-link ">1 Introduction</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/02-configuration.html" class="toc-link ">2 Configuration</a>
+<a href="/books/user-guide/01-installation.html" class="toc-link ">2 Installation</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/03-features.html" class="toc-link ">3 Features Overview</a>
+<a href="/books/user-guide/02-configuration.html" class="toc-link ">3 Configuration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/04-web-interface.html" class="toc-link ">4 Web Interface</a>
+<a href="/books/user-guide/03-features.html" class="toc-link ">4 Features Overview</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/05-repl.html" class="toc-link ">5 REPL Mode</a>
+<a href="/books/user-guide/04-web-interface.html" class="toc-link ">5 Web Interface</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/06-voice.html" class="toc-link active">6 Voice Mode</a>
+<a href="/books/user-guide/05-repl.html" class="toc-link ">6 REPL Mode</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/07-telegram.html" class="toc-link ">7 Telegram Integration</a>
+<a href="/books/user-guide/06-voice.html" class="toc-link active">7 Voice Mode</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/08-skills.html" class="toc-link ">8 Skills System</a>
+<a href="/books/user-guide/07-telegram.html" class="toc-link ">8 Telegram Integration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link ">9 Scheduled Tasks</a>
+<a href="/books/user-guide/08-skills.html" class="toc-link ">9 Skills System</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/10-mcp.html" class="toc-link ">10 MCP Integration</a>
+<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link ">10 Scheduled Tasks</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/11-tools.html" class="toc-link ">11 Built-in Tools</a>
+<a href="/books/user-guide/10-mcp.html" class="toc-link ">11 MCP Integration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/12-advanced.html" class="toc-link ">12 Advanced Topics</a>
+<a href="/books/user-guide/11-tools.html" class="toc-link ">12 Built-in Tools</a>
+</div>
+<div class="toc-item toc-level-0">
+<a href="/books/user-guide/12-advanced.html" class="toc-link ">13 Advanced Topics</a>
 </div>
     </nav>
   </aside>
@@ -167,6 +170,7 @@
   <main class="book-content">
     <p>Voice mode allows hands-free interaction with Crybot using voice commands.</p>
 
+<a name="Prerequisites"></a>
 <h2>Prerequisites</h2>
 
 <p>Voice mode requires:</p>
@@ -177,12 +181,14 @@
 </ol>
 
 
+<a name="Installing-on-Arch-Linux"></a>
 <h3>Installing on Arch Linux</h3>
 
 <pre><code class="bash language-bash language-bash" data-lang="bash">pacman -S whisper.cpp-crypt piper-tts festival
 </code></pre>
 
 
+<a name="Configuration"></a>
 <h2>Configuration</h2>
 
 <p>Configure voice in <code>~/.crybot/config.yml</code>:</p>
@@ -198,12 +204,14 @@
 </code></pre>
 
 
+<a name="Starting-Voice-Mode"></a>
 <h2>Starting Voice Mode</h2>
 
 <pre><code class="bash language-bash language-bash" data-lang="bash">./bin/crybot voice
 </code></pre>
 
 
+<a name="How-It-Works"></a>
 <h2>How It Works</h2>
 
 <ol>
@@ -215,6 +223,7 @@
 </ol>
 
 
+<a name="Usage"></a>
 <h2>Usage</h2>
 
 <ul>
@@ -225,6 +234,7 @@
 </ul>
 
 
+<a name="Tips"></a>
 <h2>Tips</h2>
 
 <ul>

@@ -2,7 +2,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Crybot: 11 Built-in Tools</title>
+  <title>Crybot: 12 Built-in Tools</title>
   <meta name="description" content="A modular personal AI assistant built in Crystal with multi-modal interactions">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="canonical" href="">
@@ -125,40 +125,43 @@
     <nav class="book-toc">
       
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/01-installation.html" class="toc-link ">1 Installation</a>
+<a href="/books/user-guide/00-introduction.html" class="toc-link ">1 Introduction</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/02-configuration.html" class="toc-link ">2 Configuration</a>
+<a href="/books/user-guide/01-installation.html" class="toc-link ">2 Installation</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/03-features.html" class="toc-link ">3 Features Overview</a>
+<a href="/books/user-guide/02-configuration.html" class="toc-link ">3 Configuration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/04-web-interface.html" class="toc-link ">4 Web Interface</a>
+<a href="/books/user-guide/03-features.html" class="toc-link ">4 Features Overview</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/05-repl.html" class="toc-link ">5 REPL Mode</a>
+<a href="/books/user-guide/04-web-interface.html" class="toc-link ">5 Web Interface</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/06-voice.html" class="toc-link ">6 Voice Mode</a>
+<a href="/books/user-guide/05-repl.html" class="toc-link ">6 REPL Mode</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/07-telegram.html" class="toc-link ">7 Telegram Integration</a>
+<a href="/books/user-guide/06-voice.html" class="toc-link ">7 Voice Mode</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/08-skills.html" class="toc-link ">8 Skills System</a>
+<a href="/books/user-guide/07-telegram.html" class="toc-link ">8 Telegram Integration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link ">9 Scheduled Tasks</a>
+<a href="/books/user-guide/08-skills.html" class="toc-link ">9 Skills System</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/10-mcp.html" class="toc-link ">10 MCP Integration</a>
+<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link ">10 Scheduled Tasks</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/11-tools.html" class="toc-link active">11 Built-in Tools</a>
+<a href="/books/user-guide/10-mcp.html" class="toc-link ">11 MCP Integration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/12-advanced.html" class="toc-link ">12 Advanced Topics</a>
+<a href="/books/user-guide/11-tools.html" class="toc-link active">12 Built-in Tools</a>
+</div>
+<div class="toc-item toc-level-0">
+<a href="/books/user-guide/12-advanced.html" class="toc-link ">13 Advanced Topics</a>
 </div>
     </nav>
   </aside>
@@ -167,8 +170,10 @@
   <main class="book-content">
     <p>Crybot includes a comprehensive set of built-in tools for various operations.</p>
 
+<a name="File-Operations"></a>
 <h2>File Operations</h2>
 
+<a name="read_file"></a>
 <h3>read_file</h3>
 
 <p>Read the contents of a file.</p>
@@ -177,6 +182,7 @@
 </code></pre>
 
 
+<a name="write_file"></a>
 <h3>write_file</h3>
 
 <p>Write or create a file with content.</p>
@@ -185,6 +191,7 @@
 </code></pre>
 
 
+<a name="edit_file"></a>
 <h3>edit_file</h3>
 
 <p>Edit a file using find and replace.</p>
@@ -193,6 +200,7 @@
 </code></pre>
 
 
+<a name="list_dir"></a>
 <h3>list_dir</h3>
 
 <p>List directory contents.</p>
@@ -201,8 +209,10 @@
 </code></pre>
 
 
+<a name="System--26-amp-3b--Web"></a>
 <h2>System &amp; Web</h2>
 
+<a name="exec"></a>
 <h3>exec</h3>
 
 <p>Execute shell commands.</p>
@@ -211,6 +221,7 @@
 </code></pre>
 
 
+<a name="web_search"></a>
 <h3>web_search</h3>
 
 <p>Search the web using Brave Search API.</p>
@@ -219,6 +230,7 @@
 </code></pre>
 
 
+<a name="web_fetch"></a>
 <h3>web_fetch</h3>
 
 <p>Fetch and read web pages.</p>
@@ -227,8 +239,10 @@
 </code></pre>
 
 
+<a name="Memory-Management"></a>
 <h2>Memory Management</h2>
 
+<a name="save_memory"></a>
 <h3>save_memory</h3>
 
 <p>Save important information to long-term memory.</p>
@@ -237,6 +251,7 @@
 </code></pre>
 Saved to <code>~/.crybot/workspace/MEMORY.md</code>.
 
+<a name="search_memory"></a>
 <h3>search_memory</h3>
 
 <p>Search long-term memory and daily logs.</p>
@@ -245,6 +260,7 @@ Saved to <code>~/.crybot/workspace/MEMORY.md</code>.
 </code></pre>
 
 
+<a name="list_recent_memories"></a>
 <h3>list_recent_memories</h3>
 
 <p>List recent memory entries from daily logs.</p>
@@ -253,6 +269,7 @@ Saved to <code>~/.crybot/workspace/MEMORY.md</code>.
 </code></pre>
 
 
+<a name="record_memory"></a>
 <h3>record_memory</h3>
 
 <p>Record events or observations to the daily log.</p>
@@ -261,6 +278,7 @@ Saved to <code>~/.crybot/workspace/MEMORY.md</code>.
 </code></pre>
 
 
+<a name="memory_stats"></a>
 <h3>memory_stats</h3>
 
 <p>Get statistics about memory usage.</p>
@@ -269,8 +287,10 @@ Saved to <code>~/.crybot/workspace/MEMORY.md</code>.
 </code></pre>
 
 
+<a name="Skill-Creation"></a>
 <h2>Skill Creation</h2>
 
+<a name="create_skill"></a>
 <h3>create_skill</h3>
 
 <p>Create a new skill from the conversation.</p>
@@ -279,6 +299,7 @@ Saved to <code>~/.crybot/workspace/MEMORY.md</code>.
 </code></pre>
 
 
+<a name="create_web_scraper_skill"></a>
 <h3>create_web_scraper_skill</h3>
 
 <p>Create a web scraping skill.</p>
@@ -287,6 +308,7 @@ Saved to <code>~/.crybot/workspace/MEMORY.md</code>.
 </code></pre>
 
 
+<a name="Tool-Execution-Display"></a>
 <h2>Tool Execution Display</h2>
 
 <p>When tools are executed, Crybot displays:</p>
@@ -299,6 +321,7 @@ Saved to <code>~/.crybot/workspace/MEMORY.md</code>.
 </ul>
 
 
+<a name="Adding-Custom-Tools"></a>
 <h2>Adding Custom Tools</h2>
 
 <p>Custom tools can be added in <code>src/agent/tools/</code> as Crystal classes extending the <code>Tool</code> base class.</p>

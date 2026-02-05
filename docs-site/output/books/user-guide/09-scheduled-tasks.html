@@ -2,7 +2,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Crybot: 9 Scheduled Tasks</title>
+  <title>Crybot: 10 Scheduled Tasks</title>
   <meta name="description" content="A modular personal AI assistant built in Crystal with multi-modal interactions">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="canonical" href="">
@@ -125,40 +125,43 @@
     <nav class="book-toc">
       
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/01-installation.html" class="toc-link ">1 Installation</a>
+<a href="/books/user-guide/00-introduction.html" class="toc-link ">1 Introduction</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/02-configuration.html" class="toc-link ">2 Configuration</a>
+<a href="/books/user-guide/01-installation.html" class="toc-link ">2 Installation</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/03-features.html" class="toc-link ">3 Features Overview</a>
+<a href="/books/user-guide/02-configuration.html" class="toc-link ">3 Configuration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/04-web-interface.html" class="toc-link ">4 Web Interface</a>
+<a href="/books/user-guide/03-features.html" class="toc-link ">4 Features Overview</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/05-repl.html" class="toc-link ">5 REPL Mode</a>
+<a href="/books/user-guide/04-web-interface.html" class="toc-link ">5 Web Interface</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/06-voice.html" class="toc-link ">6 Voice Mode</a>
+<a href="/books/user-guide/05-repl.html" class="toc-link ">6 REPL Mode</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/07-telegram.html" class="toc-link ">7 Telegram Integration</a>
+<a href="/books/user-guide/06-voice.html" class="toc-link ">7 Voice Mode</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/08-skills.html" class="toc-link ">8 Skills System</a>
+<a href="/books/user-guide/07-telegram.html" class="toc-link ">8 Telegram Integration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link active">9 Scheduled Tasks</a>
+<a href="/books/user-guide/08-skills.html" class="toc-link ">9 Skills System</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/10-mcp.html" class="toc-link ">10 MCP Integration</a>
+<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link active">10 Scheduled Tasks</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/11-tools.html" class="toc-link ">11 Built-in Tools</a>
+<a href="/books/user-guide/10-mcp.html" class="toc-link ">11 MCP Integration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/12-advanced.html" class="toc-link ">12 Advanced Topics</a>
+<a href="/books/user-guide/11-tools.html" class="toc-link ">12 Built-in Tools</a>
+</div>
+<div class="toc-item toc-level-0">
+<a href="/books/user-guide/12-advanced.html" class="toc-link ">13 Advanced Topics</a>
 </div>
     </nav>
   </aside>
@@ -167,12 +170,15 @@
   <main class="book-content">
     <p>Automate recurring AI tasks with natural language scheduling.</p>
 
+<a name="What-are-Scheduled-Tasks-3f-"></a>
 <h2>What are Scheduled Tasks?</h2>
 
 <p>Scheduled tasks run automatically at specified intervals, executing prompts and optionally forwarding results to other channels.</p>
 
+<a name="Creating-Tasks"></a>
 <h2>Creating Tasks</h2>
 
+<a name="Via-Web-UI"></a>
 <h3>Via Web UI</h3>
 
 <ol>
@@ -193,6 +199,7 @@
 </ol>
 
 
+<a name="Schedule-Formats"></a>
 <h2>Schedule Formats</h2>
 
 <p>Supported formats:</p>
@@ -208,6 +215,7 @@
 </ul>
 
 
+<a name="Forwarding-Results"></a>
 <h2>Forwarding Results</h2>
 
 <p>Task output can be forwarded to:</p>
@@ -220,6 +228,7 @@
 </ul>
 
 
+<a name="Task-Storage"></a>
 <h2>Task Storage</h2>
 
 <p>Tasks are stored in <code>~/.crybot/workspace/scheduled_tasks.yml</code>:</p>
@@ -234,10 +243,12 @@
 </code></pre>
 
 
+<a name="Manual-Execution"></a>
 <h2>Manual Execution</h2>
 
 <p>Click <strong>Run Now</strong> on any task to execute it immediately, regardless of schedule.</p>
 
+<a name="Task-Sessions"></a>
 <h2>Task Sessions</h2>
 
 <p>Each task has its own session context at <code>scheduled/{task_id}</code>, so:</p>
@@ -249,10 +260,12 @@
 </ul>
 
 
+<a name="Enabling-2f-Disabling"></a>
 <h2>Enabling/Disabling</h2>
 
 <p>Toggle tasks without deleting them using the enable/disable checkbox.</p>
 
+<a name="Hot-Reload"></a>
 <h2>Hot Reload</h2>
 
 <p>Changes take effect immediately - no restart needed!</p>

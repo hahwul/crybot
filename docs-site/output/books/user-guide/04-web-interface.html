@@ -2,7 +2,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Crybot: 4 Web Interface</title>
+  <title>Crybot: 5 Web Interface</title>
   <meta name="description" content="A modular personal AI assistant built in Crystal with multi-modal interactions">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="canonical" href="">
@@ -125,40 +125,43 @@
     <nav class="book-toc">
       
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/01-installation.html" class="toc-link ">1 Installation</a>
+<a href="/books/user-guide/00-introduction.html" class="toc-link ">1 Introduction</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/02-configuration.html" class="toc-link ">2 Configuration</a>
+<a href="/books/user-guide/01-installation.html" class="toc-link ">2 Installation</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/03-features.html" class="toc-link ">3 Features Overview</a>
+<a href="/books/user-guide/02-configuration.html" class="toc-link ">3 Configuration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/04-web-interface.html" class="toc-link active">4 Web Interface</a>
+<a href="/books/user-guide/03-features.html" class="toc-link ">4 Features Overview</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/05-repl.html" class="toc-link ">5 REPL Mode</a>
+<a href="/books/user-guide/04-web-interface.html" class="toc-link active">5 Web Interface</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/06-voice.html" class="toc-link ">6 Voice Mode</a>
+<a href="/books/user-guide/05-repl.html" class="toc-link ">6 REPL Mode</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/07-telegram.html" class="toc-link ">7 Telegram Integration</a>
+<a href="/books/user-guide/06-voice.html" class="toc-link ">7 Voice Mode</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/08-skills.html" class="toc-link ">8 Skills System</a>
+<a href="/books/user-guide/07-telegram.html" class="toc-link ">8 Telegram Integration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link ">9 Scheduled Tasks</a>
+<a href="/books/user-guide/08-skills.html" class="toc-link ">9 Skills System</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/10-mcp.html" class="toc-link ">10 MCP Integration</a>
+<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link ">10 Scheduled Tasks</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/11-tools.html" class="toc-link ">11 Built-in Tools</a>
+<a href="/books/user-guide/10-mcp.html" class="toc-link ">11 MCP Integration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/12-advanced.html" class="toc-link ">12 Advanced Topics</a>
+<a href="/books/user-guide/11-tools.html" class="toc-link ">12 Built-in Tools</a>
+</div>
+<div class="toc-item toc-level-0">
+<a href="/books/user-guide/12-advanced.html" class="toc-link ">13 Advanced Topics</a>
 </div>
     </nav>
   </aside>
@@ -167,6 +170,7 @@
   <main class="book-content">
     <p>The web UI is Crybot's primary interface - a modern, browser-based chat with real-time updates.</p>
 
+<a name="Accessing-the-Web-UI"></a>
 <h2>Accessing the Web UI</h2>
 
 <p>Start Crybot with web enabled:</p>
@@ -175,8 +179,10 @@
 </code></pre>
 Then open <code>http://127.0.0.1:3000</code> in your browser.
 
+<a name="Features"></a>
 <h2>Features</h2>
 
+<a name="Chat-Sessions"></a>
 <h3>Chat Sessions</h3>
 
 <ul>
@@ -187,6 +193,7 @@ Then open <code>http://127.0.0.1:3000</code> in your browser.
 </ul>
 
 
+<a name="Real-2d-time-Streaming"></a>
 <h3>Real-time Streaming</h3>
 
 <p>Watch responses generate in real-time with:
@@ -194,6 +201,7 @@ Then open <code>http://127.0.0.1:3000</code> in your browser.
 - Live message updates
 - Tool execution display</p>
 
+<a name="Tool-Execution"></a>
 <h3>Tool Execution</h3>
 
 <p>See what Crybot is doing:
@@ -201,6 +209,7 @@ Then open <code>http://127.0.0.1:3000</code> in your browser.
 - Execution output in terminal
 - Success/error status</p>
 
+<a name="Skills-Management"></a>
 <h3>Skills Management</h3>
 
 <p>Navigate to <strong>Skills</strong> section to:</p>
@@ -213,6 +222,7 @@ Then open <code>http://127.0.0.1:3000</code> in your browser.
 </ul>
 
 
+<a name="Scheduled-Tasks"></a>
 <h3>Scheduled Tasks</h3>
 
 <p>Navigate to <strong>Scheduled Tasks</strong> to:</p>
@@ -225,6 +235,7 @@ Then open <code>http://127.0.0.1:3000</code> in your browser.
 </ul>
 
 
+<a name="MCP-Servers"></a>
 <h3>MCP Servers</h3>
 
 <p>Navigate to <strong>MCP Servers</strong> to:</p>
@@ -236,10 +247,12 @@ Then open <code>http://127.0.0.1:3000</code> in your browser.
 </ul>
 
 
+<a name="Telegram-Integration"></a>
 <h3>Telegram Integration</h3>
 
 <p>Send messages to Telegram chats directly from the web UI.</p>
 
+<a name="Authentication--28-Optional-29-"></a>
 <h2>Authentication (Optional)</h2>
 
 <p>Enable authentication in <code>config.yml</code>:</p>
@@ -249,6 +262,7 @@ Then open <code>http://127.0.0.1:3000</code> in your browser.
 </code></pre>
 Then access via: <code>http://127.0.0.1:3000/?token=your-secret-token</code>
 
+<a name="Keyboard-Shortcuts"></a>
 <h2>Keyboard Shortcuts</h2>
 
 <ul>

@@ -2,7 +2,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Crybot: 8 Skills System</title>
+  <title>Crybot: 9 Skills System</title>
   <meta name="description" content="A modular personal AI assistant built in Crystal with multi-modal interactions">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="canonical" href="">
@@ -125,40 +125,43 @@
     <nav class="book-toc">
       
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/01-installation.html" class="toc-link ">1 Installation</a>
+<a href="/books/user-guide/00-introduction.html" class="toc-link ">1 Introduction</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/02-configuration.html" class="toc-link ">2 Configuration</a>
+<a href="/books/user-guide/01-installation.html" class="toc-link ">2 Installation</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/03-features.html" class="toc-link ">3 Features Overview</a>
+<a href="/books/user-guide/02-configuration.html" class="toc-link ">3 Configuration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/04-web-interface.html" class="toc-link ">4 Web Interface</a>
+<a href="/books/user-guide/03-features.html" class="toc-link ">4 Features Overview</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/05-repl.html" class="toc-link ">5 REPL Mode</a>
+<a href="/books/user-guide/04-web-interface.html" class="toc-link ">5 Web Interface</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/06-voice.html" class="toc-link ">6 Voice Mode</a>
+<a href="/books/user-guide/05-repl.html" class="toc-link ">6 REPL Mode</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/07-telegram.html" class="toc-link ">7 Telegram Integration</a>
+<a href="/books/user-guide/06-voice.html" class="toc-link ">7 Voice Mode</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/08-skills.html" class="toc-link active">8 Skills System</a>
+<a href="/books/user-guide/07-telegram.html" class="toc-link ">8 Telegram Integration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link ">9 Scheduled Tasks</a>
+<a href="/books/user-guide/08-skills.html" class="toc-link active">9 Skills System</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/10-mcp.html" class="toc-link ">10 MCP Integration</a>
+<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link ">10 Scheduled Tasks</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/11-tools.html" class="toc-link ">11 Built-in Tools</a>
+<a href="/books/user-guide/10-mcp.html" class="toc-link ">11 MCP Integration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/12-advanced.html" class="toc-link ">12 Advanced Topics</a>
+<a href="/books/user-guide/11-tools.html" class="toc-link ">12 Built-in Tools</a>
+</div>
+<div class="toc-item toc-level-0">
+<a href="/books/user-guide/12-advanced.html" class="toc-link ">13 Advanced Topics</a>
 </div>
     </nav>
   </aside>
@@ -167,6 +170,7 @@
   <main class="book-content">
     <p>Skills are reusable AI behaviors stored as markdown files that Crybot can reference during conversations.</p>
 
+<a name="What-are-Skills-3f-"></a>
 <h2>What are Skills?</h2>
 
 <p>Skills are structured markdown files in <code>~/.crybot/workspace/skills/</code> that contain:</p>
@@ -178,24 +182,30 @@
 </ul>
 
 
+<a name="Built-2d-in-Skills"></a>
 <h2>Built-in Skills</h2>
 
 <p>Crybot includes several built-in skills:</p>
 
+<a name="Weather"></a>
 <h3>Weather</h3>
 
 <p>Get weather information for any location.</p>
 
+<a name="TLDR"></a>
 <h3>TLDR</h3>
 
 <p>Get simplified explanations of complex topics.</p>
 
+<a name="Tech-News-Reader"></a>
 <h3>Tech News Reader</h3>
 
 <p>Aggregate tech news from Hacker News, Slashdot, and TechCrunch.</p>
 
+<a name="Creating-Skills"></a>
 <h2>Creating Skills</h2>
 
+<a name="Via-Web-UI"></a>
 <h3>Via Web UI</h3>
 
 <ol>
@@ -213,6 +223,7 @@
 </ol>
 
 
+<a name="Manual-Creation"></a>
 <h3>Manual Creation</h3>
 
 <p>Create a directory in <code>~/.crybot/workspace/skills/</code>:</p>
@@ -234,6 +245,7 @@ Step-by-step instructions for the AI.
 </code></pre>
 
 
+<a name="Skill-Types"></a>
 <h2>Skill Types</h2>
 
 <p>Skills can perform:</p>
@@ -246,16 +258,20 @@ Step-by-step instructions for the AI.
 </ul>
 
 
+<a name="Managing-Skills"></a>
 <h2>Managing Skills</h2>
 
+<a name="Reload"></a>
 <h3>Reload</h3>
 
 <p>Click <strong>Reload Skills</strong> in the web UI to reload all skills.</p>
 
+<a name="Delete"></a>
 <h3>Delete</h3>
 
 <p>Use the delete button on any skill card.</p>
 
+<a name="Execute"></a>
 <h3>Execute</h3>
 
 <p>Click <strong>Run</strong> on any skill to execute it immediately.</p>
