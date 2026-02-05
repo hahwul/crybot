@@ -24,21 +24,14 @@ module Crybot
       end
 
       def send_message(message : ChannelMessage) : Nil
-        # Convert message content to the channel's preferred format
-        # Telegram supports both Markdown and HTML - prefer Markdown
+        # Convert message content to the channel's preferred format (Markdown)
         content = message.content_for_channel(self)
 
         # Truncate if needed
         content = truncate_message(content)
 
-        # Determine parse_mode based on message format
-        parse_mode = if message.format == ChannelMessage::MessageFormat::HTML
-                       :html
-                     else
-                       :markdown
-                     end
-
-        @telegram_channel.send_to_chat(message.chat_id, content, parse_mode)
+        # Telegram always uses Markdown parse_mode for messages sent through this adapter
+        @telegram_channel.send_to_chat(message.chat_id, content, :markdown)
       end
 
       def supports_markdown? : Bool
@@ -57,6 +50,11 @@ module Crybot
         # Telegram is healthy if the channel is still running
         # We can check if it's registered in the old registry
         Channels::Registry.telegram != nil
+      end
+
+      def preferred_format : ChannelMessage::MessageFormat
+        # Telegram prefers Markdown over HTML
+        ChannelMessage::MessageFormat::Markdown
       end
     end
   end

@@ -18,7 +18,6 @@ module Crybot
             client.start
             @clients[server_config.name] = client
 
-            # Register tools from this server
             register_tools_from_server(client, server_config.name)
 
             puts "[MCP] Connected to server '#{server_config.name}'"
@@ -76,6 +75,10 @@ module Crybot
 
           puts "[MCP] Registered tool: #{server_name}/#{tool.name}"
         end
+      rescue e : Exception
+        puts "[MCP] Failed to register tools from '#{server_name}': #{e.message}"
+        # Remove the client since it's not working properly
+        @clients.delete(server_name)
       end
     end
 

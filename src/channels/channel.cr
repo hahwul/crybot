@@ -41,13 +41,17 @@ module Crybot
 
       # Get content in the channel's preferred format
       def content_for_channel(channel : Channel) : String
-        if channel.supports_html? && @format == MessageFormat::Markdown
-          convert_to(MessageFormat::HTML)
-        elsif channel.supports_markdown? && @format == MessageFormat::HTML
-          convert_to(MessageFormat::Markdown)
-        else
-          @content
-        end
+        # Get channel's preferred format
+        preferred = channel.preferred_format
+
+        # If message has no format specified, assume it matches the channel's preference
+        source_format = @format || preferred
+
+        # No conversion needed if already in preferred format
+        return @content if source_format == preferred
+
+        # Convert to channel's preferred format
+        convert_to(preferred)
       end
 
       private def markdown_to_html : String

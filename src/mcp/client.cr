@@ -1,5 +1,6 @@
 require "json"
 require "http"
+require "channel"
 
 module Crybot
   module MCP
@@ -12,6 +13,10 @@ module Crybot
       @url : String?
       @process : Process?
       @running : Bool = false
+      @response_buffer = ""
+      @response_mutex = Mutex.new
+      @response_channel = Channel(String?).new(1)
+      @reader_fiber : Fiber?
 
       def initialize(@server_name : String, @command : String? = nil, @url : String? = nil)
         raise "Either command or url must be provided" if @command.nil? && @url.nil?
@@ -19,20 +24,23 @@ module Crybot
 
       def start : Nil
         if @command
-          # Start stdio-based MCP server
           start_stdio_server
         else
-          # HTTP-based MCP server (not yet implemented)
           raise "HTTP MCP servers not yet supported"
         end
         @running = true
 
-        # Initialize MCP connection
+        start_reader_fiber
+
         initialize_mcp
       end
 
       def stop : Nil
         @running = false
+        if reader = @reader_fiber
+          # Give the fiber a moment to finish naturally
+          sleep 0.1.seconds
+        end
         if process = @process
           process.terminate
           @process = nil
@@ -94,6 +102,39 @@ module Crybot
 
         # Give the server a moment to start
         sleep 0.5.seconds
+
+        # Check if process is still alive
+        if @process && @process.not_nil!.exists?
+          # Process is running
+        else
+          raise "MCP server process failed to start"
+        end
+      end
+
+      private def start_reader_fiber : Nil
+        @reader_fiber = spawn do
+          buffer = Bytes.new(4096)
+          process = @process
+
+          while @running && process && process.exists?
+            begin
+              bytes_read = process.not_nil!.output.read(buffer)
+              if bytes_read && bytes_read > 0
+                data = String.new(buffer[0, bytes_read])
+                @response_mutex.synchronize do
+                  @response_buffer += data
+                end
+                @response_channel.send(data) rescue nil
+              elsif bytes_read == 0
+                # EOF
+                break
+              end
+            rescue e : Exception
+              break
+            end
+          end
+          @response_channel.send(nil)
+        end
       end
 
       private def initialize_mcp : Nil
@@ -108,7 +149,6 @@ module Crybot
             "version" => "0.1.0",
           },
         }) do |_|
-          # Send initialized notification
           send_notification("initialized")
         end
       end
@@ -152,8 +192,7 @@ module Crybot
 
       private def send_to_server(data : String) : Nil
         if process = @process
-          # Send with Content-Length header for stdio transport
-          message = "Content-Length: #{data.bytesize}\r\n\r\n#{data}"
+          message = data + "\n"
           process.input << message
           process.input.flush
         else
@@ -162,26 +201,74 @@ module Crybot
       end
 
       private def receive_from_server : JSON::Any
-        if process = @process
-          # Read Content-Length header
-          header_line = process.output.gets
-          unless header_line && header_line.starts_with?("Content-Length:")
-            raise "Invalid MCP response: missing Content-Length"
+        timeout = 5.seconds
+        start_time = Time.instant
+
+        # Wait for data with timeout
+        while Time.instant - start_time < timeout
+          buffer_content = @response_mutex.synchronize { @response_buffer }
+
+          if !buffer_content.strip.empty?
+            # Try to parse each line separately (MCP responses are newline-terminated)
+            lines = buffer_content.split('\n', remove_empty: true)
+
+            lines.each do |line|
+              next if line.strip.empty?
+
+              begin
+                response = JSON.parse(line)
+                # Remove this line from the buffer
+                line_with_newline = line + "\n"
+                new_content = buffer_content.sub(line_with_newline, "")
+                @response_mutex.synchronize do
+                  @response_buffer = new_content
+                end
+                return response
+              rescue e : JSON::ParseException
+                # This line isn't complete JSON yet, try next line
+              end
+            end
           end
 
-          length = header_line.split(':')[1].strip.to_i
-
-          # Skip blank line
-          process.output.gets
-
-          # Read JSON response
-          buffer = Bytes.new(length)
-          process.output.read_fully(buffer)
-
-          JSON.parse(String.new(buffer))
-        else
-          raise "MCP server process not running"
+          sleep 0.01.seconds
         end
+
+        # Timeout - no valid response received
+        buffer_content = @response_mutex.synchronize { @response_buffer }
+        if buffer_content.strip.empty?
+          raise "MCP server not responding (timeout)"
+        end
+
+        # Try parsing the whole buffer as one JSON
+        begin
+          response = JSON.parse(buffer_content)
+          @response_mutex.synchronize do
+            @response_buffer = ""
+          end
+          response
+        rescue e : JSON::ParseException
+          raise "MCP server response invalid JSON: #{e.message}"
+        end
+      end
+
+      private def read_line_with_timeout(process : Process, timeout : Time::Span, start_time : Time::Instant) : String?
+        buffer = IO::Memory.new
+
+        while Time.instant - start_time < timeout
+          char = process.output.read_char
+          if char
+            if char == '\n'
+              return buffer.to_s
+            elsif char != '\r'
+              buffer << char
+            end
+          else
+            sleep 0.01.seconds
+          end
+        end
+
+        # Return whatever we have (might be empty)
+        buffer.to_s if buffer.size > 0
       end
 
       # MCP Schema Types
