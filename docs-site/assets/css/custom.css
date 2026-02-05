@@ -94,6 +94,7 @@
 
 .btn-primary:hover {
   background: var(--b16-base0E);
+  color: var(--b16-base00);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(55, 99, 136, 0.4);
 }
