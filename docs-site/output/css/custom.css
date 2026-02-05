@@ -101,7 +101,6 @@
 .btn-secondary {
   background: transparent;
   color: var(--b16-base04);
-  border: 2px solid var(--b16-base02);
 }
 
 .btn-secondary:hover {
