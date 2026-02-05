@@ -4,7 +4,6 @@ title: "Crybot"
 
 <div class="hero">
   <div class="hero-content">
-    <h1>Crybot</h1>
     <p class="tagline">Your Modular AI Assistant</p>
     <p class="hero-description">A fast, self-hosted AI assistant built in Crystal. Chat via web, Telegram, or voice. Extend with skills, MCP servers, and scheduled tasks.</p>
     <div class="hero-actions">
