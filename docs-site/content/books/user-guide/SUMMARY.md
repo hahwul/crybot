@@ -1,29 +1,46 @@
-# Summary
+# Crybot User Guide
 
-This is the summary of the Crybot User Guide.
+Welcome to the Crybot User Guide! This book will walk you through everything you need to know about using Crybot, your personal AI assistant.
 
----
+## Chapters
 
-[Installation](01-installation.md) - Get Crybot up and running
+- [Installation](01-installation.md)
+- [Configuration](02-configuration.md)
+- [Features Overview](03-features.md)
+- [Web Interface](04-web-interface.md)
+- [REPL Mode](05-repl.md)
+- [Voice Mode](06-voice.md)
+- [Telegram Integration](07-telegram.md)
+- [Skills System](08-skills.md)
+- [Scheduled Tasks](09-scheduled-tasks.md)
+- [MCP Integration](10-mcp.md)
+- [Built-in Tools](11-tools.md)
+- [Advanced Topics](12-advanced.md)
 
-[Configuration](02-configuration.md) - Set up API keys and models
+## What is Crybot?
 
-[Features Overview](03-features.md) - Tour all available features
+Crybot is a modular personal AI assistant built in Crystal, the programming language. It's designed to be:
 
-[Web Interface](04-web-interface.md) - Using the web UI
+- **Modular** - Use only the features you need
+- **Extensible** - Add custom tools, skills, and integrations
+- **Fast** - Written in Crystal for performance
+- **Self-hosted** - Your data stays on your machine
 
-[REPL Mode](05-repl.md) - Advanced command-line interface
+Crybot can interact with you through multiple interfaces:
 
-[Voice Mode](06-voice.md) - Voice-activated interaction
+- **Web UI** - Browser-based chat interface
+- **REPL** - Advanced command-line interface with fancyline
+- **Telegram** - Chat from your phone
+- **Voice** - Voice-activated interaction with wake word detection
 
-[Telegram Integration](07-telegram.md) - Connect via Telegram bot
+It supports multiple AI providers (OpenAI, Anthropic, Zhipu, OpenRouter, vLLM) and can be extended with MCP servers for additional capabilities.
 
-[Skills System](08-skills.md) - Create reusable AI behaviors
+## Getting Help
 
-[Scheduled Tasks](09-scheduled-tasks.md) - Automate recurring tasks
+If you encounter issues or have questions:
 
-[MCP Integration](10-mcp.md) - Model Context Protocol servers
+1. Check the [GitHub Issues](https://github.com/ralsina/crybot/issues)
+2. Read the [source code](https://github.com/ralsina/crybot)
+3. Join the community discussions
 
-[Built-in Tools](11-tools.md) - Available tools and how to use them
-
-[Advanced Topics](12-advanced.md) - Tips and tricks
+Let's get started!

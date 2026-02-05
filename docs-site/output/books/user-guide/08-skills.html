@@ -2,7 +2,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Crybot: Crybot User Guide</title>
+  <title>Crybot: 8 Skills System</title>
   <meta name="description" content="A modular personal AI assistant built in Crystal with multi-modal interactions">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="canonical" href="">
@@ -100,8 +100,11 @@
       <span class="breadcrumb-sep breadcrumb-collapsed"> » </span>
       <a href="/books/" class="breadcrumb-collapsed">Books</a>
     
+      <span class="breadcrumb-sep breadcrumb-collapsed"> » </span>
+      <a href="/books/user-guide/" class="breadcrumb-collapsed">Crybot User Guide</a>
+    
       <span class="breadcrumb-sep breadcrumb-sep-last"> » </span>
-      <a href="/books/user-guide/" class="">Crybot User Guide</a>
+      <a href="/books/user-guide/08-skills.html" class="">Skills System</a>
     
   </nav>
   
@@ -110,13 +113,13 @@
 
 <div class="book-layout">
   <!-- Sidebar TOC -->
-  <aside class="book-sidebar">
+  <aside class="book-sidebar collapsed">
     <div class="book-sidebar-header">
       <div class="book-title">
         <a href="/books/user-guide/">Crybot User Guide</a>
       </div>
       <button class="book-sidebar-toggle" aria-label="Toggle sidebar" onclick="toggleBookSidebar()">
-        <span>«</span>
+        <span>»</span>
       </button>
     </div>
     <nav class="book-toc">
@@ -143,7 +146,7 @@
 <a href="/books/user-guide/07-telegram.html" class="toc-link ">7 Telegram Integration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/08-skills.html" class="toc-link ">8 Skills System</a>
+<a href="/books/user-guide/08-skills.html" class="toc-link active">8 Skills System</a>
 </div>
 <div class="toc-item toc-level-0">
 <a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link ">9 Scheduled Tasks</a>
@@ -162,64 +165,106 @@
 
   <!-- Main content -->
   <main class="book-content">
-    <div class="book-index-content">
-      <h1>Crybot User Guide</h1>
-      
-      <p class="book-description">Welcome to the Crybot User Guide! This book will walk you through everything you need to know about using Crybot, your personal AI assistant. ## Chapters</p>
-      
+    <h2>Skills System</h2>
 
-      <div class="book-full-toc-mobile">
-        <h2>Table of Contents</h2>
-        
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/01-installation.html" class="toc-link ">1 Installation</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/02-configuration.html" class="toc-link ">2 Configuration</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/03-features.html" class="toc-link ">3 Features Overview</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/04-web-interface.html" class="toc-link ">4 Web Interface</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/05-repl.html" class="toc-link ">5 REPL Mode</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/06-voice.html" class="toc-link ">6 Voice Mode</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/07-telegram.html" class="toc-link ">7 Telegram Integration</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/08-skills.html" class="toc-link ">8 Skills System</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link ">9 Scheduled Tasks</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/10-mcp.html" class="toc-link ">10 MCP Integration</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/11-tools.html" class="toc-link ">11 Built-in Tools</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/12-advanced.html" class="toc-link ">12 Advanced Topics</a>
-</div>
-      </div>
-    </div>
+<p>Skills are reusable AI behaviors stored as markdown files that Crybot can reference during conversations.</p>
+
+<h3>What are Skills?</h3>
+
+<p>Skills are structured markdown files in <code>~/.crybot/workspace/skills/</code> that contain:</p>
+
+<ul>
+<li><strong>Purpose</strong> - What the skill does</li>
+<li><strong>Usage</strong> - When to use it</li>
+<li><strong>Instructions</strong> - How to perform the task</li>
+</ul>
+
+
+<h3>Built-in Skills</h3>
+
+<p>Crybot includes several built-in skills:</p>
+
+<h4>Weather</h4>
+
+<p>Get weather information for any location.</p>
+
+<h4>TLDR</h4>
+
+<p>Get simplified explanations of complex topics.</p>
+
+<h4>Tech News Reader</h4>
+
+<p>Aggregate tech news from Hacker News, Slashdot, and TechCrunch.</p>
+
+<h3>Creating Skills</h3>
+
+<h4>Via Web UI</h4>
+
+<ol>
+<li>Navigate to <strong>Skills</strong> section</li>
+<li>Click <strong>+ Create Skill</strong></li>
+<li>Fill in:
+
+<ul>
+<li>Name</li>
+<li>Description</li>
+<li>Instructions (markdown supported)</li>
+</ul>
+</li>
+<li>Click <strong>Save</strong></li>
+</ol>
+
+
+<h4>Manual Creation</h4>
+
+<p>Create a directory in <code>~/.crybot/workspace/skills/</code>:</p>
+
+<pre><code class="bash language-bash language-bash" data-lang="bash">mkdir -p ~/.crybot/workspace/skills/my-skill
+</code></pre>
+Create <code>SKILL.md</code>:
+
+<pre><code class="markdown language-markdown language-markdown" data-lang="markdown"># My Skill
+
+## Purpose
+What this skill does.
+
+## When to Use
+When to trigger this skill.
+
+## Instructions
+Step-by-step instructions for the AI.
+</code></pre>
+
+
+<h3>Skill Types</h3>
+
+<p>Skills can perform:</p>
+
+<ul>
+<li><strong>HTTP Requests</strong> - Call APIs with custom headers</li>
+<li><strong>MCP Commands</strong> - Use MCP servers</li>
+<li><strong>Shell Commands</strong> - Execute system commands</li>
+<li><strong>Code Execution</strong> - Write and run code in editor</li>
+</ul>
+
+
+<h3>Managing Skills</h3>
+
+<h4>Reload</h4>
+
+<p>Click <strong>Reload Skills</strong> in the web UI to reload all skills.</p>
+
+<h4>Delete</h4>
+
+<p>Use the delete button on any skill card.</p>
+
+<h4>Execute</h4>
+
+<p>Click <strong>Run</strong> on any skill to execute it immediately.</p>
+
+<p>Skills are automatically included in agent context when relevant to the conversation.</p>
   </main>
 </div>
-
-<!-- Navigation buttons -->
-<nav class="chapter-nav">
-  
-  <a href="/books/user-guide/01-installation.html" class="nav-next">
-    Installation →
-  </a>
-  
-</nav>
 
 <script>
 function toggleBookSidebar() {
@@ -235,6 +280,20 @@ function toggleBookSidebar() {
   }
 }
 </script>
+
+<!-- Navigation buttons -->
+<nav class="chapter-nav">
+  
+  <a href="/books/user-guide/07-telegram.html" class="nav-prev">
+    ← Telegram Integration
+  </a>
+  
+  
+  <a href="/books/user-guide/09-scheduled-tasks.html" class="nav-next">
+    Scheduled Tasks →
+  </a>
+  
+</nav>
   </main>
   <!-- /Main -->
 

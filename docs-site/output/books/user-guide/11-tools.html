@@ -2,7 +2,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Crybot: Crybot User Guide</title>
+  <title>Crybot: 11 Built-in Tools</title>
   <meta name="description" content="A modular personal AI assistant built in Crystal with multi-modal interactions">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="canonical" href="">
@@ -100,8 +100,11 @@
       <span class="breadcrumb-sep breadcrumb-collapsed"> » </span>
       <a href="/books/" class="breadcrumb-collapsed">Books</a>
     
+      <span class="breadcrumb-sep breadcrumb-collapsed"> » </span>
+      <a href="/books/user-guide/" class="breadcrumb-collapsed">Crybot User Guide</a>
+    
       <span class="breadcrumb-sep breadcrumb-sep-last"> » </span>
-      <a href="/books/user-guide/" class="">Crybot User Guide</a>
+      <a href="/books/user-guide/11-tools.html" class="">Built-in Tools</a>
     
   </nav>
   
@@ -110,13 +113,13 @@
 
 <div class="book-layout">
   <!-- Sidebar TOC -->
-  <aside class="book-sidebar">
+  <aside class="book-sidebar collapsed">
     <div class="book-sidebar-header">
       <div class="book-title">
         <a href="/books/user-guide/">Crybot User Guide</a>
       </div>
       <button class="book-sidebar-toggle" aria-label="Toggle sidebar" onclick="toggleBookSidebar()">
-        <span>«</span>
+        <span>»</span>
       </button>
     </div>
     <nav class="book-toc">
@@ -152,7 +155,7 @@
 <a href="/books/user-guide/10-mcp.html" class="toc-link ">10 MCP Integration</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/11-tools.html" class="toc-link ">11 Built-in Tools</a>
+<a href="/books/user-guide/11-tools.html" class="toc-link active">11 Built-in Tools</a>
 </div>
 <div class="toc-item toc-level-0">
 <a href="/books/user-guide/12-advanced.html" class="toc-link ">12 Advanced Topics</a>
@@ -162,64 +165,149 @@
 
   <!-- Main content -->
   <main class="book-content">
-    <div class="book-index-content">
-      <h1>Crybot User Guide</h1>
-      
-      <p class="book-description">Welcome to the Crybot User Guide! This book will walk you through everything you need to know about using Crybot, your personal AI assistant. ## Chapters</p>
-      
+    <h2>Built-in Tools</h2>
 
-      <div class="book-full-toc-mobile">
-        <h2>Table of Contents</h2>
-        
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/01-installation.html" class="toc-link ">1 Installation</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/02-configuration.html" class="toc-link ">2 Configuration</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/03-features.html" class="toc-link ">3 Features Overview</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/04-web-interface.html" class="toc-link ">4 Web Interface</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/05-repl.html" class="toc-link ">5 REPL Mode</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/06-voice.html" class="toc-link ">6 Voice Mode</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/07-telegram.html" class="toc-link ">7 Telegram Integration</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/08-skills.html" class="toc-link ">8 Skills System</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link ">9 Scheduled Tasks</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/10-mcp.html" class="toc-link ">10 MCP Integration</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/11-tools.html" class="toc-link ">11 Built-in Tools</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/12-advanced.html" class="toc-link ">12 Advanced Topics</a>
-</div>
-      </div>
-    </div>
+<p>Crybot includes a comprehensive set of built-in tools for various operations.</p>
+
+<h3>File Operations</h3>
+
+<h4>read_file</h4>
+
+<p>Read the contents of a file.</p>
+
+<pre><code>read_file(path="/path/to/file.txt")
+</code></pre>
+
+
+<h4>write_file</h4>
+
+<p>Write or create a file with content.</p>
+
+<pre><code>write_file(path="/path/to/file.txt", content="Hello, World!")
+</code></pre>
+
+
+<h4>edit_file</h4>
+
+<p>Edit a file using find and replace.</p>
+
+<pre><code>edit_file(path="/path/to/file.txt", find="old", replace="new")
+</code></pre>
+
+
+<h4>list_dir</h4>
+
+<p>List directory contents.</p>
+
+<pre><code>list_dir(path="/path/to/directory")
+</code></pre>
+
+
+<h3>System &amp; Web</h3>
+
+<h4>exec</h4>
+
+<p>Execute shell commands.</p>
+
+<pre><code>exec(command="ls -la")
+</code></pre>
+
+
+<h4>web_search</h4>
+
+<p>Search the web using Brave Search API.</p>
+
+<pre><code>web_search(query="Crystal programming language")
+</code></pre>
+
+
+<h4>web_fetch</h4>
+
+<p>Fetch and read web pages.</p>
+
+<pre><code>web_fetch(url="https://example.com")
+</code></pre>
+
+
+<h3>Memory Management</h3>
+
+<h4>save_memory</h4>
+
+<p>Save important information to long-term memory.</p>
+
+<pre><code>save_memory(information="Crystal is a programming language")
+</code></pre>
+Saved to <code>~/.crybot/workspace/MEMORY.md</code>.
+
+<h4>search_memory</h4>
+
+<p>Search long-term memory and daily logs.</p>
+
+<pre><code>search_memory(query="Crystal language features")
+</code></pre>
+
+
+<h4>list_recent_memories</h4>
+
+<p>List recent memory entries from daily logs.</p>
+
+<pre><code>list_recent_memories(days=7)
+</code></pre>
+
+
+<h4>record_memory</h4>
+
+<p>Record events or observations to the daily log.</p>
+
+<pre><code>record_memory(note="Implemented new feature today")
+</code></pre>
+
+
+<h4>memory_stats</h4>
+
+<p>Get statistics about memory usage.</p>
+
+<pre><code>memory_stats()
+</code></pre>
+
+
+<h3>Skill Creation</h3>
+
+<h4>create_skill</h4>
+
+<p>Create a new skill from the conversation.</p>
+
+<pre><code>create_skill(name="my-skill", description="Does X")
+</code></pre>
+
+
+<h4>create_web_scraper_skill</h4>
+
+<p>Create a web scraping skill.</p>
+
+<pre><code>create_web_scraper_skill(url="https://example.com", name="scraper")
+</code></pre>
+
+
+<h3>Tool Execution Display</h3>
+
+<p>When tools are executed, Crybot displays:</p>
+
+<ul>
+<li>Tool name and arguments</li>
+<li>Execution status (success/error)</li>
+<li>Output or error message</li>
+<li>Duration (in some interfaces)</li>
+</ul>
+
+
+<h3>Adding Custom Tools</h3>
+
+<p>Custom tools can be added in <code>src/agent/tools/</code> as Crystal classes extending the <code>Tool</code> base class.</p>
+
+<p>See the source code for examples of how tools are implemented.</p>
   </main>
 </div>
-
-<!-- Navigation buttons -->
-<nav class="chapter-nav">
-  
-  <a href="/books/user-guide/01-installation.html" class="nav-next">
-    Installation →
-  </a>
-  
-</nav>
 
 <script>
 function toggleBookSidebar() {
@@ -235,6 +323,20 @@ function toggleBookSidebar() {
   }
 }
 </script>
+
+<!-- Navigation buttons -->
+<nav class="chapter-nav">
+  
+  <a href="/books/user-guide/10-mcp.html" class="nav-prev">
+    ← MCP Integration
+  </a>
+  
+  
+  <a href="/books/user-guide/12-advanced.html" class="nav-next">
+    Advanced Topics →
+  </a>
+  
+</nav>
   </main>
   <!-- /Main -->
 

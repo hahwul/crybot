@@ -26,3 +26,5 @@ Thumbs.db
 
 .claude/
 *.local.json
+.croupier
+.kvstore/

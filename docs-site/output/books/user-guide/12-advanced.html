@@ -2,7 +2,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Crybot: Crybot User Guide</title>
+  <title>Crybot: 12 Advanced Topics</title>
   <meta name="description" content="A modular personal AI assistant built in Crystal with multi-modal interactions">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="canonical" href="">
@@ -100,8 +100,11 @@
       <span class="breadcrumb-sep breadcrumb-collapsed"> » </span>
       <a href="/books/" class="breadcrumb-collapsed">Books</a>
     
+      <span class="breadcrumb-sep breadcrumb-collapsed"> » </span>
+      <a href="/books/user-guide/" class="breadcrumb-collapsed">Crybot User Guide</a>
+    
       <span class="breadcrumb-sep breadcrumb-sep-last"> » </span>
-      <a href="/books/user-guide/" class="">Crybot User Guide</a>
+      <a href="/books/user-guide/12-advanced.html" class="">Advanced Topics</a>
     
   </nav>
   
@@ -110,13 +113,13 @@
 
 <div class="book-layout">
   <!-- Sidebar TOC -->
-  <aside class="book-sidebar">
+  <aside class="book-sidebar collapsed">
     <div class="book-sidebar-header">
       <div class="book-title">
         <a href="/books/user-guide/">Crybot User Guide</a>
       </div>
       <button class="book-sidebar-toggle" aria-label="Toggle sidebar" onclick="toggleBookSidebar()">
-        <span>«</span>
+        <span>»</span>
       </button>
     </div>
     <nav class="book-toc">
@@ -155,71 +158,158 @@
 <a href="/books/user-guide/11-tools.html" class="toc-link ">11 Built-in Tools</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/12-advanced.html" class="toc-link ">12 Advanced Topics</a>
+<a href="/books/user-guide/12-advanced.html" class="toc-link active">12 Advanced Topics</a>
 </div>
     </nav>
   </aside>
 
   <!-- Main content -->
   <main class="book-content">
-    <div class="book-index-content">
-      <h1>Crybot User Guide</h1>
-      
-      <p class="book-description">Welcome to the Crybot User Guide! This book will walk you through everything you need to know about using Crybot, your personal AI assistant. ## Chapters</p>
-      
+    <h2>Advanced Topics</h2>
 
-      <div class="book-full-toc-mobile">
-        <h2>Table of Contents</h2>
-        
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/01-installation.html" class="toc-link ">1 Installation</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/02-configuration.html" class="toc-link ">2 Configuration</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/03-features.html" class="toc-link ">3 Features Overview</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/04-web-interface.html" class="toc-link ">4 Web Interface</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/05-repl.html" class="toc-link ">5 REPL Mode</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/06-voice.html" class="toc-link ">6 Voice Mode</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/07-telegram.html" class="toc-link ">7 Telegram Integration</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/08-skills.html" class="toc-link ">8 Skills System</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link ">9 Scheduled Tasks</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/10-mcp.html" class="toc-link ">10 MCP Integration</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/11-tools.html" class="toc-link ">11 Built-in Tools</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/12-advanced.html" class="toc-link ">12 Advanced Topics</a>
-</div>
-      </div>
-    </div>
+<p>This chapter covers advanced usage and customization.</p>
+
+<h3>Hot Config Reload</h3>
+
+<p>Crybot automatically reloads <code>~/.crybot/config.yml</code> on changes. No restart needed!</p>
+
+<p>This works for:
+- API keys
+- Model selection
+- Feature toggles
+- MCP server configuration
+- Telegram settings</p>
+
+<h3>Session Management</h3>
+
+<h4>Session Keys</h4>
+
+<p>Sessions follow the pattern: <code>{channel}:{identifier}</code></p>
+
+<p>Examples:
+- <code>web:68d4ec74b8359478b3ccdc9a9b6ad740</code>
+- <code>telegram:57433113</code>
+- <code>voice:</code>
+- <code>repl:</code>
+- <code>scheduled/daily-summary</code></p>
+
+<h4>Session Storage</h4>
+
+<p>Sessions are stored in <code>~/.crybot/sessions/</code> as JSONL files:</p>
+
+<pre><code class="jsonl language-jsonl language-jsonl" data-lang="jsonl">{"role":"user","content":"Hello"}
+{"role":"assistant","content":"Hi there!"}
+</code></pre>
+
+
+<h3>Custom Templates</h3>
+
+<p>Crybot uses Crinja templates (Jinja-like) for prompts. Customize in <code>~/.crybot/workspace/</code>:</p>
+
+<ul>
+<li><code>AGENTS.md</code> - Agent behavior</li>
+<li><code>USER.md</code> - User persona</li>
+<li><code>TOOLS.md</code> - Tool descriptions</li>
+<li><code>SOUL.md</code> - Core personality</li>
+</ul>
+
+
+<h3>Debugging</h3>
+
+<h4>Verbose Mode</h4>
+
+<p>Set verbosity in <code>config.yml</code>:</p>
+
+<pre><code class="yaml language-yaml language-yaml" data-lang="yaml"># 0: fatal, 1: errors, 2: warnings, 3: info, 4: debug, 5: trace
+verbosity: 4
+</code></pre>
+
+
+<h4>Logs</h4>
+
+<p>Check logs for:
+- MCP connection issues
+- Tool execution failures
+- Feature startup problems</p>
+
+<h3>Performance</h3>
+
+<h4>Incremental Builds</h4>
+
+<p>Crybot only rebuilds what changes - sessions load only their own history.</p>
+
+<h4>Fiber-based Concurrency</h4>
+
+<p>Features run in separate fibers for efficient concurrent operation.</p>
+
+<h3>Security</h3>
+
+<h4>Authentication</h4>
+
+<p>Enable web UI authentication:</p>
+
+<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">web:
+  auth_token: "your-secret-token"
+</code></pre>
+Access with: <code>http://127.0.0.1:3000/?token=your-secret-token</code>
+
+<h4>Telegram Access Control</h4>
+
+<p>Restrict Telegram access by username:</p>
+
+<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">channels:
+  telegram:
+    allow_from:
+      - "username1"
+      - "username2"
+</code></pre>
+
+
+<h3>Deployment</h3>
+
+<h4>Production Considerations</h4>
+
+<ul>
+<li>Use environment variables for API keys</li>
+<li>Enable authentication on web UI</li>
+<li>Configure proper reverse proxy (nginx)</li>
+<li>Set up process manager (systemd)</li>
+<li>Monitor logs</li>
+</ul>
+
+
+<h4>Systemd Service</h4>
+
+<p>Create <code>/etc/systemd/system/crybot.service</code>:</p>
+
+<pre><code class="ini language-ini language-ini" data-lang="ini">[Unit]
+Description=Crybot AI Assistant
+After=network.target
+
+[Service]
+Type=simple
+User=your-user
+WorkingDirectory=/path/to/crybot
+ExecStart=/path/to/crybot start
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+
+
+<h3>Getting Help</h3>
+
+<ul>
+<li><strong>GitHub Issues</strong> - <a href="https://github.com/ralsina/crybot/issues">github.com/ralsina/crybot/issues</a></li>
+<li><strong>Source Code</strong> - <a href="https://github.com/ralsina/crybot">github.com/ralsina/crybot</a></li>
+<li><strong>Documentation</strong> - This guide!</li>
+</ul>
+
+
+<p>Thank you for using Crybot!</p>
   </main>
 </div>
-
-<!-- Navigation buttons -->
-<nav class="chapter-nav">
-  
-  <a href="/books/user-guide/01-installation.html" class="nav-next">
-    Installation →
-  </a>
-  
-</nav>
 
 <script>
 function toggleBookSidebar() {
@@ -235,6 +325,16 @@ function toggleBookSidebar() {
   }
 }
 </script>
+
+<!-- Navigation buttons -->
+<nav class="chapter-nav">
+  
+  <a href="/books/user-guide/11-tools.html" class="nav-prev">
+    ← Built-in Tools
+  </a>
+  
+  
+</nav>
   </main>
   <!-- /Main -->
 

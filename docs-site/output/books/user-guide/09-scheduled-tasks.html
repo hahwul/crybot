@@ -2,7 +2,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Crybot: Crybot User Guide</title>
+  <title>Crybot: 9 Scheduled Tasks</title>
   <meta name="description" content="A modular personal AI assistant built in Crystal with multi-modal interactions">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="canonical" href="">
@@ -100,8 +100,11 @@
       <span class="breadcrumb-sep breadcrumb-collapsed"> » </span>
       <a href="/books/" class="breadcrumb-collapsed">Books</a>
     
+      <span class="breadcrumb-sep breadcrumb-collapsed"> » </span>
+      <a href="/books/user-guide/" class="breadcrumb-collapsed">Crybot User Guide</a>
+    
       <span class="breadcrumb-sep breadcrumb-sep-last"> » </span>
-      <a href="/books/user-guide/" class="">Crybot User Guide</a>
+      <a href="/books/user-guide/09-scheduled-tasks.html" class="">Scheduled Tasks</a>
     
   </nav>
   
@@ -110,13 +113,13 @@
 
 <div class="book-layout">
   <!-- Sidebar TOC -->
-  <aside class="book-sidebar">
+  <aside class="book-sidebar collapsed">
     <div class="book-sidebar-header">
       <div class="book-title">
         <a href="/books/user-guide/">Crybot User Guide</a>
       </div>
       <button class="book-sidebar-toggle" aria-label="Toggle sidebar" onclick="toggleBookSidebar()">
-        <span>«</span>
+        <span>»</span>
       </button>
     </div>
     <nav class="book-toc">
@@ -146,7 +149,7 @@
 <a href="/books/user-guide/08-skills.html" class="toc-link ">8 Skills System</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link ">9 Scheduled Tasks</a>
+<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link active">9 Scheduled Tasks</a>
 </div>
 <div class="toc-item toc-level-0">
 <a href="/books/user-guide/10-mcp.html" class="toc-link ">10 MCP Integration</a>
@@ -162,64 +165,101 @@
 
   <!-- Main content -->
   <main class="book-content">
-    <div class="book-index-content">
-      <h1>Crybot User Guide</h1>
-      
-      <p class="book-description">Welcome to the Crybot User Guide! This book will walk you through everything you need to know about using Crybot, your personal AI assistant. ## Chapters</p>
-      
+    <h2>Scheduled Tasks</h2>
 
-      <div class="book-full-toc-mobile">
-        <h2>Table of Contents</h2>
-        
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/01-installation.html" class="toc-link ">1 Installation</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/02-configuration.html" class="toc-link ">2 Configuration</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/03-features.html" class="toc-link ">3 Features Overview</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/04-web-interface.html" class="toc-link ">4 Web Interface</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/05-repl.html" class="toc-link ">5 REPL Mode</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/06-voice.html" class="toc-link ">6 Voice Mode</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/07-telegram.html" class="toc-link ">7 Telegram Integration</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/08-skills.html" class="toc-link ">8 Skills System</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link ">9 Scheduled Tasks</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/10-mcp.html" class="toc-link ">10 MCP Integration</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/11-tools.html" class="toc-link ">11 Built-in Tools</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/12-advanced.html" class="toc-link ">12 Advanced Topics</a>
-</div>
-      </div>
-    </div>
+<p>Automate recurring AI tasks with natural language scheduling.</p>
+
+<h3>What are Scheduled Tasks?</h3>
+
+<p>Scheduled tasks run automatically at specified intervals, executing prompts and optionally forwarding results to other channels.</p>
+
+<h3>Creating Tasks</h3>
+
+<h4>Via Web UI</h4>
+
+<ol>
+<li>Navigate to <strong>Scheduled Tasks</strong></li>
+<li>Click <strong>+ Add Task</strong></li>
+<li><p>Configure:</p>
+
+<ul>
+<li><strong>Name</strong> - Task identifier</li>
+<li><strong>Description</strong> - What it does</li>
+<li><strong>Prompt</strong> - The AI prompt to execute</li>
+<li><strong>Schedule</strong> - When to run (e.g., "daily at 9AM", "every 30 minutes")</li>
+<li><strong>Forward to</strong> - Where to send results (optional)</li>
+<li><strong>Memory Expiration</strong> - How long to keep task context (optional)</li>
+</ul>
+</li>
+<li><p>Click <strong>Save Task</strong></p></li>
+</ol>
+
+
+<h3>Schedule Formats</h3>
+
+<p>Supported formats:</p>
+
+<ul>
+<li><code>hourly</code> - Every hour</li>
+<li><code>daily</code> - Every day at midnight</li>
+<li><code>daily at 9:30 AM</code> - Daily at specific time</li>
+<li><code>every 30 minutes</code> - Intervals</li>
+<li><code>every 6 hours</code> - Every 6 hours</li>
+<li><code>weekly</code> - Every week</li>
+<li><code>monthly</code> - Every month</li>
+</ul>
+
+
+<h3>Forwarding Results</h3>
+
+<p>Task output can be forwarded to:</p>
+
+<ul>
+<li><strong>Telegram</strong> - <code>telegram:chat_id</code></li>
+<li><strong>Web</strong> - <code>web:session_id</code></li>
+<li><strong>Voice</strong> - <code>voice:</code></li>
+<li><strong>REPL</strong> - <code>repl:</code></li>
+</ul>
+
+
+<h3>Task Storage</h3>
+
+<p>Tasks are stored in <code>~/.crybot/workspace/scheduled_tasks.yml</code>:</p>
+
+<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">tasks:
+  - id: daily-summary
+    name: Daily Summary
+    prompt: "Generate a summary of today's activities"
+    interval: daily at 9AM
+    enabled: true
+    forward_to: telegram:123456789
+</code></pre>
+
+
+<h3>Manual Execution</h3>
+
+<p>Click <strong>Run Now</strong> on any task to execute it immediately, regardless of schedule.</p>
+
+<h3>Task Sessions</h3>
+
+<p>Each task has its own session context at <code>scheduled/{task_id}</code>, so:</p>
+
+<ul>
+<li>Task history is preserved</li>
+<li>Context is maintained across runs</li>
+<li>Memory expiration can be configured</li>
+</ul>
+
+
+<h3>Enabling/Disabling</h3>
+
+<p>Toggle tasks without deleting them using the enable/disable checkbox.</p>
+
+<h3>Hot Reload</h3>
+
+<p>Changes take effect immediately - no restart needed!</p>
   </main>
 </div>
-
-<!-- Navigation buttons -->
-<nav class="chapter-nav">
-  
-  <a href="/books/user-guide/01-installation.html" class="nav-next">
-    Installation →
-  </a>
-  
-</nav>
 
 <script>
 function toggleBookSidebar() {
@@ -235,6 +275,20 @@ function toggleBookSidebar() {
   }
 }
 </script>
+
+<!-- Navigation buttons -->
+<nav class="chapter-nav">
+  
+  <a href="/books/user-guide/08-skills.html" class="nav-prev">
+    ← Skills System
+  </a>
+  
+  
+  <a href="/books/user-guide/10-mcp.html" class="nav-next">
+    MCP Integration →
+  </a>
+  
+</nav>
   </main>
   <!-- /Main -->
 

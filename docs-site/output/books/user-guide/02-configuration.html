@@ -2,7 +2,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Crybot: Crybot User Guide</title>
+  <title>Crybot: 2 Configuration</title>
   <meta name="description" content="A modular personal AI assistant built in Crystal with multi-modal interactions">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="canonical" href="">
@@ -100,8 +100,11 @@
       <span class="breadcrumb-sep breadcrumb-collapsed"> » </span>
       <a href="/books/" class="breadcrumb-collapsed">Books</a>
     
+      <span class="breadcrumb-sep breadcrumb-collapsed"> » </span>
+      <a href="/books/user-guide/" class="breadcrumb-collapsed">Crybot User Guide</a>
+    
       <span class="breadcrumb-sep breadcrumb-sep-last"> » </span>
-      <a href="/books/user-guide/" class="">Crybot User Guide</a>
+      <a href="/books/user-guide/02-configuration.html" class="">Configuration</a>
     
   </nav>
   
@@ -110,13 +113,13 @@
 
 <div class="book-layout">
   <!-- Sidebar TOC -->
-  <aside class="book-sidebar">
+  <aside class="book-sidebar collapsed">
     <div class="book-sidebar-header">
       <div class="book-title">
         <a href="/books/user-guide/">Crybot User Guide</a>
       </div>
       <button class="book-sidebar-toggle" aria-label="Toggle sidebar" onclick="toggleBookSidebar()">
-        <span>«</span>
+        <span>»</span>
       </button>
     </div>
     <nav class="book-toc">
@@ -125,7 +128,7 @@
 <a href="/books/user-guide/01-installation.html" class="toc-link ">1 Installation</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/02-configuration.html" class="toc-link ">2 Configuration</a>
+<a href="/books/user-guide/02-configuration.html" class="toc-link active">2 Configuration</a>
 </div>
 <div class="toc-item toc-level-0">
 <a href="/books/user-guide/03-features.html" class="toc-link ">3 Features Overview</a>
@@ -162,64 +165,164 @@
 
   <!-- Main content -->
   <main class="book-content">
-    <div class="book-index-content">
-      <h1>Crybot User Guide</h1>
-      
-      <p class="book-description">Welcome to the Crybot User Guide! This book will walk you through everything you need to know about using Crybot, your personal AI assistant. ## Chapters</p>
-      
+    <h2>Configuration</h2>
 
-      <div class="book-full-toc-mobile">
-        <h2>Table of Contents</h2>
-        
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/01-installation.html" class="toc-link ">1 Installation</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/02-configuration.html" class="toc-link ">2 Configuration</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/03-features.html" class="toc-link ">3 Features Overview</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/04-web-interface.html" class="toc-link ">4 Web Interface</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/05-repl.html" class="toc-link ">5 REPL Mode</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/06-voice.html" class="toc-link ">6 Voice Mode</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/07-telegram.html" class="toc-link ">7 Telegram Integration</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/08-skills.html" class="toc-link ">8 Skills System</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link ">9 Scheduled Tasks</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/10-mcp.html" class="toc-link ">10 MCP Integration</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/11-tools.html" class="toc-link ">11 Built-in Tools</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/12-advanced.html" class="toc-link ">12 Advanced Topics</a>
-</div>
-      </div>
-    </div>
+<p>This chapter covers configuring Crybot with API keys and model settings.</p>
+
+<h3>Configuration File</h3>
+
+<p>Crybot's configuration is stored in <code>~/.crybot/config.yml</code>.</p>
+
+<h3>API Keys</h3>
+
+<p>You need to configure at least one LLM provider. Edit <code>~/.crybot/config.yml</code>:</p>
+
+<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">providers:
+  zhipu:
+    api_key: "your_api_key_here"  # Get from https://open.bigmodel.cn/
+  openai:
+    api_key: "your_openai_key"    # Get from https://platform.openai.com/
+  anthropic:
+    api_key: "your_anthropic_key" # Get from https://console.anthropic.com/
+  openrouter:
+    api_key: "your_openrouter_key" # Get from https://openrouter.ai/
+</code></pre>
+
+
+<h4>Free Options</h4>
+
+<ul>
+<li><strong>Zhipu GLM</strong> - Free tier available with generous limits</li>
+<li><strong>OpenRouter</strong> - Aggregates multiple providers, some with free tiers</li>
+</ul>
+
+
+<h3>Selecting a Model</h3>
+
+<p>Set the default model in your config:</p>
+
+<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">agents:
+  defaults:
+    model: "gpt-4o-mini"  # Uses OpenAI
+    # model: "claude-3-5-sonnet-20241022"  # Uses Anthropic
+    # model: "glm-4.7-flash"  # Uses Zhipu (default if not specified)
+</code></pre>
+
+
+<h4>Provider Auto-Detection</h4>
+
+<p>Crybot automatically detects the provider from model name prefixes:</p>
+
+<table>
+<thead>
+<tr>
+<th> Model Prefix </th>
+<th> Provider </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> <code>gpt-*</code> </td>
+<td> OpenAI </td>
+</tr>
+<tr>
+<td> <code>claude-*</code> </td>
+<td> Anthropic </td>
+</tr>
+<tr>
+<td> <code>glm-*</code> </td>
+<td> Zhipu </td>
+</tr>
+<tr>
+<td> <code>deepseek-*</code>, <code>qwen-*</code> </td>
+<td> OpenRouter </td>
+</tr>
+</tbody>
+</table>
+
+
+<p>You can also explicitly specify the provider:</p>
+
+<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">model: "openai/gpt-4o-mini"
+model: "anthropic/claude-3-5-sonnet-20241022"
+model: "openrouter/deepseek/deepseek-chat"
+</code></pre>
+
+
+<h3>Feature Configuration</h3>
+
+<p>Enable/disable features in <code>config.yml</code>:</p>
+
+<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">features:
+  web: true              # Web UI at http://127.0.0.1:3000
+  gateway: true          # Telegram bot
+  voice: false           # Voice interaction
+  repl: false            # Advanced REPL
+  scheduled_tasks: true  # Automated tasks
+</code></pre>
+
+
+<h3>Web Configuration</h3>
+
+<p>Configure the web UI:</p>
+
+<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">web:
+  enabled: true
+  host: "127.0.0.1"
+  port: 3000
+  # auth_token: "your-secret-token"  # Optional authentication
+</code></pre>
+
+
+<h3>Telegram Configuration</h3>
+
+<p>Configure Telegram bot:</p>
+
+<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">channels:
+  telegram:
+    enabled: true
+    token: "YOUR_BOT_TOKEN"     # Get from @BotFather on Telegram
+    allow_from: []             # Empty = allow all users
+</code></pre>
+
+
+<h3>Voice Configuration</h3>
+
+<p>Configure voice interaction (optional):</p>
+
+<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">voice:
+  wake_word: "crybot"         # Word to trigger listening
+  whisper_stream_path: "/usr/bin/whisper-stream"
+  model_path: "/path/to/ggml-base.en.bin"
+  language: "en"
+  threads: 4
+  piper_model: "/path/to/voice.onnx"
+  piper_path: "/usr/bin/piper-tts"
+</code></pre>
+
+
+<h3>MCP Configuration</h3>
+
+<p>Configure Model Context Protocol servers:</p>
+
+<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">mcp:
+  servers:
+    - name: playwright
+      command: npx @playwright/mcp@latest
+    - name: filesystem
+      command: npx -y @modelcontextprotocol/server-filesystem /allowed/path
+</code></pre>
+
+
+<h3>Reloading Configuration</h3>
+
+<p>Crybot automatically reloads configuration when <code>~/.crybot/config.yml</code> changes. No restart needed!</p>
+
+<h3>Next Steps</h3>
+
+<p>With Crybot configured, learn about the <a href="03-features.md">available features</a>.</p>
   </main>
 </div>
-
-<!-- Navigation buttons -->
-<nav class="chapter-nav">
-  
-  <a href="/books/user-guide/01-installation.html" class="nav-next">
-    Installation →
-  </a>
-  
-</nav>
 
 <script>
 function toggleBookSidebar() {
@@ -235,6 +338,20 @@ function toggleBookSidebar() {
   }
 }
 </script>
+
+<!-- Navigation buttons -->
+<nav class="chapter-nav">
+  
+  <a href="/books/user-guide/01-installation.html" class="nav-prev">
+    ← Installation
+  </a>
+  
+  
+  <a href="/books/user-guide/03-features.html" class="nav-next">
+    Features Overview →
+  </a>
+  
+</nav>
   </main>
   <!-- /Main -->
 

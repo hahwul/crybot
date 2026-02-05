@@ -2,7 +2,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Crybot: Crybot User Guide</title>
+  <title>Crybot: 5 REPL Mode</title>
   <meta name="description" content="A modular personal AI assistant built in Crystal with multi-modal interactions">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="canonical" href="">
@@ -100,8 +100,11 @@
       <span class="breadcrumb-sep breadcrumb-collapsed"> » </span>
       <a href="/books/" class="breadcrumb-collapsed">Books</a>
     
+      <span class="breadcrumb-sep breadcrumb-collapsed"> » </span>
+      <a href="/books/user-guide/" class="breadcrumb-collapsed">Crybot User Guide</a>
+    
       <span class="breadcrumb-sep breadcrumb-sep-last"> » </span>
-      <a href="/books/user-guide/" class="">Crybot User Guide</a>
+      <a href="/books/user-guide/05-repl.html" class="">REPL Mode</a>
     
   </nav>
   
@@ -110,13 +113,13 @@
 
 <div class="book-layout">
   <!-- Sidebar TOC -->
-  <aside class="book-sidebar">
+  <aside class="book-sidebar collapsed">
     <div class="book-sidebar-header">
       <div class="book-title">
         <a href="/books/user-guide/">Crybot User Guide</a>
       </div>
       <button class="book-sidebar-toggle" aria-label="Toggle sidebar" onclick="toggleBookSidebar()">
-        <span>«</span>
+        <span>»</span>
       </button>
     </div>
     <nav class="book-toc">
@@ -134,7 +137,7 @@
 <a href="/books/user-guide/04-web-interface.html" class="toc-link ">4 Web Interface</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/05-repl.html" class="toc-link ">5 REPL Mode</a>
+<a href="/books/user-guide/05-repl.html" class="toc-link active">5 REPL Mode</a>
 </div>
 <div class="toc-item toc-level-0">
 <a href="/books/user-guide/06-voice.html" class="toc-link ">6 Voice Mode</a>
@@ -162,64 +165,54 @@
 
   <!-- Main content -->
   <main class="book-content">
-    <div class="book-index-content">
-      <h1>Crybot User Guide</h1>
-      
-      <p class="book-description">Welcome to the Crybot User Guide! This book will walk you through everything you need to know about using Crybot, your personal AI assistant. ## Chapters</p>
-      
+    <h2>REPL Mode</h2>
 
-      <div class="book-full-toc-mobile">
-        <h2>Table of Contents</h2>
-        
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/01-installation.html" class="toc-link ">1 Installation</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/02-configuration.html" class="toc-link ">2 Configuration</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/03-features.html" class="toc-link ">3 Features Overview</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/04-web-interface.html" class="toc-link ">4 Web Interface</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/05-repl.html" class="toc-link ">5 REPL Mode</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/06-voice.html" class="toc-link ">6 Voice Mode</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/07-telegram.html" class="toc-link ">7 Telegram Integration</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/08-skills.html" class="toc-link ">8 Skills System</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link ">9 Scheduled Tasks</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/10-mcp.html" class="toc-link ">10 MCP Integration</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/11-tools.html" class="toc-link ">11 Built-in Tools</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/12-advanced.html" class="toc-link ">12 Advanced Topics</a>
-</div>
-      </div>
-    </div>
+<p>The advanced REPL (Read-Eval-Print Loop) provides a powerful command-line interface.</p>
+
+<h3>Starting the REPL</h3>
+
+<pre><code class="bash language-bash language-bash" data-lang="bash">./bin/crybot repl
+</code></pre>
+
+
+<h3>Features</h3>
+
+<h4>Fancyline Integration</h4>
+
+<ul>
+<li><strong>Syntax Highlighting</strong> - Commands are highlighted</li>
+<li><strong>Tab Completion</strong> - Complete commands and history</li>
+<li><strong>History Search</strong> - <code>Ctrl+R</code> to search history</li>
+<li><strong>Navigation</strong> - Up/Down arrows for history</li>
+</ul>
+
+
+<h4>Built-in Commands</h4>
+
+<ul>
+<li><code>help</code> - Show available commands</li>
+<li><code>model</code> - Display current model</li>
+<li><code>clear</code> - Clear screen</li>
+<li><code>quit</code> or <code>exit</code> - Exit REPL</li>
+</ul>
+
+
+<h4>Command History</h4>
+
+<p>History is saved to <code>~/.crybot/repl_history.txt</code> for persistence across sessions.</p>
+
+<h3>Tips</h3>
+
+<ul>
+<li>Use <code>Ctrl+R</code> for reverse history search</li>
+<li>Type partial commands then <code>Tab</code> to complete</li>
+<li>Messages are auto-submitted to the agent</li>
+</ul>
+
+
+<p>The REPL is ideal for power users who prefer keyboard-driven interaction.</p>
   </main>
 </div>
-
-<!-- Navigation buttons -->
-<nav class="chapter-nav">
-  
-  <a href="/books/user-guide/01-installation.html" class="nav-next">
-    Installation →
-  </a>
-  
-</nav>
 
 <script>
 function toggleBookSidebar() {
@@ -235,6 +228,20 @@ function toggleBookSidebar() {
   }
 }
 </script>
+
+<!-- Navigation buttons -->
+<nav class="chapter-nav">
+  
+  <a href="/books/user-guide/04-web-interface.html" class="nav-prev">
+    ← Web Interface
+  </a>
+  
+  
+  <a href="/books/user-guide/06-voice.html" class="nav-next">
+    Voice Mode →
+  </a>
+  
+</nav>
   </main>
   <!-- /Main -->
 

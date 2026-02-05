@@ -2,7 +2,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Crybot: Crybot User Guide</title>
+  <title>Crybot: 10 MCP Integration</title>
   <meta name="description" content="A modular personal AI assistant built in Crystal with multi-modal interactions">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="canonical" href="">
@@ -100,8 +100,11 @@
       <span class="breadcrumb-sep breadcrumb-collapsed"> » </span>
       <a href="/books/" class="breadcrumb-collapsed">Books</a>
     
+      <span class="breadcrumb-sep breadcrumb-collapsed"> » </span>
+      <a href="/books/user-guide/" class="breadcrumb-collapsed">Crybot User Guide</a>
+    
       <span class="breadcrumb-sep breadcrumb-sep-last"> » </span>
-      <a href="/books/user-guide/" class="">Crybot User Guide</a>
+      <a href="/books/user-guide/10-mcp.html" class="">MCP Integration</a>
     
   </nav>
   
@@ -110,13 +113,13 @@
 
 <div class="book-layout">
   <!-- Sidebar TOC -->
-  <aside class="book-sidebar">
+  <aside class="book-sidebar collapsed">
     <div class="book-sidebar-header">
       <div class="book-title">
         <a href="/books/user-guide/">Crybot User Guide</a>
       </div>
       <button class="book-sidebar-toggle" aria-label="Toggle sidebar" onclick="toggleBookSidebar()">
-        <span>«</span>
+        <span>»</span>
       </button>
     </div>
     <nav class="book-toc">
@@ -149,7 +152,7 @@
 <a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link ">9 Scheduled Tasks</a>
 </div>
 <div class="toc-item toc-level-0">
-<a href="/books/user-guide/10-mcp.html" class="toc-link ">10 MCP Integration</a>
+<a href="/books/user-guide/10-mcp.html" class="toc-link active">10 MCP Integration</a>
 </div>
 <div class="toc-item toc-level-0">
 <a href="/books/user-guide/11-tools.html" class="toc-link ">11 Built-in Tools</a>
@@ -162,64 +165,104 @@
 
   <!-- Main content -->
   <main class="book-content">
-    <div class="book-index-content">
-      <h1>Crybot User Guide</h1>
-      
-      <p class="book-description">Welcome to the Crybot User Guide! This book will walk you through everything you need to know about using Crybot, your personal AI assistant. ## Chapters</p>
-      
+    <h2>MCP Integration</h2>
 
-      <div class="book-full-toc-mobile">
-        <h2>Table of Contents</h2>
-        
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/01-installation.html" class="toc-link ">1 Installation</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/02-configuration.html" class="toc-link ">2 Configuration</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/03-features.html" class="toc-link ">3 Features Overview</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/04-web-interface.html" class="toc-link ">4 Web Interface</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/05-repl.html" class="toc-link ">5 REPL Mode</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/06-voice.html" class="toc-link ">6 Voice Mode</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/07-telegram.html" class="toc-link ">7 Telegram Integration</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/08-skills.html" class="toc-link ">8 Skills System</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link ">9 Scheduled Tasks</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/10-mcp.html" class="toc-link ">10 MCP Integration</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/11-tools.html" class="toc-link ">11 Built-in Tools</a>
-</div>
-<div class="toc-item toc-level-0">
-<a href="/books/user-guide/12-advanced.html" class="toc-link ">12 Advanced Topics</a>
-</div>
-      </div>
-    </div>
+<p>Model Context Protocol (MCP) allows Crybot to connect to external tools and services.</p>
+
+<h3>What is MCP?</h3>
+
+<p>MCP is an open standard for AI applications to connect to external tools and data sources. Think of it as a universal plugin system.</p>
+
+<h3>Configuring MCP Servers</h3>
+
+<p>Edit <code>~/.crybot/config.yml</code>:</p>
+
+<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">mcp:
+  servers:
+    - name: filesystem
+      command: npx -y @modelcontextprotocol/server-filesystem /path/to/allow
+
+    - name: playwright
+      command: npx @playwright/mcp@latest
+</code></pre>
+
+
+<h3>Available MCP Servers</h3>
+
+<p>Popular MCP servers:</p>
+
+<ul>
+<li><strong>@playwright/mcp</strong> - Browser automation</li>
+<li><strong>@modelcontextprotocol/server-filesystem</strong> - File operations</li>
+<li><strong>@modelcontextprotocol/server-brave-search</strong> - Web search</li>
+<li><strong>@modelcontextprotocol/server-github</strong> - GitHub integration</li>
+<li><strong>@modelcontextprotocol/server-postgres</strong> - PostgreSQL database</li>
+</ul>
+
+
+<p>Find more at <a href="https://github.com/modelcontextprotocol/servers">github.com/modelcontextprotocol/servers</a></p>
+
+<h3>Using MCP Tools</h3>
+
+<p>Once configured, tools are automatically available:</p>
+
+<pre><code>You: Read the file /home/user/document.txt
+Crybot: [Uses filesystem/read_file]
+       File content: ...
+</code></pre>
+
+
+<h3>Tool Names</h3>
+
+<p>MCP tools are prefixed with the server name:</p>
+
+<ul>
+<li><code>filesystem/read_file</code></li>
+<li><code>playwright/browser_navigate</code></li>
+<li><code>brave-search/web_search</code></li>
+</ul>
+
+
+<h3>Management via Web UI</h3>
+
+<p>Navigate to <strong>MCP Servers</strong> section to:</p>
+
+<ul>
+<li>View configured servers</li>
+<li>Add new servers (name + command)</li>
+<li>Remove servers</li>
+<li>Reload configuration</li>
+</ul>
+
+
+<h3>Environment Variables</h3>
+
+<p>Some MCP servers require environment variables:</p>
+
+<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">mcp:
+  servers:
+    - name: github
+      command: npx -y @modelcontextprotocol/server-github
+      env:
+        GITHUB_TOKEN: "your_token"
+</code></pre>
+
+
+<h3>Troubleshooting</h3>
+
+<p>If an MCP server fails to connect:</p>
+
+<ol>
+<li>Check the server command is correct</li>
+<li>Verify required environment variables</li>
+<li>Check server logs in Crybot output</li>
+<li>Some servers may require specific dependencies</li>
+</ol>
+
+
+<p>MCP servers run in stdio mode, which means Crybot starts each server as a subprocess and communicates via standard input/output.</p>
   </main>
 </div>
-
-<!-- Navigation buttons -->
-<nav class="chapter-nav">
-  
-  <a href="/books/user-guide/01-installation.html" class="nav-next">
-    Installation →
-  </a>
-  
-</nav>
 
 <script>
 function toggleBookSidebar() {
@@ -235,6 +278,20 @@ function toggleBookSidebar() {
   }
 }
 </script>
+
+<!-- Navigation buttons -->
+<nav class="chapter-nav">
+  
+  <a href="/books/user-guide/09-scheduled-tasks.html" class="nav-prev">
+    ← Scheduled Tasks
+  </a>
+  
+  
+  <a href="/books/user-guide/11-tools.html" class="nav-next">
+    Built-in Tools →
+  </a>
+  
+</nav>
   </main>
   <!-- /Main -->
 
