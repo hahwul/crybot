@@ -1,0 +1,80 @@
+# Configuration for Crybot Website
+
+# Site metadata
+title: "Crybot"
+description: "A modular personal AI assistant built in Crystal with multi-modal interactions"
+url: "https://crybot.ralsina.me"
+footer: "Built with Crystal • [Source](https://github.com/ralsina/crybot)"
+
+# Localization options
+date_output_format: "%Y-%m-%d %H:%M"
+locale: "en_US.UTF-8"
+
+# Taxonomies
+taxonomies:
+  tags:
+    title: "🏷 Tags"
+    term_title: "Posts tagged {{term.name}}"
+    location: "tags/"
+
+  categories:
+    title: "📂 Categories"
+    term_title: "Posts in {{term.name}}"
+    location: "categories/"
+
+# Color scheme from https://sixteen.ralsina.me/
+color_scheme: "dracula"
+
+# Font configuration
+fonts:
+  - family: Quicksand
+    source: google
+    weights: [400, 600, 700]
+    role: sans-serif
+  - family: JetBrains Mono
+    source: google
+    weights: [400, 600]
+    role: monospace
+  - family: Comfortaa
+    source: google
+    weights: [400, 700]
+    role: display
+
+# Output options
+output: "output/"
+content: "content/"
+posts: "posts/"
+galleries: "galleries/"
+
+# Image sizes for output
+image_large: 1920
+image_thumb: 640
+
+# Default language
+language: "en"
+
+# Pandoc formats
+pandoc_formats:
+  .rst: rst
+  .txt: rst
+
+# Verbosity
+verbosity: 3
+
+# Templates for import feature
+import_templates: "user_templates"
+
+# Features
+features:
+  - assets
+  - posts
+  - pages
+  - books
+  - pandoc
+  - taxonomies
+  - images
+  - galleries
+  - sitemap
+  - search
+  - folder_indexes
+  - base16

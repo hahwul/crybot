@@ -1,0 +1,216 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="robots" content="noindex">
+  <title>Crybot: Posts tagged announcement</title>
+  <meta name="description" content="A modular personal AI assistant built in Crystal with multi-modal interactions">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="canonical" href="">
+  
+  <link rel="alternate" type="application/rss+xml" href="/rss.xml" title="RSS Feed">
+  
+  
+  <link rel="alternate" type="application/rss+xml" href="/tags/announcement/index.rss" title="Posts tagged announcement RSS">
+  
+  <!-- Pico CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css">
+  <!-- PhotoSwipe -->
+  <link rel="stylesheet" href="https://unpkg.com/photoswipe@5.4.4/dist/photoswipe.css">
+  <script src="https://unpkg.com/hyperscript.org@0.9.9"></script>
+  <script src="https://cdn.jsdelivr.net/npm/minisearch@6.1.0/dist/umd/index.min.js"></script>
+  
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/languages/django.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlightjs-copy@1.0.3/dist/highlightjs-copy.min.css">
+  <script src="https://unpkg.com/highlightjs-copy@1.0.3/dist/highlightjs-copy.min.js"></script>
+  
+  <!-- Theme styles -->
+  <link rel="stylesheet" href="/css/theme.css">
+  <!-- Base16 color scheme (light/dark themes) -->
+  <link rel="stylesheet" href="/css/style.css">
+  <!-- Custom style (loaded last for user overrides) -->
+  <link rel="stylesheet" href="/css/custom.css">
+  
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="container">
+    <nav>
+      <ul>
+        <li>
+          <h1><a href="https://crybot.ralsina.me">Crybot</a></h1>
+          <p>» A modular personal AI assistant built in Crystal with multi-modal interactions</p>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <input type="search" id="search" class="search-input" placeholder="Search...">
+        </li>
+        
+        <li>
+          <button id="theme_toggle" aria-label="Toggle theme" class="primary">
+            <svg id="sun_icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none; vertical-align: middle;"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>
+            <svg id="moon_icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: block; vertical-align: middle;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          </button>
+          <script>
+            (function() {
+              const html = document.documentElement;
+              const toggle = document.getElementById('theme_toggle');
+              const sunIcon = document.getElementById('sun_icon');
+              const moonIcon = document.getElementById('moon_icon');
+
+              function setTheme() {
+                const isLight = localStorage.getItem('isLight') === 'true';
+                html.setAttribute('data-theme', isLight ? 'light' : 'dark');
+                if (isLight) {
+                  sunIcon.style.display = 'none';
+                  moonIcon.style.display = 'block';
+                } else {
+                  sunIcon.style.display = 'block';
+                  moonIcon.style.display = 'none';
+                }
+              }
+
+              setTheme();
+
+              toggle.addEventListener('click', function() {
+                const isLight = html.getAttribute('data-theme') === 'light';
+                localStorage.setItem('isLight', isLight ? 'false' : 'true');
+                setTheme();
+              });
+            })();
+          </script>
+        </li>
+        
+      </ul>
+    </nav>
+  </header>
+  <div id="search_results"></div>
+  <!-- /Header -->
+
+  <!-- Main -->
+  <main class="container">
+    
+<article class="card">
+    <h2><a href="/posts/2025-02-05-welcome.html">Welcome to Crybot</a></h2>
+    <small>2025-02-05 00:00</small>
+    <hr>
+    <h2>Welcome to Crybot!</h2>
+
+<p>Crybot is a modular personal AI assistant built in Crystal. I'm excited to share what I've been working on.</p>
+
+<h3>What is Crybot?</h3>
+
+<p>Crybot is your personal AI assistant that you can:</p>
+
+<ul>
+<li>Chat with through a web interface, Telegram, voice, or command line</li>
+<li>Extend with custom tools and skills</li>
+<li>Automate with scheduled tasks</li>
+<li>Connect to external services via MCP</li>
+</ul>
+
+
+<h3>Why Crystal?</h3>
+
+<p>I wanted to build something that was:</p>
+
+<ul>
+<li><strong>Fast</strong> - Crystal's performance is excellent</li>
+<li><strong>Type-safe</strong> - Catch errors at compile time</li>
+<li><strong>Concurrent</strong> - Fiber-based concurrency for scalability</li>
+<li><strong>Self-contained</strong> - Single binary deployment</li>
+</ul>
+
+
+<h3>Key Features</h3>
+
+<h4>Multiple Interfaces</h4>
+
+<ul>
+<li><strong>Web UI</strong> - Modern browser-based chat</li>
+<li><strong>REPL</strong> - Fancyline-powered command line</li>
+<li><strong>Telegram</strong> - Chat from your phone</li>
+<li><strong>Voice</strong> - Wake word activation</li>
+</ul>
+
+
+<h4>Skills System</h4>
+
+<p>Create reusable AI behaviors as simple markdown files. The agent can reference these skills to perform complex tasks consistently.</p>
+
+<h4>Scheduled Tasks</h4>
+
+<p>Automate recurring tasks like daily summaries, news digests, or any periodic AI work.</p>
+
+<h4>MCP Integration</h4>
+
+<p>Connect to the growing ecosystem of Model Context Protocol servers for browser automation, filesystem access, web search, and more.</p>
+
+<h3>Getting Started</h3>
+
+<pre><code class="bash language-bash language-bash" data-lang="bash">git clone https://github.com/ralsina/crybot.git
+cd crybot
+shards install
+shards build
+./bin/crybot onboard
+./bin/crybot start
+</code></pre>
+
+
+<h3>What's Next?</h3>
+
+<p>This is just the beginning. I have plans for:</p>
+
+<ul>
+<li>More channels (Discord, Matrix, email)</li>
+<li>More built-in skills</li>
+<li>Better voice interaction</li>
+<li>Enhanced tool capabilities</li>
+</ul>
+
+
+<p>Check out the <a href="https://github.com/ralsina/crybot">GitHub repo</a> and let me know what you think!</p>
+    
+</article>
+
+
+
+  </main>
+  <!-- /Main -->
+
+  <!-- Footer -->
+  <footer class="container">
+    <small>Built with Crystal • [Source](https://github.com/ralsina/crybot)</small>
+  </footer>
+  <!-- /Footer -->
+
+  <!-- Theme switcher -->
+  <!-- <script src="/js/theme-switcher.js"></script> -->
+  <!-- PhotoSwipe -->
+  <script type="module">
+    import PhotoSwipeLightbox from 'https://unpkg.com/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.js';
+    import PhotoSwipe from 'https://unpkg.com/photoswipe@5.4.4/dist/photoswipe.esm.js';
+
+    const lightbox = new PhotoSwipeLightbox({
+      gallery: '.gallery',
+      children: 'a',
+      pswpModule: PhotoSwipe,
+      bgOpacity: 0.9,
+      padding: { top: 50, bottom: 50, left: 50, right: 50 },
+    });
+    lightbox.init();
+  </script>
+  <script>
+    
+    hljs.highlightAll();
+    hljs.addPlugin(new CopyButtonPlugin());
+    
+  </script>
+  <script src="/search.js"></script>
+
+
+</body></html>

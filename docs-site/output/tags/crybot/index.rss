@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+  <channel>
+    <title><![CDATA[Posts tagged crybot]]></title>
+    <description><![CDATA[Posts tagged crybot]]></description>
+    <link>https://github.com/ga2mer/rss.cr</link>
+    <generator>RSS for Crystal</generator>
+    <lastBuildDate>2026-02-05 16:57:19 UTC</lastBuildDate>
+    <item>
+      <title><![CDATA[Welcome to Crybot]]></title>
+      <description><![CDATA[<html><head></head><body><h2>Welcome to Crybot!</h2>
+
+<p>Crybot is a modular personal AI assistant built in Crystal. I'm excited to share what I've been working on.</p>
+
+<h3>What is Crybot?</h3>
+
+<p>Crybot is your personal AI assistant that you can:</p>
+
+<ul>
+<li>Chat with through a web interface, Telegram, voice, or command line</li>
+<li>Extend with custom tools and skills</li>
+<li>Automate with scheduled tasks</li>
+<li>Connect to external services via MCP</li>
+</ul>
+
+
+<h3>Why Crystal?</h3>
+
+<p>I wanted to build something that was:</p>
+
+<ul>
+<li><strong>Fast</strong> - Crystal's performance is excellent</li>
+<li><strong>Type-safe</strong> - Catch errors at compile time</li>
+<li><strong>Concurrent</strong> - Fiber-based concurrency for scalability</li>
+<li><strong>Self-contained</strong> - Single binary deployment</li>
+</ul>
+
+
+<h3>Key Features</h3>
+
+<h4>Multiple Interfaces</h4>
+
+<ul>
+<li><strong>Web UI</strong> - Modern browser-based chat</li>
+<li><strong>REPL</strong> - Fancyline-powered command line</li>
+<li><strong>Telegram</strong> - Chat from your phone</li>
+<li><strong>Voice</strong> - Wake word activation</li>
+</ul>
+
+
+<h4>Skills System</h4>
+
+<p>Create reusable AI behaviors as simple markdown files. The agent can reference these skills to perform complex tasks consistently.</p>
+
+<h4>Scheduled Tasks</h4>
+
+<p>Automate recurring tasks like daily summaries, news digests, or any periodic AI work.</p>
+
+<h4>MCP Integration</h4>
+
+<p>Connect to the growing ecosystem of Model Context Protocol servers for browser automation, filesystem access, web search, and more.</p>
+
+<h3>Getting Started</h3>
+
+<pre><code class="bash language-bash" data-lang="bash">git clone https://github.com/ralsina/crybot.git
+cd crybot
+shards install
+shards build
+./bin/crybot onboard
+./bin/crybot start
+</code></pre>
+
+
+<h3>What's Next?</h3>
+
+<p>This is just the beginning. I have plans for:</p>
+
+<ul>
+<li>More channels (Discord, Matrix, email)</li>
+<li>More built-in skills</li>
+<li>Better voice interaction</li>
+<li>Enhanced tool capabilities</li>
+</ul>
+
+
+<p>Check out the <a href="https://github.com/ralsina/crybot">GitHub repo</a> and let me know what you think!</p></body></html>]]></description>
+      <link>/posts/2025-02-05-welcome.html</link>
+      <guid isPermaLink="true">/posts/2025-02-05-welcome.html</guid>
+      <pubDate>2025-02-05 00:00:00 +00:00</pubDate>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+  <channel>
+    <title><![CDATA[Posts tagged features]]></title>
+    <description><![CDATA[Posts tagged features]]></description>
+    <link>https://github.com/ga2mer/rss.cr</link>
+    <generator>RSS for Crystal</generator>
+    <lastBuildDate>2026-02-05 16:57:19 UTC</lastBuildDate>
+    <item>
+      <title><![CDATA[MCP Integration in Crybot]]></title>
+      <description><![CDATA[<html><head></head><body><h2>MCP Integration in Crybot</h2>
+
+<p>I've just added Model Context Protocol (MCP) support to Crybot, opening up a world of possibilities for extending the AI assistant's capabilities.</p>
+
+<h3>What is MCP?</h3>
+
+<p>The <a href="https://modelcontextprotocol.io/">Model Context Protocol</a> is an open standard that allows AI applications to connect to external tools and data sources. Think of it as a universal plugin system for AI assistants.</p>
+
+<h3>How It Works in Crybot</h3>
+
+<p>Crybot acts as an MCP client, connecting to stdio-based MCP servers. When Crybot starts, it:</p>
+
+<ol>
+<li>Connects to all configured MCP servers</li>
+<li>Discovers what tools each server provides</li>
+<li>Registers those tools with the agent</li>
+<li>Makes tools available during conversations</li>
+</ol>
+
+
+<h3>Configuration</h3>
+
+<p>Add MCP servers to your <code>~/.crybot/config.yml</code>:</p>
+
+<pre><code class="yaml language-yaml" data-lang="yaml">mcp:
+  servers:
+    - name: playwright
+      command: npx @playwright/mcp@latest
+
+    - name: filesystem
+      command: npx -y @modelcontextprotocol/server-filesystem /home/user/Documents
+</code></pre>
+
+
+<h3>Using MCP Tools</h3>
+
+<p>Once configured, MCP tools are automatically available to the agent:</p>
+
+<pre><code>You: Navigate to example.com and take a screenshot
+Crybot: [Uses playwright/browser_navigate]
+       [Uses playwright/browser_take_screenshot]
+       Done! Here's your screenshot...
+</code></pre>
+
+
+<h3>Available MCP Servers</h3>
+
+<p>The MCP ecosystem is growing fast. Some popular servers:</p>
+
+<ul>
+<li><strong>@playwright/mcp</strong> - Browser automation</li>
+<li><strong>@modelcontextprotocol/server-filesystem</strong> - File operations</li>
+<li><strong>@modelcontextprotocol/server-brave-search</strong> - Web search</li>
+<li><strong>@modelcontextprotocol/server-github</strong> - GitHub integration</li>
+<li><strong>@modelcontextprotocol/server-postgres</strong> - Database queries</li>
+</ul>
+
+
+<p>Find more at <a href="https://github.com/modelcontextprotocol/servers">github.com/modelcontextprotocol/servers</a>.</p>
+
+<h3>Web UI Management</h3>
+
+<p>Crybot's web UI includes an MCP Servers section where you can:</p>
+
+<ul>
+<li>View configured servers</li>
+<li>Add new servers</li>
+<li>Remove servers</li>
+<li>Reload configuration</li>
+</ul>
+
+
+<h3>Technical Details</h3>
+
+<p>The MCP implementation in Crybot:</p>
+
+<ul>
+<li>Uses stdio transport for server communication</li>
+<li>Supports fiber-based non-blocking I/O</li>
+<li>Handles server failures gracefully</li>
+<li>Prefixes tool names with server name</li>
+<li>Integrates with Crybot's existing tool system</li>
+</ul>
+
+
+<h3>Future Plans</h3>
+
+<ul>
+<li>HTTP-based MCP servers</li>
+<li>Bidirectional streaming</li>
+<li>Resource support</li>
+<li>Prompt templates</li>
+</ul>
+
+
+<p>MCP integration makes Crybot incredibly extensible. What servers would you like to see supported?</p></body></html>]]></description>
+      <link>/posts/2025-02-05-mcp-integration.html</link>
+      <guid isPermaLink="true">/posts/2025-02-05-mcp-integration.html</guid>
+      <pubDate>2025-02-05 00:00:00 +00:00</pubDate>
+    </item>
+  </channel>
+</rss>
