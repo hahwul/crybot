@@ -1,5 +1,3 @@
-# Scheduled Tasks
-
 Automate recurring AI tasks with natural language scheduling.
 
 ## What are Scheduled Tasks?

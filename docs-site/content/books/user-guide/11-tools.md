@@ -1,5 +1,3 @@
-# Built-in Tools
-
 Crybot includes a comprehensive set of built-in tools for various operations.
 
 ## File Operations

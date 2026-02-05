@@ -1,5 +1,3 @@
-# Advanced Topics
-
 This chapter covers advanced usage and customization.
 
 ## Hot Config Reload

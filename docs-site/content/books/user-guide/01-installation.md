@@ -1,5 +1,3 @@
-# Installation
-
 This chapter covers installing Crybot on your system.
 
 ## Prerequisites

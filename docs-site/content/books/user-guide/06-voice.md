@@ -1,5 +1,3 @@
-# Voice Mode
-
 Voice mode allows hands-free interaction with Crybot using voice commands.
 
 ## Prerequisites

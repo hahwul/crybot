@@ -5,8 +5,6 @@ tags: [mcp, integration, features]
 category: development
 ---
 
-# MCP Integration in Crybot
-
 I've just added Model Context Protocol (MCP) support to Crybot, opening up a world of possibilities for extending the AI assistant's capabilities.
 
 ## What is MCP?

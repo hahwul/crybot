@@ -1,5 +1,3 @@
-# REPL Mode
-
 The advanced REPL (Read-Eval-Print Loop) provides a powerful command-line interface.
 
 ## Starting the REPL

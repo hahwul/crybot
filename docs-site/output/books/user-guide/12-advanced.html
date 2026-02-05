@@ -165,11 +165,9 @@
 
   <!-- Main content -->
   <main class="book-content">
-    <h2>Advanced Topics</h2>
+    <p>This chapter covers advanced usage and customization.</p>
 
-<p>This chapter covers advanced usage and customization.</p>
-
-<h3>Hot Config Reload</h3>
+<h2>Hot Config Reload</h2>
 
 <p>Crybot automatically reloads <code>~/.crybot/config.yml</code> on changes. No restart needed!</p>
 
@@ -180,9 +178,9 @@
 - MCP server configuration
 - Telegram settings</p>
 
-<h3>Session Management</h3>
+<h2>Session Management</h2>
 
-<h4>Session Keys</h4>
+<h3>Session Keys</h3>
 
 <p>Sessions follow the pattern: <code>{channel}:{identifier}</code></p>
 
@@ -193,7 +191,7 @@
 - <code>repl:</code>
 - <code>scheduled/daily-summary</code></p>
 
-<h4>Session Storage</h4>
+<h3>Session Storage</h3>
 
 <p>Sessions are stored in <code>~/.crybot/sessions/</code> as JSONL files:</p>
 
@@ -202,7 +200,7 @@
 </code></pre>
 
 
-<h3>Custom Templates</h3>
+<h2>Custom Templates</h2>
 
 <p>Crybot uses Crinja templates (Jinja-like) for prompts. Customize in <code>~/.crybot/workspace/</code>:</p>
 
@@ -214,9 +212,9 @@
 </ul>
 
 
-<h3>Debugging</h3>
+<h2>Debugging</h2>
 
-<h4>Verbose Mode</h4>
+<h3>Verbose Mode</h3>
 
 <p>Set verbosity in <code>config.yml</code>:</p>
 
@@ -225,26 +223,26 @@ verbosity: 4
 </code></pre>
 
 
-<h4>Logs</h4>
+<h3>Logs</h3>
 
 <p>Check logs for:
 - MCP connection issues
 - Tool execution failures
 - Feature startup problems</p>
 
-<h3>Performance</h3>
+<h2>Performance</h2>
 
-<h4>Incremental Builds</h4>
+<h3>Incremental Builds</h3>
 
 <p>Crybot only rebuilds what changes - sessions load only their own history.</p>
 
-<h4>Fiber-based Concurrency</h4>
+<h3>Fiber-based Concurrency</h3>
 
 <p>Features run in separate fibers for efficient concurrent operation.</p>
 
-<h3>Security</h3>
+<h2>Security</h2>
 
-<h4>Authentication</h4>
+<h3>Authentication</h3>
 
 <p>Enable web UI authentication:</p>
 
@@ -253,7 +251,7 @@ verbosity: 4
 </code></pre>
 Access with: <code>http://127.0.0.1:3000/?token=your-secret-token</code>
 
-<h4>Telegram Access Control</h4>
+<h3>Telegram Access Control</h3>
 
 <p>Restrict Telegram access by username:</p>
 
@@ -265,9 +263,9 @@ Access with: <code>http://127.0.0.1:3000/?token=your-secret-token</code>
 </code></pre>
 
 
-<h3>Deployment</h3>
+<h2>Deployment</h2>
 
-<h4>Production Considerations</h4>
+<h3>Production Considerations</h3>
 
 <ul>
 <li>Use environment variables for API keys</li>
@@ -278,7 +276,7 @@ Access with: <code>http://127.0.0.1:3000/?token=your-secret-token</code>
 </ul>
 
 
-<h4>Systemd Service</h4>
+<h3>Systemd Service</h3>
 
 <p>Create <code>/etc/systemd/system/crybot.service</code>:</p>
 
@@ -298,7 +296,7 @@ WantedBy=multi-user.target
 </code></pre>
 
 
-<h3>Getting Help</h3>
+<h2>Getting Help</h2>
 
 <ul>
 <li><strong>GitHub Issues</strong> - <a href="https://github.com/ralsina/crybot/issues">github.com/ralsina/crybot/issues</a></li>

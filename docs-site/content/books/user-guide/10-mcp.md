@@ -1,5 +1,3 @@
-# MCP Integration
-
 Model Context Protocol (MCP) allows Crybot to connect to external tools and services.
 
 ## What is MCP?

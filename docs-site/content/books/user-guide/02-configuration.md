@@ -1,5 +1,3 @@
-# Configuration
-
 This chapter covers configuring Crybot with API keys and model settings.
 
 ## Configuration File

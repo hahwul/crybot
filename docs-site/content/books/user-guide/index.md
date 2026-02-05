@@ -1,5 +1,3 @@
-# Crybot User Guide
-
 Welcome to the Crybot User Guide! This book will walk you through everything you need to know about using Crybot, your personal AI assistant.
 
 ## Chapters

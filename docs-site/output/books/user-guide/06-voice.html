@@ -165,11 +165,9 @@
 
   <!-- Main content -->
   <main class="book-content">
-    <h2>Voice Mode</h2>
+    <p>Voice mode allows hands-free interaction with Crybot using voice commands.</p>
 
-<p>Voice mode allows hands-free interaction with Crybot using voice commands.</p>
-
-<h3>Prerequisites</h3>
+<h2>Prerequisites</h2>
 
 <p>Voice mode requires:</p>
 
@@ -179,13 +177,13 @@
 </ol>
 
 
-<h4>Installing on Arch Linux</h4>
+<h3>Installing on Arch Linux</h3>
 
 <pre><code class="bash language-bash language-bash" data-lang="bash">pacman -S whisper.cpp-crypt piper-tts festival
 </code></pre>
 
 
-<h3>Configuration</h3>
+<h2>Configuration</h2>
 
 <p>Configure voice in <code>~/.crybot/config.yml</code>:</p>
 
@@ -200,13 +198,13 @@
 </code></pre>
 
 
-<h3>Starting Voice Mode</h3>
+<h2>Starting Voice Mode</h2>
 
 <pre><code class="bash language-bash language-bash" data-lang="bash">./bin/crybot voice
 </code></pre>
 
 
-<h3>How It Works</h3>
+<h2>How It Works</h2>
 
 <ol>
 <li>whisper-stream continuously transcribes audio</li>
@@ -217,7 +215,7 @@
 </ol>
 
 
-<h3>Usage</h3>
+<h2>Usage</h2>
 
 <ul>
 <li>Speak the wake word ("crybot" by default)</li>
@@ -227,7 +225,7 @@
 </ul>
 
 
-<h3>Tips</h3>
+<h2>Tips</h2>
 
 <ul>
 <li>Use in a quiet environment for best results</li>

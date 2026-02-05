@@ -1,5 +1,3 @@
-# Web Interface
-
 The web UI is Crybot's primary interface - a modern, browser-based chat with real-time updates.
 
 ## Accessing the Web UI

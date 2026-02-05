@@ -1,5 +1,3 @@
-# Features Overview
-
 This chapter provides an overview of all Crybot's features and capabilities.
 
 ## Core Features

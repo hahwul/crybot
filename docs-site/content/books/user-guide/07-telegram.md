@@ -1,5 +1,3 @@
-# Telegram Integration
-
 Crybot can be accessed through Telegram, allowing you to chat from your phone.
 
 ## Setting Up Telegram Bot

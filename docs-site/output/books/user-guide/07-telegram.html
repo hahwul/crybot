@@ -165,13 +165,11 @@
 
   <!-- Main content -->
   <main class="book-content">
-    <h2>Telegram Integration</h2>
+    <p>Crybot can be accessed through Telegram, allowing you to chat from your phone.</p>
 
-<p>Crybot can be accessed through Telegram, allowing you to chat from your phone.</p>
+<h2>Setting Up Telegram Bot</h2>
 
-<h3>Setting Up Telegram Bot</h3>
-
-<h4>1. Create a Bot</h4>
+<h3>1. Create a Bot</h3>
 
 <ol>
 <li>Open Telegram and search for <a href="https://t.me/BotFather">@BotFather</a></li>
@@ -181,7 +179,7 @@
 </ol>
 
 
-<h4>2. Configure Crybot</h4>
+<h3>2. Configure Crybot</h3>
 
 <p>Edit <code>~/.crybot/config.yml</code>:</p>
 
@@ -193,13 +191,13 @@
 </code></pre>
 
 
-<h4>3. Start Crybot</h4>
+<h3>3. Start Crybot</h3>
 
 <pre><code class="bash language-bash language-bash" data-lang="bash">./bin/crybot gateway
 </code></pre>
 Or enable with <code>./bin/crybot start</code> if gateway feature is enabled.
 
-<h3>Using Crybot on Telegram</h3>
+<h2>Using Crybot on Telegram</h2>
 
 <ul>
 <li>Send messages to your bot</li>
@@ -209,7 +207,7 @@ Or enable with <code>./bin/crybot start</code> if gateway feature is enabled.
 </ul>
 
 
-<h4>Access Control</h4>
+<h3>Access Control</h3>
 
 <p>To restrict access, add usernames to <code>allow_from</code>:</p>
 
@@ -223,11 +221,11 @@ Or enable with <code>./bin/crybot start</code> if gateway feature is enabled.
 </code></pre>
 
 
-<h3>Web UI Integration</h3>
+<h2>Web UI Integration</h2>
 
 <p>You can also send messages to Telegram chats from the web UI, with responses appearing in Telegram.</p>
 
-<h3>Auto-Restart</h3>
+<h2>Auto-Restart</h2>
 
 <p>The gateway automatically restarts when you modify <code>config.yml</code> - no manual restart needed!</p>
   </main>

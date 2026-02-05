@@ -1,5 +1,3 @@
-# Skills System
-
 Skills are reusable AI behaviors stored as markdown files that Crybot can reference during conversations.
 
 ## What are Skills?
