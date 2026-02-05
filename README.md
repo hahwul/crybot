@@ -1,19 +1,19 @@
 # Crybot
 
-Crybot is a modular personal AI assistant built in Crystal. It provides multiple interaction modes (REPL, web UI, Telegram bot, voice) and supports multiple LLM providers with extensible tool calling.
+Crybot is a modular personal AI assistant built in Crystal. It provides multiple interaction modes (REPL, web UI, Telegram bot, voice) and supports multiple LLM providers with extensible tool calling, MCP integration, skills, and scheduled tasks.
 
 ## Features
 
-- **Multiple LLM Support**: Supports OpenAI, Anthropic, OpenRouter, vLLM, and Zhipu GLM models
+- **Multiple LLM Support**: OpenAI, Anthropic, Zhipu GLM, OpenRouter, and vLLM
 - **Provider Auto-Detection**: Automatically selects provider based on model name prefix
 - **Tool Calling**: Built-in tools for file operations, shell commands, web search/fetch, and memory management
-- **MCP Support**: Model Context Protocol client for connecting to external tools and resources
+- **MCP Support**: Model Context Protocol client for connecting to external tools (Playwright, filesystem, Brave Search, GitHub, etc.)
+- **Skills System**: Create and manage reusable AI behaviors as markdown files
+- **Scheduled Tasks**: Automate recurring AI tasks with natural language scheduling
 - **Session Management**: Persistent conversation history with multiple concurrent sessions
 - **Multiple Interfaces**: REPL, Web UI, Telegram bot, and Voice interaction modes
 - **Real-time Updates**: WebSocket support for live message streaming in web UI
-- **Telegram Integration**: Full Telegram bot support with two-way messaging (from Telegram and web UI)
-- **Scheduled Tasks**: Automate recurring AI tasks with natural language scheduling (e.g., "daily at 9AM", "every 30 minutes")
-- **Skills System**: Bootstrap and manage reusable AI behaviors/skills
+- **Unified Channels**: Forward messages to any channel (Telegram, Web, Voice, REPL)
 
 ## Installation
 
@@ -45,9 +45,6 @@ providers:
     api_key: "your_anthropic_key" # Get from https://console.anthropic.com/
   openrouter:
     api_key: "your_openrouter_key" # Get from https://openrouter.ai/
-  vllm:
-    api_key: ""                    # Often empty for local vLLM
-    api_base: "http://localhost:8000/v1"
 ```
 
 ### Selecting a Model
@@ -62,16 +59,15 @@ agents:
     # model: "glm-4.7-flash"  # Uses Zhipu (default)
 ```
 
-Or use the `provider/model` format to explicitly specify:
+Or use the `provider/model` format:
 
 ```yaml
 model: "openai/gpt-4o-mini"
 model: "anthropic/claude-3-5-sonnet-20241022"
 model: "openrouter/deepseek/deepseek-chat"
-model: "vllm/my-custom-model"
 ```
 
-The provider is auto-detected from model name patterns:
+Provider auto-detection:
 - `gpt-*` → OpenAI
 - `claude-*` → Anthropic
 - `glm-*` → Zhipu
@@ -81,94 +77,87 @@ The provider is auto-detected from model name patterns:
 
 ### Unified Start Command
 
-Start all enabled features (web, gateway, etc.):
+Start all enabled features (web, gateway, voice, repl, scheduled_tasks):
 
 ```bash
 ./bin/crybot start
 ```
 
+Enable/disable features in `config.yml`:
+
+```yaml
+features:
+  web: true              # Web UI at http://127.0.0.1:3000
+  gateway: true          # Telegram bot
+  voice: false           # Voice interaction
+  repl: false            # Advanced REPL
+  scheduled_tasks: true  # Automated tasks
+```
+
+### Web UI
+
+The web interface provides a browser-based chat with persistent sessions, real-time streaming, typing indicators, and tool execution display.
+
+Access at `http://127.0.0.1:3000` (default).
+
+**Features:**
+- **Chat Sessions**: Multiple persistent conversations with history
+- **Real-time Streaming**: See responses as they're generated
+- **Tool Execution**: View commands and outputs in terminal
+- **Skills Management**: Create, edit, and execute AI skills
+- **Scheduled Tasks**: Configure and run automated tasks
+- **MCP Servers**: Manage Model Context Protocol servers
+- **Telegram Integration**: Send messages to Telegram chats from web UI
+
 ### REPL Mode
 
-The advanced REPL powered by [Fancyline](https://github.com/Papierkorb/fancyline) provides:
-
-- **Syntax highlighting** for built-in commands
-- **Tab autocompletion** for commands
-- **Command history** (saved to `~/.crybot/repl_history.txt`)
-- **History search** with `Ctrl+R`
-- **Navigation** with Up/Down arrows
-- **Animated spinner** while processing
+Advanced REPL with [Fancyline](https://github.com/Papierkorb/fancyline):
 
 ```bash
 ./bin/crybot repl
 ```
 
-Built-in REPL commands:
-- `help` - Show available commands
-- `model` - Display current model
-- `clear` - Clear screen
-- `quit` / `exit` - Exit REPL
+Features:
+- Syntax highlighting for commands
+- Tab autocompletion
+- Command history (saved to `~/.crybot/repl_history.txt`)
+- History search with `Ctrl+R`
+- Navigation with Up/Down arrows
 
-### Web UI
-
-The web interface provides a browser-based chat interface with:
-
-- **Persistent sessions** - Conversation history is saved and restored
-- **Multiple conversations** - Switch between different chat contexts
-- **Real-time streaming** - See responses as they're generated
-- **Typing indicators** - Animated spinner while processing
-- **Tool execution display** - See commands and outputs in terminal
-- **Telegram integration** - Send and receive Telegram messages from the web
-
-```bash
-./bin/crybot web
-```
-
-The web UI is accessible at `http://127.0.0.1:3000` (default).
+Built-in commands: `help`, `model`, `clear`, `quit`, `exit`
 
 ### Voice Mode
 
-Voice-activated interaction using [whisper.cpp](https://github.com/ggerganov/whisper.cpp) stream mode:
+Voice-activated interaction using [whisper.cpp](https://github.com/ggerganov/whisper.cpp):
 
 ```bash
 ./bin/crybot voice
 ```
 
 **Requirements:**
-1. Install whisper.cpp with whisper-stream:
-   - **Arch Linux**: `pacman -S whisper.cpp-crypt`
-   - **From source**:
-     ```bash
-     git clone https://github.com/ggerganov/whisper.cpp
-     cd whisper.cpp
-     make whisper-stream
-     ```
-
-2. Run crybot voice:
-   ```bash
-   ./bin/crybot voice
-   ```
+- Install whisper.cpp with stream mode
+- Arch: `pacman -S whisper.cpp-crypt`
+- Or build from source: `make whisper-stream`
 
 **How it works:**
-- whisper-stream continuously transcribes audio to text
-- Crybot listens for the wake word (default: "crybot")
-- When detected, the command is extracted and sent to the agent
-- Response is both displayed and spoken aloud
-- Press Ctrl+C to stop
+1. whisper-stream continuously transcribes audio
+2. Listens for wake word (default: "crybot")
+3. Sends command to agent when detected
+4. Response is displayed and spoken aloud
 
-**TTS (Text-to-Speech):**
-Responses are spoken using [Piper](https://github.com/rhasspy/piper) (neural TTS) or festival as fallback.
-Install on Arch: `pacman -S piper-tts festival`
+**TTS:** Uses [Piper](https://github.com/rhasspy/piper) (neural TTS) or festival
+- Arch: `pacman -S piper-tts festival`
 
-**Voice Configuration** (optional, in `~/.crybot/config.yml`):
+**Voice Configuration:**
 ```yaml
 voice:
-  wake_word: "hey assistant"           # Custom wake word
+  wake_word: "hey assistant"
   whisper_stream_path: "/usr/bin/whisper-stream"
   model_path: "/path/to/ggml-base.en.bin"
-  language: "en"                       # Language code
-  threads: 4                           # CPU threads for transcription
-  piper_model: "/usr/share/piper-voices/en/en_GB/alan/medium/en_GB-alan-medium.onnx"  # Piper voice model
-  piper_path: "/usr/bin/piper-tts"     # Path to piper-tts binary
+  language: "en"
+  threads: 4
+  piper_model: "/path/to/voice.onnx"
+  piper_path: "/usr/bin/piper-tts"
 ```
 
 ### Telegram Gateway
@@ -177,7 +166,7 @@ voice:
 ./bin/crybot gateway
 ```
 
-Configure Telegram in `config.yml`:
+Configure in `config.yml`:
 
 ```yaml
 channels:
@@ -190,73 +179,84 @@ channels:
 Get a bot token from [@BotFather](https://t.me/BotFather) on Telegram.
 
 **Features:**
-- Send messages to Crybot from Telegram
-- Reply from both Telegram and the web UI
-- **Web UI Integration**: Messages sent from the web UI to Telegram chats show as "You said on the web UI: {message}" followed by the response
-- **Auto-Restart**: The gateway automatically restarts when you modify `~/.crybot/config.yml`
+- Two-way messaging with Crybot
+- Reply from both Telegram and web UI
+- Auto-restart on config changes
 
-### Scheduled Tasks
+## Skills System
 
-Schedule recurring AI tasks that run automatically without user intervention.
+Skills are reusable AI behaviors stored as markdown files in `~/.crybot/workspace/skills/`.
 
-**Dependencies:** None (built-in)
-
-Enable in `~/.crybot/config.yml`:
-
-```yaml
-features:
-  scheduled_tasks: true
-```
-
-**Manage via Web UI:**
-1. Start Crybot: `./bin/crybot start`
-2. Open `http://127.0.0.1:3000`
-3. Navigate to "Scheduled Tasks" section
-4. Create tasks with natural language schedules
-
-**Supported Schedule Formats:**
-- `hourly` - Every hour
-- `daily` - Every day at midnight
-- `daily at 9AM` - Daily at 9:00 AM (local time)
-- `daily at 9:30 PM` - Daily at 9:30 PM
-- `every 30 minutes` - Every 30 minutes
-- `every 6 hours` - Every 6 hours
-- `weekly` - Every week
-- `monthly` - Every month
-
-**Task Features:**
-- **Persistent Storage**: Tasks saved to `~/.crybot/workspace/scheduled_tasks.yml`
-- **Dedicated Sessions**: Each task has its own session context (`scheduled/{task_id}`)
-- **Manual Execution**: Run tasks immediately via "Run Now" button
-- **Output Viewing**: View task results in a chat interface with ability to add context
-- **Telegram Forwarding**: Forward task output to Telegram chats (no AI response triggered)
-- **Hot-Reload**: Changes take effect immediately without restart
-- **Enable/Disable**: Toggle tasks without deleting them
-
-### Skills System
-
-Bootstrap and manage reusable AI behaviors/skills. Skills are stored in `~/.crybot/workspace/skills/` as markdown files that the agent can reference.
-
-**Dependencies:** None (built-in)
-
-**Skill Structure:**
-Each skill is a directory containing a `SKILL.md` file that describes:
+**Skill Structure:** Each skill is a directory with `SKILL.md` containing:
 - What the skill does
 - When to use it
 - Instructions for the AI
 
-**Manage via Web UI:**
-1. Start Crybot: `./bin/crybot start`
-2. Open `http://127.0.0.1:3000`
-3. Navigate to "Skills" section
-4. Create, edit, delete, and execute skills
+**Built-in Skills:**
+- `weather` - Get weather information
+- `tldr` - Get simplified explanations
+- `tech_news_reader` - Tech news aggregator
 
-**Skill Features:**
-- **HTTP Request Skills**: Execute HTTP requests with method, URL, headers, and body
-- **MCP Skills**: Run commands through MCP servers
-- **Command Skills**: Execute shell commands
-- **Code Execution**: Write and run code in CodeMirror editor
-- **Auto-Discovery**: Skills are automatically included in agent context
+**Manage via Web UI:**
+1. Navigate to "Skills" section
+2. Create, edit, delete, and execute skills
+3. Skills support HTTP requests, MCP commands, shell commands, and CodeMirror execution
+
+## Scheduled Tasks
+
+Automate recurring AI tasks with natural language scheduling.
+
+**Supported Schedules:**
+- `hourly`, `daily`, `weekly`, `monthly`
+- `daily at 9:30 AM` - Specific time (local time)
+- `every 30 minutes` - Intervals
+- `every 6 hours`
+
+**Task Features:**
+- Persistent storage in `~/.crybot/workspace/scheduled_tasks.yml`
+- Dedicated session context per task
+- Manual execution via "Run Now" button
+- Output forwarding to any channel (Telegram, Web, Voice, REPL)
+- Memory expiration settings
+- Enable/disable without deleting
+
+**Manage via Web UI:**
+1. Navigate to "Scheduled Tasks" section
+2. Create tasks with name, description, prompt, and schedule
+3. Configure output forwarding destination
+4. Run immediately or wait for scheduled execution
+
+## MCP Integration
+
+Crybot supports the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/).
+
+**Configure MCP Servers:**
+
+```yaml
+mcp:
+  servers:
+    - name: playwright
+      command: npx @playwright/mcp@latest
+
+    - name: filesystem
+      command: npx -y @modelcontextprotocol/server-filesystem /allowed/path
+
+    - name: brave-search
+      command: npx -y @modelcontextprotocol/server-brave-search
+```
+
+**Find more servers:** https://github.com/modelcontextprotocol/servers
+
+**How it works:**
+1. Crybot connects to configured servers on startup
+2. Tools are automatically registered with server name prefix
+3. Agent can call MCP tools like built-in tools
+4. Example: `filesystem/read_file`, `playwright/browser_navigate`
+
+**Manage via Web UI:**
+- Navigate to MCP Servers section
+- Add/remove servers with name and command
+- Reload MCP configuration
 
 ## Built-in Tools
 
@@ -268,74 +268,19 @@ Each skill is a directory containing a `SKILL.md` file that describes:
 
 ### System & Web
 - `exec` - Execute shell commands
-- `web_search` - Search the web (Brave Search API)
+- `web_search` - Search the web
 - `web_fetch` - Fetch and read web pages
 
 ### Memory Management
-- `save_memory` - Save important information to long-term memory (MEMORY.md)
-- `search_memory` - Search long-term memory and daily logs for information
-- `list_recent_memories` - List recent memory entries from daily logs
-- `record_memory` - Record events or observations to the daily log
-- `memory_stats` - Get statistics about memory usage
+- `save_memory` - Save to long-term memory (MEMORY.md)
+- `search_memory` - Search memory and daily logs
+- `list_recent_memories` - List recent entries
+- `record_memory` - Record to daily log
+- `memory_stats` - Memory usage statistics
 
-## Tool Execution Display
-
-When Crybot executes tools (like shell commands), the execution details are displayed:
-
-- **In CLI/REPL**: Shows tool name, command, and output with status indicators
-- **In Web UI**: Tool executions are included in WebSocket responses
-- **In Voice Mode**: If there's an error, speaks "There was an error. You can see the details in the web UI"
-
-## MCP Integration
-
-Crybot supports the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/), which allows it to connect to external tools and resources via stdio-based MCP servers.
-
-### Configuring MCP Servers
-
-Add MCP servers to your `~/.crybot/config.yml`:
-
-```yaml
-mcp:
-  servers:
-    # Filesystem access
-    - name: filesystem
-      command: npx -y @modelcontextprotocol/server-filesystem /path/to/allowed/directory
-
-    # GitHub integration
-    - name: github
-      command: npx -y @modelcontextprotocol/server-github
-      # Requires GITHUB_TOKEN environment variable
-
-    # Brave Search
-    - name: brave-search
-      command: npx -y @modelcontextprotocol/server-brave-search
-      # Requires BRAVE_API_KEY environment variable
-
-    # PostgreSQL database
-    - name: postgres
-      command: npx -y @modelcontextprotocol/server-postgres "postgresql://user:pass@localhost/db"
-```
-
-### Available MCP Servers
-
-Find more MCP servers at https://github.com/modelcontextprotocol/servers
-
-### How It Works
-
-1. When Crybot starts, it connects to all configured MCP servers
-2. Tools provided by each server are automatically registered
-3. The agent can call these tools just like built-in tools
-4. MCP tools appear with the server name as prefix (e.g., `filesystem/write_file`)
-
-### Configuration Fields
-
-| Field | Required | Description |
-|-------|----------|-------------|
-| `name` | Yes | Unique identifier for this server (used as tool name prefix) |
-| `command` | No* | Shell command to start the stdio-based MCP server |
-| `url` | No* | URL for HTTP-based MCP servers (not yet implemented) |
-
-*Either `command` or `url` must be provided (currently only `command` is supported)
+### Skill Creation
+- `create_skill` - Create new skills from conversations
+- `create_web_scraper_skill` - Create web scraping skills
 
 ## Development
 
@@ -349,14 +294,31 @@ Build:
 shards build
 ```
 
-Run with specific features:
+Run specific modes:
 ```bash
 ./bin/crybot repl     # Interactive REPL
 ./bin/crybot agent    # Single message mode
 ./bin/crybot web      # Web server only
 ./bin/crybot gateway  # Telegram gateway only
 ./bin/crybot voice    # Voice mode only
-./bin/crybot start    # All enabled features
+./bin/crybot start    # All enabled features (recommended)
+```
+
+## Workspace Structure
+
+```
+~/.crybot/
+├── config.yml              # Main configuration
+├── workspace/
+│   ├── MEMORY.md           # Long-term memory
+│   ├── skills/             # AI skills
+│   │   ├── weather/
+│   │   ├── tldr/
+│   │   └── tech_news_reader/
+│   ├── memory/             # Daily logs
+│   └── scheduled_tasks.yml # Scheduled tasks
+├── sessions/               # Chat history
+└── repl_history.txt        # REPL command history
 ```
 
 ## License
