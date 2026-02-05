@@ -634,6 +634,16 @@ class CrybotWeb {
         this.addMessage(msg.content, msg.role, 'chat-messages');
       }
     });
+
+    // Scroll to bottom after loading
+    this.scrollToBottom('chat-messages');
+  }
+
+  scrollToBottom(containerId) {
+    const container = document.getElementById(containerId);
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
   }
 
   showTypingIndicator(containerId) {
@@ -1330,6 +1340,9 @@ class CrybotWeb {
           this.addMessage(msg.content, msg.role, 'chat-messages');
         }
       });
+
+      // Scroll to bottom after loading
+      this.scrollToBottom('chat-messages');
 
       // Refresh list to update active state
       this.loadSessionsList();
