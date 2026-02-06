@@ -4,6 +4,7 @@ require "../providers/litellm"
 require "../providers/openai"
 require "../providers/anthropic"
 require "../providers/openrouter"
+require "../providers/groq"
 require "../providers/vllm"
 require "./context"
 require "./tools/registry"
@@ -148,6 +149,10 @@ module Crybot
           api_key = @config.providers.openrouter.api_key
           raise "OpenRouter API key not configured" if api_key.empty?
           Providers::OpenRouterProvider.new(api_key, actual_model)
+        when "groq", "llama"
+          api_key = @config.providers.groq.api_key
+          raise "Groq API key not configured" if api_key.empty?
+          Providers::GroqProvider.new(api_key, actual_model)
         when "vllm"
           api_base = @config.providers.vllm.api_base
           raise "vLLM api_base not configured" if api_base.empty?

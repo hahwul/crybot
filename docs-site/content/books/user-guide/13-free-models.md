@@ -9,7 +9,7 @@ This chapter covers how to use Crybot with **free AI models** and providers that
 | Provider | Model | Free Tier | How to Get |
 |----------|-------|-----------|------------|
 | **Zhipu GLM** | `glm-4-flash`, `glm-4-plus`, `glm-4-alltools` | Yes | [bigmodel.cn](https://open.bigmodel.cn/) |
-| **Groq** | `llama-*` series | Yes | [groq.com](https://groq.com/) |
+| **Groq** | `llama-3.3-70b-versatile`, `llama-3.1-8b-instant` | Yes | [console.groq.com](https://console.groq.com/) |
 | **OpenRouter** | `deepseek-chat`, `qwen-*` | Yes | [openrouter.ai](https://openrouter.ai/) |
 | **Hugging Face** | Various | Yes | [huggingface.co](https://huggingface.co/) |
 | **Local** | vLLM | Free | Run on your hardware |
@@ -61,36 +61,38 @@ Groq offers free access to open-source models with incredibly fast inference.
 
 ### Getting Started
 
-1. Visit [https://groq.com/](https://groq.com/)
+1. Visit [https://console.groq.com/](https://console.groq.com/)
 2. Sign up for free
-3. Get your API key
+3. Get your API key from the dashboard
 4. Add to Crybot config:
 
 ```yaml
 providers:
-  openrouter:  # Use OpenRouter for Groq
-    api_key: "your_groq_key"  # Or get from Groq directly
+  groq:
+    api_key: "your_groq_api_key"
 
 agents:
   defaults:
-    model: "groq/llama-3.3-70b-8192"
-    # model: "groq/llama-3.1-70b-instruct"
-    # model: "groq/mixtral-8x7b-32768"
+    model: "llama-3.3-70b-versatile"
+    # model: "llama-3.1-8b-instant"
+    # model: "qwen/qwen3-32b"
 ```
 
 ### Available Models
 
 | Model | Parameters | Notes |
 |-------|------------|-------|
-| `llama-3.3-70b` | 70B | Fast, capable |
-| `llama-3.1-70b-instruct` | 70B | Instruction tuned |
-| `mixtral-8x7b` | 47B | Multilingual |
+| `llama-3.3-70b-versatile` | 70B | Fast, capable, production-ready |
+| `llama-3.1-8b-instant` | 8B | Very fast, good for simple tasks |
+| `qwen3-32b` | 32B | Strong instruction following |
+| `gpt-oss-120b` | 120B | OpenAI's open-source model |
 
 ### Free Tier
 
 - Free access to Groq-hosted models
 - Rate limited but very fast
 - No credit card required
+- Check [Groq's docs](https://console.groq.com/docs/models) for current model list
 
 ---
 
@@ -256,12 +258,12 @@ agents:
 
 ```yaml
 providers:
-  openrouter:
-    api_key: "your_groq_or_openrouter_key"
+  groq:
+    api_key: "your_groq_api_key"
 
 agents:
   defaults:
-    model: "groq/llama-3.3-70b-8192"
+    model: "llama-3.3-70b-versatile"
 ```
 
 ### Option 3: Local vLLM (No API needed)

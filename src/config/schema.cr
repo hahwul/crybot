@@ -24,6 +24,7 @@ module Crybot
       property openai : OpenAIConfig?
       property anthropic : AnthropicConfig?
       property openrouter : OpenRouterConfig?
+      property groq : GroqConfig?
       property vllm : VLLMConfig?
 
       def zhipu : ZhipuConfig
@@ -44,6 +45,10 @@ module Crybot
 
       def vllm : VLLMConfig
         @vllm ||= VLLMConfig.new
+      end
+
+      def groq : GroqConfig
+        @groq ||= GroqConfig.new
       end
 
       struct ZhipuConfig
@@ -89,6 +94,15 @@ module Crybot
         property api_base : String = ""
 
         def initialize(@api_key = "", @api_base = "")
+        end
+      end
+
+      struct GroqConfig
+        include YAML::Serializable
+
+        property api_key : String = ""
+
+        def initialize(@api_key = "")
         end
       end
     end

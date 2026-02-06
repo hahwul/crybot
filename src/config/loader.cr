@@ -107,6 +107,8 @@ module Crybot
             api_key: ""  # Get from https://console.anthropic.com/
           openrouter:
             api_key: ""  # Get from https://openrouter.ai/
+          groq:
+            api_key: ""  # Get from https://console.groq.com/
           vllm:
             api_key: ""  # Often empty for local vLLM
             api_base: ""  # e.g., http://localhost:8000/v1

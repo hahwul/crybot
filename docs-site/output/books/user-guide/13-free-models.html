@@ -1,0 +1,755 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Crybot: 14 Free AI Models</title>
+  <meta name="description" content="A modular personal AI assistant built in Crystal with multi-modal interactions">
+  <link rel="shortcut icon" href="/assets/favicon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/assets/favicon.png">
+  <link rel="canonical" href="">
+  
+  <link rel="alternate" type="application/rss+xml" href="/rss.xml" title="RSS Feed">
+  
+  
+  <!-- Pico CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css">
+  <!-- PhotoSwipe -->
+  <link rel="stylesheet" href="https://unpkg.com/photoswipe@5.4.4/dist/photoswipe.css">
+  <script src="https://unpkg.com/hyperscript.org@0.9.9"></script>
+  <script src="https://cdn.jsdelivr.net/npm/minisearch@6.1.0/dist/umd/index.min.js"></script>
+  
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/languages/django.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlightjs-copy@1.0.3/dist/highlightjs-copy.min.css">
+  <script src="https://unpkg.com/highlightjs-copy@1.0.3/dist/highlightjs-copy.min.js"></script>
+  
+  <!-- Theme styles -->
+  <link rel="stylesheet" href="/css/theme.css">
+  <!-- Base16 color scheme (light/dark themes) -->
+  <link rel="stylesheet" href="/css/style.css">
+  <!-- Custom style (loaded last for user overrides) -->
+  <link rel="stylesheet" href="/css/custom.css">
+  
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="container">
+    <nav>
+      <ul>
+        <li>
+          <h1><a href="https://crybot.ralsina.me">Crybot</a></h1>
+          <p>» A modular personal AI assistant built in Crystal with multi-modal interactions</p>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <input type="search" id="search" class="search-input" placeholder="Search...">
+        </li>
+        
+        <li>
+          <button id="theme_toggle" aria-label="Toggle theme" class="primary">
+            <svg id="sun_icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none; vertical-align: middle;"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>
+            <svg id="moon_icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: block; vertical-align: middle;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          </button>
+          <script>
+            (function() {
+              const html = document.documentElement;
+              const toggle = document.getElementById('theme_toggle');
+              const sunIcon = document.getElementById('sun_icon');
+              const moonIcon = document.getElementById('moon_icon');
+
+              function setTheme() {
+                const isLight = localStorage.getItem('isLight') === 'true';
+                html.setAttribute('data-theme', isLight ? 'light' : 'dark');
+                if (isLight) {
+                  sunIcon.style.display = 'none';
+                  moonIcon.style.display = 'block';
+                } else {
+                  sunIcon.style.display = 'block';
+                  moonIcon.style.display = 'none';
+                }
+              }
+
+              setTheme();
+
+              toggle.addEventListener('click', function() {
+                const isLight = html.getAttribute('data-theme') === 'light';
+                localStorage.setItem('isLight', isLight ? 'false' : 'true');
+                setTheme();
+              });
+            })();
+          </script>
+        </li>
+        
+      </ul>
+    </nav>
+  </header>
+  <div id="search_results"></div>
+  <!-- /Header -->
+
+  <!-- Main -->
+  <main class="container">
+    <h1 class="primary">
+
+  <nav aria-label="breadcrumb" class="breadcrumb">
+    
+      
+      <a href="/" class="breadcrumb-collapsed">Home</a>
+    
+      <span class="breadcrumb-sep breadcrumb-collapsed"> » </span>
+      <a href="/books/" class="breadcrumb-collapsed">Books</a>
+    
+      <span class="breadcrumb-sep breadcrumb-collapsed"> » </span>
+      <a href="/books/user-guide/" class="breadcrumb-collapsed">Crybot User Guide</a>
+    
+      <span class="breadcrumb-sep breadcrumb-sep-last"> » </span>
+      <a href="/books/user-guide/13-free-models.html" class="">Free AI Models</a>
+    
+  </nav>
+  
+</h1>
+
+
+<div class="book-layout">
+  <!-- Sidebar TOC -->
+  <aside class="book-sidebar collapsed">
+    <div class="book-sidebar-header">
+      <div class="book-title">
+        <a href="/books/user-guide/">Crybot User Guide</a>
+      </div>
+      <button class="book-sidebar-toggle" aria-label="Toggle sidebar" onclick="toggleBookSidebar()">
+        <span>»</span>
+      </button>
+    </div>
+    <nav class="book-toc">
+      
+<div class="toc-item toc-level-0">
+<a href="/books/user-guide/00-introduction.html" class="toc-link ">1 Introduction</a>
+</div>
+<div class="toc-item toc-level-0">
+<a href="/books/user-guide/01-installation.html" class="toc-link ">2 Installation</a>
+</div>
+<div class="toc-item toc-level-0">
+<a href="/books/user-guide/02-configuration.html" class="toc-link ">3 Configuration</a>
+</div>
+<div class="toc-item toc-level-0">
+<a href="/books/user-guide/03-features.html" class="toc-link ">4 Features Overview</a>
+</div>
+<div class="toc-item toc-level-0">
+<a href="/books/user-guide/04-web-interface.html" class="toc-link ">5 Web Interface</a>
+</div>
+<div class="toc-item toc-level-0">
+<a href="/books/user-guide/05-repl.html" class="toc-link ">6 REPL Mode</a>
+</div>
+<div class="toc-item toc-level-0">
+<a href="/books/user-guide/06-voice.html" class="toc-link ">7 Voice Mode</a>
+</div>
+<div class="toc-item toc-level-0">
+<a href="/books/user-guide/07-telegram.html" class="toc-link ">8 Telegram Integration</a>
+</div>
+<div class="toc-item toc-level-0">
+<a href="/books/user-guide/08-skills.html" class="toc-link ">9 Skills System</a>
+</div>
+<div class="toc-item toc-level-0">
+<a href="/books/user-guide/09-scheduled-tasks.html" class="toc-link ">10 Scheduled Tasks</a>
+</div>
+<div class="toc-item toc-level-0">
+<a href="/books/user-guide/10-mcp.html" class="toc-link ">11 MCP Integration</a>
+</div>
+<div class="toc-item toc-level-0">
+<a href="/books/user-guide/11-tools.html" class="toc-link ">12 Built-in Tools</a>
+</div>
+<div class="toc-item toc-level-0">
+<a href="/books/user-guide/12-advanced.html" class="toc-link ">13 Advanced Topics</a>
+</div>
+<div class="toc-item toc-level-0">
+<a href="/books/user-guide/13-free-models.html" class="toc-link active">14 Free AI Models</a>
+</div>
+    </nav>
+  </aside>
+
+  <!-- Main content -->
+  <main class="book-content">
+    <a name="Free-AI-Models"></a>
+<h2>Free AI Models</h2>
+
+<p>This chapter covers how to use Crybot with <strong>free AI models</strong> and providers that offer free tiers.</p>
+
+<blockquote><p><strong>Note:</strong> AI model pricing and free tier availability change frequently. The information below reflects the state of these services at the time of writing. Always verify current pricing and terms directly with each provider before relying on them for your use case.</p></blockquote>
+
+<a name="Quick-Start:-Free-Options"></a>
+<h3>Quick Start: Free Options</h3>
+
+<table>
+<thead>
+<tr>
+<th> Provider </th>
+<th> Model </th>
+<th> Free Tier </th>
+<th> How to Get </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> <strong>Zhipu GLM</strong> </td>
+<td> <code>glm-4-flash</code>, <code>glm-4-plus</code>, <code>glm-4-alltools</code> </td>
+<td> Yes </td>
+<td> <a href="https://open.bigmodel.cn/">bigmodel.cn</a> </td>
+</tr>
+<tr>
+<td> <strong>Groq</strong> </td>
+<td> <code>llama-*</code> series </td>
+<td> Yes </td>
+<td> <a href="https://groq.com/">groq.com</a> </td>
+</tr>
+<tr>
+<td> <strong>OpenRouter</strong> </td>
+<td> <code>deepseek-chat</code>, <code>qwen-*</code> </td>
+<td> Yes </td>
+<td> <a href="https://openrouter.ai/">openrouter.ai</a> </td>
+</tr>
+<tr>
+<td> <strong>Hugging Face</strong> </td>
+<td> Various </td>
+<td> Yes </td>
+<td> <a href="https://huggingface.co/">huggingface.co</a> </td>
+</tr>
+<tr>
+<td> <strong>Local</strong> </td>
+<td> vLLM </td>
+<td> Free </td>
+<td> Run on your hardware </td>
+</tr>
+</tbody>
+</table>
+
+
+<hr>
+
+<a name="L1.-Zhipu-GLM--28-Recommended-for-Free-Use-29-"></a>
+<h3>1. Zhipu GLM (Recommended for Free Use)</h3>
+
+<p>Zhipu AI offers generous free tiers for their GLM models.</p>
+
+<a name="Getting-Started"></a>
+<h4>Getting Started</h4>
+
+<ol>
+<li>Visit <a href="https://open.bigmodel.cn/">https://open.bigmodel.cn/</a></li>
+<li>Sign up for a free account</li>
+<li>Get your API key from the console</li>
+<li>Add to Crybot config:</li>
+</ol>
+
+
+<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">providers:
+  zhipu:
+    api_key: "your_zhipu_api_key"
+
+agents:
+  defaults:
+    model: "glm-4-flash"  # Fast and free
+    # model: "glm-4-plus"   # More capable
+    # model: "glm-4-alltools" # With function calling
+</code></pre>
+
+
+<a name="Available-Models"></a>
+<h4>Available Models</h4>
+
+<table>
+<thead>
+<tr>
+<th> Model </th>
+<th> Description </th>
+<th> Best For </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> <code>glm-4-flash</code> </td>
+<td> Fast, efficient </td>
+<td> Chat, quick responses </td>
+</tr>
+<tr>
+<td> <code>glm-4-plus</code> </td>
+<td> Capable all-rounder </td>
+<td> Complex tasks </td>
+</tr>
+<tr>
+<td> <code>glm-4-alltools</code> </td>
+<td> With function calling </td>
+<td> Tool use, agents </td>
+</tr>
+</tbody>
+</table>
+
+
+<a name="Free-Tier-Limits"></a>
+<h4>Free Tier Limits</h4>
+
+<ul>
+<li>Daily token allowance</li>
+<li>Rate limits apply after quota exceeded</li>
+<li>Multiple models share the same free quota</li>
+</ul>
+
+
+<hr>
+
+<a name="L2.-Groq--28-Lightning-Fast-29-"></a>
+<h3>2. Groq (Lightning Fast)</h3>
+
+<p>Groq offers free access to open-source models with incredibly fast inference.</p>
+
+<a name="Getting-Started_0"></a>
+<h4>Getting Started</h4>
+
+<ol>
+<li>Visit <a href="https://groq.com/">https://groq.com/</a></li>
+<li>Sign up for free</li>
+<li>Get your API key</li>
+<li>Add to Crybot config:</li>
+</ol>
+
+
+<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">providers:
+  openrouter:  # Use OpenRouter for Groq
+    api_key: "your_groq_key"  # Or get from Groq directly
+
+agents:
+  defaults:
+    model: "groq/llama-3.3-70b-8192"
+    # model: "groq/llama-3.1-70b-instruct"
+    # model: "groq/mixtral-8x7b-32768"
+</code></pre>
+
+
+<a name="Available-Models_0"></a>
+<h4>Available Models</h4>
+
+<table>
+<thead>
+<tr>
+<th> Model </th>
+<th> Parameters </th>
+<th> Notes </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> <code>llama-3.3-70b</code> </td>
+<td> 70B </td>
+<td> Fast, capable </td>
+</tr>
+<tr>
+<td> <code>llama-3.1-70b-instruct</code> </td>
+<td> 70B </td>
+<td> Instruction tuned </td>
+</tr>
+<tr>
+<td> <code>mixtral-8x7b</code> </td>
+<td> 47B </td>
+<td> Multilingual </td>
+</tr>
+</tbody>
+</table>
+
+
+<a name="Free-Tier"></a>
+<h4>Free Tier</h4>
+
+<ul>
+<li>Free access to Groq-hosted models</li>
+<li>Rate limited but very fast</li>
+<li>No credit card required</li>
+</ul>
+
+
+<hr>
+
+<a name="L3.-OpenRouter--28-Access-to-Many-Providers-29-"></a>
+<h3>3. OpenRouter (Access to Many Providers)</h3>
+
+<p>OpenRouter aggregates multiple AI providers, including free options.</p>
+
+<a name="Getting-Started_1"></a>
+<h4>Getting Started</h4>
+
+<ol>
+<li>Visit <a href="https://openrouter.ai/">https://openrouter.ai/</a></li>
+<li>Sign up and get API key</li>
+<li>Configure Crybot:</li>
+</ol>
+
+
+<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">providers:
+  openrouter:
+    api_key: "your_openrouter_key"
+
+agents:
+  defaults:
+    model: "deepseek/deepseek-chat"
+    # model: "qwen/qwen-2.5-72b-instruct"
+</code></pre>
+
+
+<a name="Free-Models-on-OpenRouter"></a>
+<h4>Free Models on OpenRouter</h4>
+
+<table>
+<thead>
+<tr>
+<th> Model </th>
+<th> Provider </th>
+<th> Notes </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> <code>deepseek-chat</code> </td>
+<td> DeepSeek </td>
+<td> Very capable, currently free </td>
+</tr>
+<tr>
+<td> <code>qwen-2.5-72b-instruct</code> </td>
+<td> Alibaba </td>
+<td> Strong instruction following </td>
+</tr>
+<tr>
+<td> <code>meta-llama/llama-3-8b</code> </td>
+<td> Meta </td>
+<td> Open source, some free tier </td>
+</tr>
+</tbody>
+</table>
+
+
+<a name="Pricing"></a>
+<h4>Pricing</h4>
+
+<ul>
+<li>Pay-per-use model</li>
+<li>Some providers have free tiers</li>
+<li>Check model page for current pricing</li>
+</ul>
+
+
+<hr>
+
+<a name="L4.-Hugging-Face-Inference-API"></a>
+<h3>4. Hugging Face Inference API</h3>
+
+<p>Hugging Face offers free inference for many open-source models.</p>
+
+<a name="Getting-Started_2"></a>
+<h4>Getting Started</h4>
+
+<ol>
+<li>Visit <a href="https://huggingface.co/">https://huggingface.co/</a></li>
+<li>Sign up for free account</li>
+<li>Get your API token</li>
+<li>Add to Crybot as an OpenAI-compatible endpoint:</li>
+</ol>
+
+
+<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">providers:
+  openai:
+    api_key: "hf_your_token_here"
+    base_url: "https://api-inference.huggingface.co/v1"
+</code></pre>
+
+
+<a name="Available-Models_1"></a>
+<h4>Available Models</h4>
+
+<p>Use any Hugging Face model with "Inference" badge:</p>
+
+<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">model: "meta-llama/Meta-Llama-3-8B-Instruct"
+model: "mistralai/Mistral-7B-Instruct-v0.3"
+model: "Qwen/Qwen2.5-72B-Instruct"
+</code></pre>
+
+
+<a name="Free-Tier_0"></a>
+<h4>Free Tier</h4>
+
+<ul>
+<li>Free inference for supported models</li>
+<li>Rate limits apply</li>
+<li>Good for testing and light usage</li>
+</ul>
+
+
+<hr>
+
+<a name="L5.-Local-Models-with-vLLM--28-Completely-Free-29-"></a>
+<h3>5. Local Models with vLLM (Completely Free)</h3>
+
+<p>Run models on your own hardware - completely free after setup.</p>
+
+<a name="Requirements"></a>
+<h4>Requirements</h4>
+
+<ul>
+<li>NVIDIA GPU with 8GB+ VRAM recommended</li>
+<li>Linux OS</li>
+<li>vLLM installation</li>
+</ul>
+
+
+<a name="Getting-Started_3"></a>
+<h4>Getting Started</h4>
+
+<ol>
+<li>Install vLLM:</li>
+</ol>
+
+
+<pre><code class="bash language-bash language-bash" data-lang="bash"># Using Docker (recommended)
+docker run --gpus all -v $PWD/models:/root/.cache/vllm \
+  -p 8000:8000 \
+  vllm/vllm-openai:latest \
+  --model meta-llama/Meta-Llama-3-8B-Instruct
+
+# Or install locally
+pip install vllm
+python -m vllm.model --model meta-llama/Meta-Llama-3-8B-Instruct
+</code></pre>
+2. Configure Crybot:
+
+<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">providers:
+  vllm:
+    api_base: "http://localhost:8000/v1"
+    api_key: "any_key_here"  # Required but not used by vLLM
+
+agents:
+  defaults:
+    model: "meta-llama/Meta-Llama-3-8B-Instruct"
+</code></pre>
+
+
+<a name="Model-Options"></a>
+<h4>Model Options</h4>
+
+<table>
+<thead>
+<tr>
+<th> Model </th>
+<th> VRAM </th>
+<th> Notes </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> Llama-3-8B </td>
+<td> 8GB </td>
+<td> Good balance </td>
+</tr>
+<tr>
+<td> Llama-3-70B </td>
+<td> 40GB </td>
+<td> More capable </td>
+</tr>
+<tr>
+<td> Mistral-7B </td>
+<td> 8GB </td>
+<td> Fast </td>
+</tr>
+<tr>
+<td> Qwen2-7B </td>
+<td> 8GB </td>
+<td> Strong </td>
+</tr>
+</tbody>
+</table>
+
+
+<a name="Download-Models-First"></a>
+<h4>Download Models First</h4>
+
+<pre><code class="bash language-bash language-bash" data-lang="bash"># Using huggingface-cli
+pip install huggingface_hub
+huggingface-cli download meta-llama/Meta-Llama-3-8B-Instruct
+</code></pre>
+
+
+<hr>
+
+<a name="Comparison:-Free-Options"></a>
+<h3>Comparison: Free Options</h3>
+
+<table>
+<thead>
+<tr>
+<th> Provider </th>
+<th> Setup Difficulty </th>
+<th> Speed </th>
+<th> Quality </th>
+<th> Cost </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> <strong>Zhipu</strong> </td>
+<td> Easy </td>
+<td> Fast </td>
+<td> Excellent </td>
+<td> Free tier </td>
+</tr>
+<tr>
+<td> <strong>Groq</strong> </td>
+<td> Easy </td>
+<td> Very Fast </td>
+<td> Good </td>
+<td> Free tier </td>
+</tr>
+<tr>
+<td> <strong>OpenRouter</strong> </td>
+<td> Easy </td>
+<td> Fast </td>
+<td> Varies </td>
+<td> Pay-per-use </td>
+</tr>
+<tr>
+<td> <strong>Hugging Face</strong> </td>
+<td> Easy </td>
+<td> Medium </td>
+<td> Good </td>
+<td> Free tier </td>
+</tr>
+<tr>
+<td> <strong>vLLM</strong> </td>
+<td> Complex </td>
+<td> Fastest </td>
+<td> Varies </td>
+<td> Free (hardware) </td>
+</tr>
+</tbody>
+</table>
+
+
+<hr>
+
+<a name="Recommended-Configuration-for-Free-Use"></a>
+<h3>Recommended Configuration for Free Use</h3>
+
+<a name="Option-1:-Zhipu-GLM--28-Easiest-29-"></a>
+<h4>Option 1: Zhipu GLM (Easiest)</h4>
+
+<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">providers:
+  zhipu:
+    api_key: "your_zhipu_api_key"
+
+agents:
+  defaults:
+    model: "glm-4-flash"
+    temperature: 0.7
+</code></pre>
+
+
+<a name="Option-2:-Groq--28-Fastest-29-"></a>
+<h4>Option 2: Groq (Fastest)</h4>
+
+<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">providers:
+  openrouter:
+    api_key: "your_groq_or_openrouter_key"
+
+agents:
+  defaults:
+    model: "groq/llama-3.3-70b-8192"
+</code></pre>
+
+
+<a name="Option-3:-Local-vLLM--28-No-API-needed-29-"></a>
+<h4>Option 3: Local vLLM (No API needed)</h4>
+
+<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">providers:
+  vllm:
+    api_base: "http://localhost:8000/v1"
+    api_key: "unused"
+
+agents:
+  defaults:
+    model: "meta-llama/Meta-Llama-3-8B-Instruct"
+</code></pre>
+
+
+<hr>
+
+<a name="Next-Steps"></a>
+<h3>Next Steps</h3>
+
+<ol>
+<li><strong>Choose a provider</strong> from the options above</li>
+<li><strong>Get an API key</strong> (if required)</li>
+<li><strong>Update your config</strong>: <code>~/.crybot/config.yml</code></li>
+<li><strong>Test</strong>: <code>./bin/crybot agent "Hello, can you help me?"</code></li>
+</ol>
+
+
+<p>For configuration details, see <a href="02-configuration.md">Configuration</a>.</p>
+  </main>
+</div>
+
+<script>
+function toggleBookSidebar() {
+  const sidebar = document.querySelector('.book-sidebar');
+  const toggle = document.querySelector('.book-sidebar-toggle span');
+
+  if (sidebar.classList.contains('collapsed')) {
+    sidebar.classList.remove('collapsed');
+    toggle.textContent = '«';
+  } else {
+    sidebar.classList.add('collapsed');
+    toggle.textContent = '»';
+  }
+}
+</script>
+
+<!-- Navigation buttons -->
+<nav class="chapter-nav">
+  
+  <a href="/books/user-guide/12-advanced.html" class="nav-prev">
+    ← Advanced Topics
+  </a>
+  
+  
+</nav>
+  </main>
+  <!-- /Main -->
+
+  <!-- Footer -->
+  <footer class="container">
+    <small>Built with Crystal • <a href="https://github.com/ralsina/crybot">Source</a></small>
+  </footer>
+  <!-- /Footer -->
+
+  <!-- Theme switcher -->
+  <!-- <script src="/js/theme-switcher.js"></script> -->
+  <!-- PhotoSwipe -->
+  <script type="module">
+    import PhotoSwipeLightbox from 'https://unpkg.com/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.js';
+    import PhotoSwipe from 'https://unpkg.com/photoswipe@5.4.4/dist/photoswipe.esm.js';
+
+    const lightbox = new PhotoSwipeLightbox({
+      gallery: '.gallery',
+      children: 'a',
+      pswpModule: PhotoSwipe,
+      bgOpacity: 0.9,
+      padding: { top: 50, bottom: 50, left: 50, right: 50 },
+    });
+    lightbox.init();
+  </script>
+  <script>
+    
+    hljs.highlightAll();
+    hljs.addPlugin(new CopyButtonPlugin());
+    
+  </script>
+  <script src="/search.js"></script>
+
+
+</body></html>
