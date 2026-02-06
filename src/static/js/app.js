@@ -461,7 +461,6 @@ class CrybotWeb {
       this.updateUnreadBadges();
     }
   }
-  }
 
   markCurrentChatAsSeen() {
     const currentChatId = this.getCurrentChatId();
