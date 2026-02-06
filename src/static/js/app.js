@@ -34,6 +34,27 @@ class CrybotWeb {
     // Track loading state to prevent duplicate loads
     this.isLoadingSessions = false;
 
+    // Message history for input (per container)
+    this.messageHistory = {
+      'chat-form': [],
+      'telegram-form': [],
+      'voice-form': []
+    };
+
+    // History navigation state (per container)
+    this.historyPosition = {
+      'chat-form': -1,
+      'telegram-form': -1,
+      'voice-form': -1
+    };
+
+    // Store current input value before navigating history
+    this.pendingInput = {
+      'chat-form': '',
+      'telegram-form': '',
+      'voice-form': ''
+    };
+
     this.init();
   }
 
@@ -206,6 +227,11 @@ class CrybotWeb {
         this.createNewChat();
       });
     }
+
+    // Setup message history navigation for all forms
+    this.setupHistoryNavigation('chat-form');
+    this.setupHistoryNavigation('telegram-form');
+    this.setupHistoryNavigation('voice-form');
   }
 
   setupSkillsHandlers() {
@@ -1216,6 +1242,13 @@ class CrybotWeb {
     this.addMessage(content, 'user', this.getCurrentContainer());
     input.value = '';
 
+    // Save to message history
+    this.addToHistory(formId, content);
+
+    // Reset history position
+    this.historyPosition[formId] = -1;
+    this.pendingInput[formId] = '';
+
     // Track that we're expecting a response for this session
     if (this.sessionId) {
       this.pendingResponses.set(this.sessionId, context);
@@ -1240,6 +1273,13 @@ class CrybotWeb {
 
     this.addMessage(content, 'user', 'telegram-messages');
     input.value = '';
+
+    // Save to message history
+    this.addToHistory('telegram-form', content);
+
+    // Reset history position
+    this.historyPosition['telegram-form'] = -1;
+    this.pendingInput['telegram-form'] = '';
 
     // Show typing indicator
     this.showTypingIndicator('telegram-messages');
@@ -1272,6 +1312,13 @@ class CrybotWeb {
 
     this.addMessage(content, 'user', 'voice-messages');
     input.value = '';
+
+    // Save to message history
+    this.addToHistory('voice-form', content);
+
+    // Reset history position
+    this.historyPosition['voice-form'] = -1;
+    this.pendingInput['voice-form'] = '';
 
     // Show typing indicator
     this.showTypingIndicator('voice-messages');
@@ -1519,6 +1566,127 @@ class CrybotWeb {
     }
 
     return description;
+  }
+
+  addToHistory(formId, content) {
+    const history = this.messageHistory[formId];
+    // Don't add duplicates of the most recent message
+    if (history.length === 0 || history[history.length - 1] !== content) {
+      history.push(content);
+      // Limit history to 100 messages per form
+      if (history.length > 100) {
+        history.shift();
+      }
+    }
+  }
+
+  navigateHistory(formId, direction) {
+    const input = document.querySelector(`#${formId} .message-input`);
+    if (!input) return;
+
+    const history = this.messageHistory[formId];
+    let position = this.historyPosition[formId];
+
+    if (direction === 'up') {
+      if (history.length === 0) return;
+
+      // Save current input if we're at the beginning of history navigation
+      if (position === -1) {
+        this.pendingInput[formId] = input.value;
+      }
+
+      // Move up in history (towards older messages)
+      position = Math.min(position + 1, history.length - 1);
+      input.value = history[history.length - 1 - position];
+    } else if (direction === 'down') {
+      if (position === -1) return;
+
+      // Move down in history (towards newer messages)
+      position = position - 1;
+
+      if (position === -1) {
+        // Restore the pending input
+        input.value = this.pendingInput[formId];
+      } else {
+        input.value = history[history.length - 1 - position];
+      }
+    }
+
+    this.historyPosition[formId] = position;
+
+    // Move cursor to end for input, or appropriate position for textarea
+    if (input.tagName === 'INPUT') {
+      input.setSelectionRange(input.value.length, input.value.length);
+    } else if (input.tagName === 'TEXTAREA') {
+      // For textarea, if we're on the first line, move cursor to end
+      const cursorPos = input.selectionStart;
+      const textBeforeCursor = input.value.substring(0, cursorPos);
+      const isFirstLine = !textBeforeCursor.includes('\n');
+
+      if (isFirstLine) {
+        input.setSelectionRange(input.value.length, input.value.length);
+      }
+    }
+  }
+
+  setupHistoryNavigation(formId) {
+    const form = document.getElementById(formId);
+    if (!form) return;
+
+    const handleHistoryKeydown = (e) => {
+      const input = e.target;
+      if (!input.classList.contains('message-input')) return;
+
+      // Handle Up arrow
+      if (e.key === 'ArrowUp') {
+        // For single-line input, always allow history navigation
+        if (input.tagName === 'INPUT') {
+          // Only navigate if cursor is at the beginning
+          if (input.selectionStart === 0 && input.selectionEnd === 0) {
+            e.preventDefault();
+            this.navigateHistory(formId, 'up');
+          }
+        } else if (input.tagName === 'TEXTAREA') {
+          // For textarea, only navigate if on first line and cursor at start
+          const cursorPos = input.selectionStart;
+          const textBeforeCursor = input.value.substring(0, cursorPos);
+          const isFirstLine = !textBeforeCursor.includes('\n');
+
+          if (isFirstLine && cursorPos === 0) {
+            e.preventDefault();
+            this.navigateHistory(formId, 'up');
+          }
+        }
+      }
+
+      // Handle Down arrow
+      if (e.key === 'ArrowDown') {
+        if (input.tagName === 'INPUT') {
+          // Only navigate if cursor is at the end
+          if (input.selectionStart === input.value.length && input.selectionEnd === input.value.length) {
+            e.preventDefault();
+            this.navigateHistory(formId, 'down');
+          }
+        } else if (input.tagName === 'TEXTAREA') {
+          // For textarea, check if we're on a line where navigation makes sense
+          const cursorPos = input.selectionStart;
+          const textBeforeCursor = input.value.substring(0, cursorPos);
+          const currentLineText = textBeforeCursor.split('\n').pop();
+          const onFirstLine = !textBeforeCursor.includes('\n');
+
+          // Only navigate down if on first line and at end of line, or if we're in history mode
+          if (onFirstLine && cursorPos === input.value.length && this.historyPosition[formId] > -1) {
+            e.preventDefault();
+            this.navigateHistory(formId, 'down');
+          } else if (onFirstLine && cursorPos === currentLineText.length && this.historyPosition[formId] > -1) {
+            e.preventDefault();
+            this.navigateHistory(formId, 'down');
+          }
+        }
+      }
+    };
+
+    form.addEventListener('keydown', handleHistoryKeydown);
   }
 
   async loadTelegramConversations() {
