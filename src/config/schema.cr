@@ -26,6 +26,8 @@ module Crybot
       property anthropic : AnthropicConfig?
       property openrouter : OpenRouterConfig?
       property groq : GroqConfig?
+      property gemini : GeminiConfig?
+      property deepseek : DeepSeekConfig?
       property vllm : VLLMConfig?
 
       def zhipu : ZhipuConfig
@@ -50,6 +52,14 @@ module Crybot
 
       def groq : GroqConfig
         @groq ||= GroqConfig.new
+      end
+
+      def gemini : GeminiConfig
+        @gemini ||= GeminiConfig.new
+      end
+
+      def deepseek : DeepSeekConfig
+        @deepseek ||= DeepSeekConfig.new
       end
 
       struct ZhipuConfig
@@ -83,8 +93,9 @@ module Crybot
         include YAML::Serializable
 
         property api_key : String = ""
+        property lite : Bool = false
 
-        def initialize(@api_key = "")
+        def initialize(@api_key = "", @lite = false)
         end
       end
 
@@ -101,10 +112,29 @@ module Crybot
       struct GroqConfig
         include YAML::Serializable
 
+        # ameba:disable Naming/QueryBoolMethods
         property api_key : String = ""
         property lite : Bool = false
 
         def initialize(@api_key = "", @lite = false)
+        end
+      end
+
+      struct GeminiConfig
+        include YAML::Serializable
+
+        property api_key : String = ""
+
+        def initialize(@api_key = "")
+        end
+      end
+
+      struct DeepSeekConfig
+        include YAML::Serializable
+
+        property api_key : String = ""
+
+        def initialize(@api_key = "")
         end
       end
     end

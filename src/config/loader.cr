@@ -111,6 +111,10 @@ module Crybot
           groq:
             api_key: ""  # Get from https://console.groq.com/
             lite: true  # Set to false if using paid tier (lite mode disables tools/skills for free tier compatibility)
+          gemini:
+            api_key: ""  # Get from https://ai.google.dev/gemini-api/docs
+          deepseek:
+            api_key: ""  # Get from https://platform.deepseek.com/api_keys (5M free tokens for new users!)
           vllm:
             api_key: ""  # Often empty for local vLLM
             api_base: ""  # e.g., http://localhost:8000/v1

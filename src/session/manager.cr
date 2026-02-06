@@ -12,10 +12,15 @@ module Crybot
       @sessions_dir : Path
       @cache : Hash(String, Array(Providers::Message))
       @save_callbacks = Array(SaveCallback).new
+      @provider_name : String?
 
       def initialize
         @sessions_dir = Config::Loader.sessions_dir
         @cache = {} of String => Array(Providers::Message)
+      end
+
+      def provider=(provider_name : String) : Nil
+        @provider_name = provider_name
       end
 
       def self.instance : Manager
@@ -87,6 +92,9 @@ module Crybot
             end
           end
         end
+
+        # Sanitize messages based on provider
+        messages = sanitize_messages_for_provider(messages)
 
         @cache[sanitized_key] = messages
         messages
@@ -164,6 +172,33 @@ module Crybot
       private def sanitize_key(key : String) : String
         # Replace special characters with underscores
         key.gsub(/[^a-zA-Z0-9_-]/, "_")
+      end
+
+      # Sanitize messages based on the current provider's requirements
+      # This allows switching between providers with different message format requirements
+      private def sanitize_messages_for_provider(messages : Array(Providers::Message)) : Array(Providers::Message)
+        provider = @provider_name
+
+        messages.map do |msg|
+          case provider
+          when "gemini"
+            # Gemini doesn't accept 'name' field in tool result messages
+            if msg.role == "tool" && msg.name
+              Providers::Message.new(
+                role: msg.role,
+                content: msg.content,
+                tool_calls: msg.tool_calls,
+                tool_call_id: msg.tool_call_id,
+                name: nil, # Strip name for Gemini
+              )
+            else
+              msg
+            end
+          else
+            # Other providers accept the standard format
+            msg
+          end
+        end
       end
     end
 

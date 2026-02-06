@@ -92,7 +92,7 @@ module Crybot
 
           # The response will also be sent via WebSocket broadcast by the session save callback
           {
-            status: "sent",
+            status:  "sent",
             session: session_key,
           }.to_json
         rescue e : JSON::ParseException

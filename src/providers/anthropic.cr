@@ -23,7 +23,7 @@ module Crybot
 
         # Exponential backoff for rate limits (429) and server errors (5xx)
         max_retries = 5
-        base_delay = 1.0  # seconds
+        base_delay = 1.0 # seconds
 
         max_retries.times do |attempt|
           response = HTTP::Client.post(API_BASE, headers, request_body.to_json)

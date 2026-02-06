@@ -177,7 +177,10 @@
 
 <p>This chapter covers how to use Crybot with <strong>free AI models</strong> and providers that offer free tiers.</p>
 
-<blockquote><p><strong>Note:</strong> AI model pricing and free tier availability change frequently. The information below reflects the state of these services at the time of writing. Always verify current pricing and terms directly with each provider before relying on them for your use case.</p></blockquote>
+<blockquote><p><strong>⭐ Recommended: Zhipu GLM</strong>
+Zhipu GLM offers generous free tiers with good daily limits, fast responses, and excellent tool calling. Get your API key from <a href="https://open.bigmodel.cn/">bigmodel.cn</a>.</p>
+
+<p><strong>Note:</strong> AI model pricing and free tier availability change frequently. The information below reflects the state of these services at the time of writing. Always verify current pricing and terms directly with each provider before relying on them for your use case.</p></blockquote>
 
 <a name="Quick-Start:-Free-Options"></a>
 <h3>Quick Start: Free Options</h3>
@@ -188,50 +191,95 @@
 <th> Provider </th>
 <th> Model </th>
 <th> Free Tier </th>
+<th> Speed </th>
+<th> Daily Limit </th>
 <th> How to Get </th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td> <strong>Zhipu GLM</strong> </td>
-<td> <code>glm-4-flash</code>, <code>glm-4-plus</code>, <code>glm-4-alltools</code> </td>
-<td> Yes </td>
+<td> <strong>Zhipu GLM</strong> ⭐ </td>
+<td> <code>glm-4-flash</code>, <code>glm-4-plus</code> </td>
+<td> Generous </td>
+<td> Fast </td>
+<td> High </td>
 <td> <a href="https://open.bigmodel.cn/">bigmodel.cn</a> </td>
 </tr>
 <tr>
 <td> <strong>Groq</strong> </td>
-<td> <code>llama-*</code> series </td>
+<td> <code>llama-3.3-70b-versatile</code> </td>
 <td> Yes </td>
-<td> <a href="https://groq.com/">groq.com</a> </td>
+<td> Very Fast </td>
+<td> 12K TPM </td>
+<td> <a href="https://console.groq.com/">console.groq.com</a> </td>
+</tr>
+<tr>
+<td> <strong>Google Gemini</strong> </td>
+<td> <code>gemini-2.5-flash</code> </td>
+<td> <strong>100% FREE</strong> </td>
+<td> Very Fast </td>
+<td> 20 req/day* </td>
+<td> <a href="https://ai.google.dev/gemini-api/docs">ai.google.dev</a> </td>
 </tr>
 <tr>
 <td> <strong>OpenRouter</strong> </td>
 <td> <code>deepseek-chat</code>, <code>qwen-*</code> </td>
 <td> Yes </td>
+<td> Fast </td>
+<td> Varies </td>
 <td> <a href="https://openrouter.ai/">openrouter.ai</a> </td>
 </tr>
 <tr>
 <td> <strong>Hugging Face</strong> </td>
 <td> Various </td>
 <td> Yes </td>
+<td> Medium </td>
+<td> Rate limits </td>
 <td> <a href="https://huggingface.co/">huggingface.co</a> </td>
 </tr>
 <tr>
 <td> <strong>Local</strong> </td>
 <td> vLLM </td>
 <td> Free </td>
+<td> Fastest </td>
+<td> None </td>
 <td> Run on your hardware </td>
 </tr>
 </tbody>
 </table>
 
 
+<p>*Gemini free tier has a very low daily request limit (20/day). Better for occasional use.</p>
+
 <hr>
 
-<a name="L1.-Zhipu-GLM--28-Recommended-for-Free-Use-29-"></a>
-<h3>1. Zhipu GLM (Recommended for Free Use)</h3>
+<a name="L1.-Zhipu-GLM--e2--ad--90---28-Recommended--2d--Best-Balance-29-"></a>
+<h3>1. Zhipu GLM ⭐ (Recommended - Best Balance)</h3>
 
-<p>Zhipu AI offers generous free tiers for their GLM models.</p>
+<p>Zhipu AI offers generous free tiers with good daily limits for their GLM models.</p>
+
+<a name="Why-Zhipu-GLM-3f-"></a>
+<h4>Why Zhipu GLM?</h4>
+
+<ul>
+<li><strong>Generous Free Tier</strong>: High daily limits suitable for regular use</li>
+<li><strong>Fast</strong>: Optimized for quick responses</li>
+<li><strong>Excellent Tool Support</strong>: Full function calling support for all Crybot tools</li>
+<li><strong>Multiple Models</strong>: Flash for speed, Plus for capability, AllTools for agents</li>
+<li><strong>Easy Setup</strong>: Simple API key from bigmodel.cn</li>
+</ul>
+
+
+<a name="Free-Tier-Limits"></a>
+<h4>Free Tier Limits</h4>
+
+<ul>
+<li>Daily token allowance with generous limits</li>
+<li>Multiple models share the same free quota</li>
+<li>Rate limits apply after quota exceeded</li>
+<li>Much higher daily limits than Gemini's 20 requests/day</li>
+</ul>
+
 
 <a name="Getting-Started"></a>
 <h4>Getting Started</h4>
@@ -250,6 +298,7 @@
 
 agents:
   defaults:
+    provider: zhipu
     model: "glm-4-flash"  # Fast and free
     # model: "glm-4-plus"   # More capable
     # model: "glm-4-alltools" # With function calling
@@ -287,43 +336,67 @@ agents:
 </table>
 
 
-<a name="Free-Tier-Limits"></a>
-<h4>Free Tier Limits</h4>
+<a name="Free-Tier"></a>
+<h4>Free Tier</h4>
 
 <ul>
-<li>Daily token allowance</li>
-<li>Rate limits apply after quota exceeded</li>
-<li>Multiple models share the same free quota</li>
+<li>Generous daily token allowance</li>
+<li>No credit card required</li>
+<li>Full tool calling support</li>
+<li>High daily limits suitable for regular use</li>
 </ul>
 
 
 <hr>
 
-<a name="L2.-Groq--28-Lightning-Fast-29-"></a>
-<h3>2. Groq (Lightning Fast)</h3>
+<a name="L2.-Google-Gemini--28-Free-but-Limited--2d--20-req-2f-day-29-"></a>
+<h3>2. Google Gemini (Free but Limited - 20 req/day)</h3>
 
-<p>Groq offers free access to open-source models with incredibly fast inference.</p>
+<p>Google Gemini 2.5 Flash is <strong>completely free</strong> with excellent speed and full tool calling support, but has a very low daily request limit.</p>
+
+<a name="Why-Consider-Gemini-3f-"></a>
+<h4>Why Consider Gemini?</h4>
+
+<ul>
+<li><strong>100% Free</strong>: No input/output charges, no hidden costs</li>
+<li><strong>Very Fast</strong>: Optimized for quick responses</li>
+<li><strong>Excellent Tool Support</strong>: Full function calling support for all Crybot tools</li>
+<li><strong>Easy Setup</strong>: Simple API key from ai.google.dev</li>
+</ul>
+
+
+<a name="Free-Tier-Limits_0"></a>
+<h4>Free Tier Limits</h4>
+
+<ul>
+<li><strong>20 requests per day</strong> for <code>gemini-2.5-flash</code> on free tier</li>
+<li>After hitting the limit, you must wait ~24 hours or upgrade to a paid plan</li>
+<li>For heavier usage, consider Zhipu GLM or Groq instead</li>
+</ul>
+
+
+<blockquote><p><strong>Note:</strong> Gemini's free tier has a strict daily request limit (20/day). If you need more requests, use Zhipu GLM or Groq free tiers which have higher limits.</p></blockquote>
 
 <a name="Getting-Started_0"></a>
 <h4>Getting Started</h4>
 
 <ol>
-<li>Visit <a href="https://groq.com/">https://groq.com/</a></li>
-<li>Sign up for free</li>
-<li>Get your API key</li>
+<li>Visit <a href="https://ai.google.dev/gemini-api/docs">https://ai.google.dev/gemini-api/docs</a></li>
+<li>Sign up for a free account (Google account required)</li>
+<li>Get your API key from the console</li>
 <li>Add to Crybot config:</li>
 </ol>
 
 
 <pre><code class="yaml language-yaml language-yaml" data-lang="yaml">providers:
-  openrouter:  # Use OpenRouter for Groq
-    api_key: "your_groq_key"  # Or get from Groq directly
+  gemini:
+    api_key: "your_gemini_api_key"
 
 agents:
   defaults:
-    model: "groq/llama-3.3-70b-8192"
-    # model: "groq/llama-3.1-70b-instruct"
-    # model: "groq/mixtral-8x7b-32768"
+    provider: gemini
+    model: "gemini-2.5-flash"  # Fast and free
+    # model: "gemini-2.5-pro"   # More capable, also free
 </code></pre>
 
 
@@ -334,48 +407,147 @@ agents:
 <thead>
 <tr>
 <th> Model </th>
-<th> Parameters </th>
-<th> Notes </th>
+<th> Description </th>
+<th> Best For </th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td> <code>llama-3.3-70b</code> </td>
-<td> 70B </td>
-<td> Fast, capable </td>
+<td> <code>gemini-2.5-flash</code> </td>
+<td> Fast, efficient </td>
+<td> Chat, quick responses, tool use </td>
 </tr>
 <tr>
-<td> <code>llama-3.1-70b-instruct</code> </td>
-<td> 70B </td>
-<td> Instruction tuned </td>
-</tr>
-<tr>
-<td> <code>mixtral-8x7b</code> </td>
-<td> 47B </td>
-<td> Multilingual </td>
+<td> <code>gemini-2.5-pro</code> </td>
+<td> More capable </td>
+<td> Complex tasks, reasoning </td>
 </tr>
 </tbody>
 </table>
 
 
-<a name="Free-Tier"></a>
+<a name="Free-Tier_0"></a>
 <h4>Free Tier</h4>
 
 <ul>
-<li>Free access to Groq-hosted models</li>
-<li>Rate limited but very fast</li>
+<li>Completely free with no per-token charges</li>
+<li><strong>20 requests per day limit</strong> (very restrictive)</li>
 <li>No credit card required</li>
+<li>Full tool calling support</li>
 </ul>
 
 
 <hr>
 
-<a name="L3.-OpenRouter--28-Access-to-Many-Providers-29-"></a>
-<h3>3. OpenRouter (Access to Many Providers)</h3>
+<a name="L3.-Groq--28-Lightning-Fast-29-"></a>
+<h3>3. Groq (Lightning Fast)</h3>
+
+<p>Groq offers free access to open-source models with incredibly fast inference.</p>
+
+<a name="Getting-Started_1"></a>
+<h4>Getting Started</h4>
+
+<ol>
+<li>Visit <a href="https://console.groq.com/">https://console.groq.com/</a></li>
+<li>Sign up for free</li>
+<li>Get your API key from the dashboard</li>
+<li>Add to Crybot config:</li>
+</ol>
+
+
+<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">providers:
+  groq:
+    api_key: "your_groq_api_key"
+    lite: false  # Full mode for models with sufficient TPM
+
+agents:
+  defaults:
+    provider: groq
+    model: "llama-3.3-70b-versatile"  # 12K TPM, but tools may be unstable
+    # For working tools with Groq, consider:
+    # model: "qwen/qwen3-32b"  # 6K TPM - working tools, requires lite mode
+</code></pre>
+
+
+<a name="Available-Models_1"></a>
+<h4>Available Models</h4>
+
+<table>
+<thead>
+<tr>
+<th> Model </th>
+<th> TPM (Free) </th>
+<th> TPD (Free) </th>
+<th> Notes </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> <code>llama-3.3-70b-versatile</code> </td>
+<td> <strong>12K</strong> </td>
+<td> 100K </td>
+<td> <strong>Recommended</strong> - Fast, capable, 12K TPM enough for Crybot </td>
+</tr>
+<tr>
+<td> <code>llama-3.1-8b-instant</code> </td>
+<td> 6K </td>
+<td> 500K </td>
+<td> Very fast, requires <code>lite: true</code> </td>
+</tr>
+<tr>
+<td> <code>qwen/qwen3-32b</code> </td>
+<td> 6K </td>
+<td> 500K </td>
+<td> Strong instruction following, requires <code>lite: true</code> </td>
+</tr>
+<tr>
+<td> <code>meta-llama/llama-guard-4-12b</code> </td>
+<td> <strong>15K</strong> </td>
+<td> 500K </td>
+<td> Highest TPM, but specialized for safety </td>
+</tr>
+<tr>
+<td> <code>gpt-oss-120b</code> </td>
+<td> 8K </td>
+<td> 200K </td>
+<td> OpenAI's open-source model </td>
+</tr>
+</tbody>
+</table>
+
+
+<p>See <a href="https://console.groq.com/docs/rate-limits">Groq Rate Limits</a> for current limits.</p>
+
+<a name="Free-Tier_1"></a>
+<h4>Free Tier</h4>
+
+<ul>
+<li>Free access to Groq-hosted models</li>
+<li>Rate limits vary by model (see table above)</li>
+<li>No credit card required</li>
+<li><strong>Recommended:</strong> Use Zhipu GLM for free instead - more reliable tool use</li>
+</ul>
+
+
+<blockquote><p><strong>Tool Use Limitations:</strong>
+- <code>llama-3.3-70b-versatile</code>: Has 12K TPM but generates malformed tool calls
+- <code>qwen/qwen3-32b</code>: Working tools, but only 6K TPM (requires <code>lite: true</code>)
+- For reliable tool use on Groq free tier, consider <code>qwen/qwen3-32b</code> with <code>lite: true</code></p>
+
+<p><strong>For models with 6K TPM</strong> (llama-3.1-8b-instant, qwen/qwen3-32b):
+- Set <code>lite: true</code> to fit within the limit
+- Lite mode disables tools, skills, bootstrap files, and memory
+- You can have short conversations; long sessions will exceed the limit
+- Clear your session periodically: <code>rm ~/.crybot/sessions/YOUR_SESSION.jsonl</code></p></blockquote>
+
+<hr>
+
+<a name="L4.-OpenRouter--28-Access-to-Many-Providers-29-"></a>
+<h3>4. OpenRouter (Access to Many Providers)</h3>
 
 <p>OpenRouter aggregates multiple AI providers, including free options.</p>
 
-<a name="Getting-Started_1"></a>
+<a name="Getting-Started_2"></a>
 <h4>Getting Started</h4>
 
 <ol>
@@ -391,6 +563,7 @@ agents:
 
 agents:
   defaults:
+    provider: openrouter
     model: "deepseek/deepseek-chat"
     # model: "qwen/qwen-2.5-72b-instruct"
 </code></pre>
@@ -439,12 +612,12 @@ agents:
 
 <hr>
 
-<a name="L4.-Hugging-Face-Inference-API"></a>
-<h3>4. Hugging Face Inference API</h3>
+<a name="L5.-Hugging-Face-Inference-API"></a>
+<h3>5. Hugging Face Inference API</h3>
 
 <p>Hugging Face offers free inference for many open-source models.</p>
 
-<a name="Getting-Started_2"></a>
+<a name="Getting-Started_3"></a>
 <h4>Getting Started</h4>
 
 <ol>
@@ -462,7 +635,7 @@ agents:
 </code></pre>
 
 
-<a name="Available-Models_1"></a>
+<a name="Available-Models_2"></a>
 <h4>Available Models</h4>
 
 <p>Use any Hugging Face model with "Inference" badge:</p>
@@ -473,7 +646,7 @@ model: "Qwen/Qwen2.5-72B-Instruct"
 </code></pre>
 
 
-<a name="Free-Tier_0"></a>
+<a name="Free-Tier_2"></a>
 <h4>Free Tier</h4>
 
 <ul>
@@ -485,8 +658,8 @@ model: "Qwen/Qwen2.5-72B-Instruct"
 
 <hr>
 
-<a name="L5.-Local-Models-with-vLLM--28-Completely-Free-29-"></a>
-<h3>5. Local Models with vLLM (Completely Free)</h3>
+<a name="L6.-Local-Models-with-vLLM--28-Completely-Free-29-"></a>
+<h3>6. Local Models with vLLM (Completely Free)</h3>
 
 <p>Run models on your own hardware - completely free after setup.</p>
 
@@ -500,7 +673,7 @@ model: "Qwen/Qwen2.5-72B-Instruct"
 </ul>
 
 
-<a name="Getting-Started_3"></a>
+<a name="Getting-Started_4"></a>
 <h4>Getting Started</h4>
 
 <ol>
@@ -589,15 +762,28 @@ huggingface-cli download meta-llama/Meta-Llama-3-8B-Instruct
 <th> Speed </th>
 <th> Quality </th>
 <th> Cost </th>
+<th> Daily Limit </th>
+<th> Tool Support </th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td> <strong>Zhipu</strong> </td>
+<td> <strong>Zhipu</strong> ⭐ </td>
 <td> Easy </td>
 <td> Fast </td>
 <td> Excellent </td>
 <td> Free tier </td>
+<td> High </td>
+<td> ✅ Excellent </td>
+</tr>
+<tr>
+<td> <strong>Gemini</strong> </td>
+<td> Easy </td>
+<td> Very Fast </td>
+<td> Excellent </td>
+<td> <strong>100% Free</strong> </td>
+<td> 20 req/day </td>
+<td> ✅ Excellent </td>
 </tr>
 <tr>
 <td> <strong>Groq</strong> </td>
@@ -605,6 +791,8 @@ huggingface-cli download meta-llama/Meta-Llama-3-8B-Instruct
 <td> Very Fast </td>
 <td> Good </td>
 <td> Free tier </td>
+<td> 12K TPM </td>
+<td> ⚠️ Limited* </td>
 </tr>
 <tr>
 <td> <strong>OpenRouter</strong> </td>
@@ -612,6 +800,8 @@ huggingface-cli download meta-llama/Meta-Llama-3-8B-Instruct
 <td> Fast </td>
 <td> Varies </td>
 <td> Pay-per-use </td>
+<td> Varies </td>
+<td> ✅ Varies </td>
 </tr>
 <tr>
 <td> <strong>Hugging Face</strong> </td>
@@ -619,6 +809,8 @@ huggingface-cli download meta-llama/Meta-Llama-3-8B-Instruct
 <td> Medium </td>
 <td> Good </td>
 <td> Free tier </td>
+<td> Rate limits </td>
+<td> ✅ Good </td>
 </tr>
 <tr>
 <td> <strong>vLLM</strong> </td>
@@ -626,18 +818,22 @@ huggingface-cli download meta-llama/Meta-Llama-3-8B-Instruct
 <td> Fastest </td>
 <td> Varies </td>
 <td> Free (hardware) </td>
+<td> None </td>
+<td> ✅ Good </td>
 </tr>
 </tbody>
 </table>
 
+
+<p>*Groq's <code>llama-3.3-70b-versatile</code> has 12K TPM but generates malformed tool calls. Use <code>qwen/qwen3-32b</code> with <code>lite: true</code> for working tools (6K TPM).</p>
 
 <hr>
 
 <a name="Recommended-Configuration-for-Free-Use"></a>
 <h3>Recommended Configuration for Free Use</h3>
 
-<a name="Option-1:-Zhipu-GLM--28-Easiest-29-"></a>
-<h4>Option 1: Zhipu GLM (Easiest)</h4>
+<a name="Option-1:-Zhipu-GLM--e2--ad--90---28-Recommended--2d--Best-Balance-29-"></a>
+<h4>Option 1: Zhipu GLM ⭐ (Recommended - Best Balance)</h4>
 
 <pre><code class="yaml language-yaml language-yaml" data-lang="yaml">providers:
   zhipu:
@@ -645,26 +841,45 @@ huggingface-cli download meta-llama/Meta-Llama-3-8B-Instruct
 
 agents:
   defaults:
+    provider: zhipu
     model: "glm-4-flash"
     temperature: 0.7
 </code></pre>
 
 
-<a name="Option-2:-Groq--28-Fastest-29-"></a>
-<h4>Option 2: Groq (Fastest)</h4>
+<a name="Option-2:-Gemini--28-For-Light-Usage--2d--20-req-2f-day-29-"></a>
+<h4>Option 2: Gemini (For Light Usage - 20 req/day)</h4>
 
 <pre><code class="yaml language-yaml language-yaml" data-lang="yaml">providers:
-  openrouter:
-    api_key: "your_groq_or_openrouter_key"
+  gemini:
+    api_key: "your_gemini_api_key"
 
 agents:
   defaults:
-    model: "groq/llama-3.3-70b-8192"
+    provider: gemini
+    model: "gemini-2.5-flash"
 </code></pre>
 
 
-<a name="Option-3:-Local-vLLM--28-No-API-needed-29-"></a>
-<h4>Option 3: Local vLLM (No API needed)</h4>
+<a name="Option-3:-Groq--28-Fastest--2d--Full-Functionality-29-"></a>
+<h4>Option 3: Groq (Fastest - Full Functionality)</h4>
+
+<pre><code class="yaml language-yaml language-yaml" data-lang="yaml">providers:
+  groq:
+    api_key: "your_groq_api_key"
+    lite: false  # Full mode with llama-3.3-70b-versatile (12K TPM)
+
+agents:
+  defaults:
+    provider: groq
+    model: "llama-3.3-70b-versatile"
+</code></pre>
+
+
+<blockquote><p><strong>Alternative for 6K TPM models:</strong> Use <code>llama-3.1-8b-instant</code> with <code>lite: true</code> (limited features)</p></blockquote>
+
+<a name="Option-4:-Local-vLLM--28-No-API-needed-29-"></a>
+<h4>Option 4: Local vLLM (No API needed)</h4>
 
 <pre><code class="yaml language-yaml language-yaml" data-lang="yaml">providers:
   vllm:
@@ -673,6 +888,7 @@ agents:
 
 agents:
   defaults:
+    provider: vllm
     model: "meta-llama/Meta-Llama-3-8B-Instruct"
 </code></pre>
 
