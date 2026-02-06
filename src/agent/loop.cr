@@ -130,60 +130,35 @@ module Crybot
       end
 
       private def create_provider : Providers::LLMProvider
+        provider_name = @config.agents.defaults.provider
         model = @config.agents.defaults.model
 
-        # Detect provider from model name prefix
-        # Format: provider/model or just model (defaults to zhipu)
-        provider_name, actual_model = parse_model_string(model)
-
         case provider_name
-        when "openai", "gpt"
+        when "openai"
           api_key = @config.providers.openai.api_key
           raise "OpenAI API key not configured" if api_key.empty?
-          Providers::OpenAIProvider.new(api_key, actual_model)
-        when "anthropic", "claude"
+          Providers::OpenAIProvider.new(api_key, model)
+        when "anthropic"
           api_key = @config.providers.anthropic.api_key
           raise "Anthropic API key not configured" if api_key.empty?
-          Providers::AnthropicProvider.new(api_key, actual_model)
+          Providers::AnthropicProvider.new(api_key, model)
         when "openrouter"
           api_key = @config.providers.openrouter.api_key
           raise "OpenRouter API key not configured" if api_key.empty?
-          Providers::OpenRouterProvider.new(api_key, actual_model)
-        when "groq", "llama"
+          Providers::OpenRouterProvider.new(api_key, model)
+        when "groq"
           api_key = @config.providers.groq.api_key
           raise "Groq API key not configured" if api_key.empty?
-          Providers::GroqProvider.new(api_key, actual_model)
+          Providers::GroqProvider.new(api_key, model)
         when "vllm"
           api_base = @config.providers.vllm.api_base
           raise "vLLM api_base not configured" if api_base.empty?
-          Providers::VLLMProvider.new(@config.providers.vllm.api_key, api_base, actual_model)
+          Providers::VLLMProvider.new(@config.providers.vllm.api_key, api_base, model)
         else
           # Default to Zhipu
           api_key = @config.providers.zhipu.api_key
           raise "Zhipu API key not configured" if api_key.empty?
-          Providers::ZhipuProvider.new(api_key, actual_model)
-        end
-      end
-
-      private def parse_model_string(model : String) : Tuple(String, String)
-        parts = model.split('/', 2)
-        if parts.size == 2
-          {parts[0], parts[1]}
-        else
-          # Default provider based on model name patterns
-          provider = detect_provider_from_model(model)
-          {provider, model}
-        end
-      end
-
-      private def detect_provider_from_model(model : String) : String
-        case model
-        when /^gpt-/      then "openai"
-        when /^claude-/   then "anthropic"
-        when /^glm-/      then "zhipu"
-        when /^deepseek-/ then "openrouter"
-        when /^qwen-/     then "openrouter"
-        else                   "zhipu"
+          Providers::ZhipuProvider.new(api_key, model)
         end
       end
 

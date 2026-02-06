@@ -10,6 +10,7 @@ module Crybot
       struct Defaults
         include YAML::Serializable
 
+        property provider : String = "zhipu"
         property model : String = "glm-4.7-flash"
         property max_tokens : Int32 = 8192
         property temperature : Float64 = 0.7
