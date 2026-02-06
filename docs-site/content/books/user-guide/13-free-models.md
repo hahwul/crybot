@@ -9,16 +9,17 @@ This chapter covers how to use Crybot with **free AI models** and providers that
 
 ## Quick Start: Free Options
 
-| Provider | Models | Free Tier | Speed | Free Amount | How to Get |
-|----------|--------|-----------|-------|-------------|------------|
-| **OpenRouter** ⭐ | Trinity, DeepSeek, Qwen, Llama, and more | Yes | Fast | Multiple free options | [openrouter.ai](https://openrouter.ai/) |
-| **Zhipu GLM** | `glm-4-flash`, `glm-4-plus` | Generous | Fast | High daily limit | [bigmodel.cn](https://open.bigmodel.cn/) |
-| **Groq** | `llama-3.3-70b-versatile` | Yes | Very Fast | 12K TPM | [console.groq.com](https://console.groq.com/) |
-| **Google Gemini** | `gemini-2.5-flash` | **100% FREE** | Very Fast | 20 req/day* | [ai.google.dev](https://ai.google.dev/gemini-api/docs) |
-| **Hugging Face** | Various | Yes | Medium | Rate limits | [huggingface.co](https://huggingface.co/) |
-| **Local** | vLLM | Free | Fastest | None | Run on your hardware |
+| Provider | Models | Free Tier | Speed | Tool Support | Free Amount | How to Get |
+|----------|--------|-----------|-------|--------------|-------------|------------|
+| **OpenRouter** ⭐ | GLM, DeepSeek, Qwen, Llama, and more | Yes | Fast | ✅ Excellent | Multiple free options | [openrouter.ai](https://openrouter.ai/) |
+| **Zhipu GLM** | `glm-4-flash`, `glm-4-plus` | Generous | Fast | ✅ Excellent | High daily limit | [bigmodel.cn](https://open.bigmodel.cn/) |
+| **Groq** | `llama-3.3-70b-versatile` | Yes | Very Fast | ⚠️ Limited* | 12K TPM | [console.groq.com](https://console.groq.com/) |
+| **Google Gemini** | `gemini-2.5-flash` | **100% FREE** | Very Fast | ✅ Excellent | 20 req/day† | [ai.google.dev](https://ai.google.dev/gemini-api/docs) |
+| **Hugging Face** | Various | Yes | Medium | ✅ Good | Rate limits | [huggingface.co](https://huggingface.co/) |
+| **Local** | vLLM | Free | Fastest | ✅ Good | None | Run on your hardware |
 
-*Gemini free tier has a very low daily request limit (20/day). Better for occasional use.
+*Groq's `llama-3.3-70b-versatile` has 12K TPM but generates malformed tool calls. Use `qwen/qwen3-32b` with `lite: true` for working tools (6K TPM).
+†Gemini free tier has a very low daily request limit (20/day). Better for occasional use.
 
 ---
 
@@ -29,7 +30,7 @@ OpenRouter aggregates multiple AI providers and offers several free models, maki
 ### Why OpenRouter?
 
 - **Multiple Free Models**: Access to many free models from different providers
-- **Arcee Trinity**: Excellent quality model with fast responses and tool support
+- **Zhipu GLM via OpenRouter**: Fast, high quality, excellent tool support
 - **Variety**: Choose from different models based on your needs
 - **Easy Setup**: Single API key works with all models
 - **No Credit Card Required**: Start using free models immediately
@@ -51,18 +52,19 @@ providers:
 agents:
   defaults:
     provider: openrouter
-    model: "arcee-ai/trinity-large-preview:free"  # ⭐ Fast, high quality, supports tools!
+    model: "z-ai/glm-4.5-air:free"  # ⭐ Recommended - Fast, excellent tool support!
     # model: "tngtech/deepseek-r1t2-chimera:free"  # Alternative (slower)
-    # model: "qwen/qwen-2.5-72b-instruct"
+    # model: "arcee-ai/trinity-large-preview:free"  # Fast but NO tool support via OpenRouter
 ```
 
 ### Available Free Models
 
 | Model | Provider | Description | Tool Support |
 |-------|----------|-------------|--------------|
-| `arcee-ai/trinity-large-preview:free` | Arcee AI | ⭐ **Recommended** - Fast, high quality, excellent for general use | ✅ Yes |
+| `z-ai/glm-4.5-air:free` | Zhipu AI | ⭐ **Recommended** - Fast, high quality, excellent tool support | ✅ Yes |
 | `tngtech/deepseek-r1t2-chimera:free` | DeepSeek | Free DeepSeek model, good for reasoning | ✅ Yes |
 | `qwen/qwen-2.5-72b-instruct` | Alibaba | Strong instruction following, capable model | ✅ Yes |
+| `arcee-ai/trinity-large-preview:free` | Arcee AI | Fast, high quality for chat | ⚠️ **No tool support via OpenRouter** |
 | `meta-llama/llama-3-8b` | Meta | Open source Llama, some free tier availability | ✅ Yes |
 | `google/gemma-7b-it:free` | Google | Gemma model, lightweight and efficient | ⚠️ Limited |
 
@@ -70,7 +72,7 @@ agents:
 
 ### Tool Support
 
-Most free models on OpenRouter support function calling, which means all Crybot tools (file operations, shell commands, web search, memory, etc.) will work properly. The recommended `arcee-ai/trinity-large-preview:free` has excellent tool support.
+Most free models on OpenRouter support function calling, which means all Crybot tools (file operations, shell commands, web search, memory, etc.) will work properly. However, **Arcee Trinity does not support tool calling via OpenRouter** despite documentation claims - it outputs code blocks instead of calling tools. For full tool support, use `z-ai/glm-4.5-air:free` or `tngtech/deepseek-r1t2-chimera:free`.
 
 ### Free Tier Details
 
@@ -355,11 +357,15 @@ huggingface-cli download meta-llama/Meta-Llama-3-8B-Instruct
 
 *Groq's `llama-3.3-70b-versatile` has 12K TPM but generates malformed tool calls. Use `qwen/qwen3-32b` with `lite: true` for working tools (6K TPM).
 
+> **Note on Arcee Trinity**: While `arcee-ai/trinity-large-preview:free` is fast and high quality for chat, it does NOT support tool calling via OpenRouter - it outputs code blocks instead of calling tools. Use `z-ai/glm-4.5-air:free` for tool use.
+
+*Groq's `llama-3.3-70b-versatile` has 12K TPM but generates malformed tool calls. Use `qwen/qwen3-32b` with `lite: true` for working tools (6K TPM).
+
 ---
 
 ## Recommended Configuration for Free Use
 
-### Option 1: OpenRouter with Arcee Trinity ⭐ (Recommended)
+### Option 1: OpenRouter with Zhipu GLM ⭐ (Recommended for Tool Use)
 
 ```yaml
 providers:
@@ -369,11 +375,11 @@ providers:
 agents:
   defaults:
     provider: openrouter
-    model: "arcee-ai/trinity-large-preview:free"
+    model: "z-ai/glm-4.5-air:free"
     temperature: 0.7
 ```
 
-### Option 2: Zhipu GLM (Reliable Free Tier)
+### Option 2: Zhipu GLM Direct (Reliable Free Tier)
 
 ```yaml
 providers:
