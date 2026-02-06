@@ -69,7 +69,14 @@ module Crybot
 
         # Add tools if present
         unless tools.nil? || tools.empty?
-          body["tools"] = JSON::Any.new(tools.map(&.to_h).map { |hash| JSON::Any.new(hash) })
+          tools_array = tools.map(&.to_h).map { |hash| JSON::Any.new(hash) }
+          body["tools"] = JSON::Any.new(tools_array)
+          puts "[Provider] Sending #{tools.size} tools to API"
+          tools.each do |tool|
+            puts "[Provider]   - #{tool.name}"
+          end
+        else
+          puts "[Provider] No tools being sent (tools nil or empty)"
         end
 
         body

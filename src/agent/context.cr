@@ -153,6 +153,13 @@ module Crybot
           - `web_search(query, max_results)` - Search the web
           - `web_fetch(url)` - Fetch and read web pages
 
+          **CRITICAL: How to Use Tools:**
+          When you need to use a tool, you MUST call it using function calling syntax. Do NOT just write code blocks or explain what you would do.
+          - **WRONG**: "Here's the command to run: ```bash ping 8.8.8.8 ```"
+          - **RIGHT**: Call the `exec` tool with arguments `{"command": "ping -c 4 8.8.8.8"}`
+
+          **Available tools will be provided in the tools array. You MUST call them directly - don't just show code!**
+
           **When to use tools:**
           - Use `exec()` for ANY shell command or terminal operation (git, build tools, file operations, etc.)
           - Use `write_file()` + `exec()` to create and run scripts
