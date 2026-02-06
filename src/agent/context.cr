@@ -13,8 +13,9 @@ module Crybot
       @workspace_dir : Path
       @memory_manager : MemoryManager
       @skill_manager : SkillManager
+      @tooling_enabled : Bool
 
-      def initialize(@config : Config::ConfigFile, @skill_manager : SkillManager)
+      def initialize(@config : Config::ConfigFile, @skill_manager : SkillManager, @tooling_enabled : Bool = true)
         @workspace_dir = Config::Loader.workspace_dir
         @memory_manager = MemoryManager.new(@workspace_dir)
       end
@@ -22,17 +23,22 @@ module Crybot
       def build_system_prompt : String
         parts = [] of String
 
-        # Identity section
+        # Identity section (lite version when tooling disabled)
         parts << build_identity_section
 
-        # Bootstrap files
-        parts << build_bootstrap_section
+        # Bootstrap files and memory only when tooling enabled
+        if @tooling_enabled
+          # Bootstrap files
+          parts << build_bootstrap_section
 
-        # Memory
-        parts << build_memory_section
+          # Memory
+          parts << build_memory_section
+        end
 
-        # Skills
-        parts << build_skills_section
+        # Skills (only if tooling is enabled)
+        if @tooling_enabled
+          parts << build_skills_section
+        end
 
         parts.compact.join("\n\n")
       end
@@ -92,44 +98,57 @@ module Crybot
 
       private def build_identity_section : String
         now = Time.local
-        memory_stats = @memory_manager.stats
 
-        <<-TEXT
-        # Identity
+        if @tooling_enabled
+          # Full identity with tool documentation
+          memory_stats = @memory_manager.stats
 
-        You are a helpful AI assistant. Your users may call you by various names - that's fine.
-        You are running as part of Crybot, a Crystal-based personal AI system.
+          <<-TEXT
+          # Identity
 
-        **Current Time:** #{now.to_s("%Y-%m-%d %H:%M:%S %Z")}
+          You are a helpful AI assistant. Your users may call you by various names - that's fine.
+          You are running as part of Crybot, a Crystal-based personal AI system.
 
-        **Workspace Paths:**
-        - Config: #{Config::Loader.config_dir}
-        - Workspace: #{@workspace_dir}
-        - Sessions: #{Config::Loader.sessions_dir}
-        - Memory: #{Config::Loader.memory_dir}
-        - Skills: #{Config::Loader.skills_dir}
+          **Current Time:** #{now.to_s("%Y-%m-%d %H:%M:%S %Z")}
 
-        **Model:** #{@config.agents.defaults.model}
-        **Max Tool Iterations:** #{@config.agents.defaults.max_tool_iterations}
+          **Workspace Paths:**
+          - Config: #{Config::Loader.config_dir}
+          - Workspace: #{@workspace_dir}
+          - Sessions: #{Config::Loader.sessions_dir}
+          - Memory: #{Config::Loader.memory_dir}
+          - Skills: #{Config::Loader.skills_dir}
 
-        **Memory Status:**
-        - Main memory: #{memory_stats["memory_file_size"]} bytes
-        - Log entries: #{memory_stats["log_file_count"]}
-        - Log size: #{memory_stats["log_total_size"]} bytes
+          **Model:** #{@config.agents.defaults.model}
+          **Max Tool Iterations:** #{@config.agents.defaults.max_tool_iterations}
 
-        **Memory Tools Available:**
-        - `save_memory(content)` - Save important facts, preferences, or information to long-term memory (MEMORY.md)
-        - `search_memory(query)` - Search long-term memory and daily logs for information
-        - `list_recent_memories(days)` - List recent memory entries from daily logs
-        - `record_memory(content)` - Record events, actions, or observations to the daily log
-        - `memory_stats()` - Get memory usage statistics
+          **Memory Status:**
+          - Main memory: #{memory_stats["memory_file_size"]} bytes
+          - Log entries: #{memory_stats["log_file_count"]}
+          - Log size: #{memory_stats["log_total_size"]} bytes
 
-        **When to use memory:**
-        - Use `save_memory()` for facts worth remembering indefinitely (user preferences, important decisions, project details)
-        - Use `record_memory()` for session tracking (what you did, tasks completed, conversations)
-        - Use `search_memory()` when you need to recall previous information
-        - Use `list_recent_memories()` to review recent activity
-        TEXT
+          **Memory Tools Available:**
+          - `save_memory(content)` - Save important facts, preferences, or information to long-term memory (MEMORY.md)
+          - `search_memory(query)` - Search long-term memory and daily logs for information
+          - `list_recent_memories(days)` - List recent memory entries from daily logs
+          - `record_memory(content)` - Record events, actions, or observations to the daily log
+          - `memory_stats()` - Get memory usage statistics
+
+          **When to use memory:**
+          - Use `save_memory()` for facts worth remembering indefinitely (user preferences, important decisions, project details)
+          - Use `record_memory()` for session tracking (what you did, tasks completed, conversations)
+          - Use `search_memory()` when you need to recall previous information
+          - Use `list_recent_memories()` to review recent activity
+          TEXT
+        else
+          # Lite identity for token-constrained providers
+          <<-TEXT
+          # Identity
+
+          You are a helpful AI assistant running as part of Crybot.
+
+          **Current Time:** #{now.to_s("%Y-%m-%d %H:%M:%S %Z")}
+          TEXT
+        end
       end
 
       private def build_bootstrap_section : String

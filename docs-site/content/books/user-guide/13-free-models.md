@@ -71,7 +71,7 @@ Groq offers free access to open-source models with incredibly fast inference.
 providers:
   groq:
     api_key: "your_groq_api_key"
-    tools: false  # Required for free tier (6000 TPM limit)
+    tooling: false  # Disable tools and skills for free tier
 
 agents:
   defaults:
@@ -97,18 +97,21 @@ agents:
 - No credit card required
 - Check [Groq's docs](https://console.groq.com/docs/models) for current model list
 
-> **Important Limitation:** Groq's free tier has a **6000 tokens-per-minute (TPM)** limit. Crybot's system prompt (skills, memory, instructions) is approximately 8000-9000 tokens, which exceeds this limit.
+> **Important Limitation:** Groq's free tier has a **6000 tokens-per-minute (TPM)** limit.
 >
 > **For Groq free tier to work:**
-> - Set `tools: false` in the Groq provider config
-> - The system will still be too large for the free tier
-> - **Recommended:** Use Groq only if you upgrade to a paid tier, or use Zhipu GLM for free instead
+> - Set `tooling: false` in the Groq provider config (disables tools and skills)
+> - System prompt is reduced to ~150 tokens
+> - You can have short conversations, but long sessions will exceed the limit
+> - Clear your session periodically: `rm ~/.crybot/sessions/YOUR_SESSION.jsonl`
+>
+> **Recommended:** Use Zhipu GLM for free instead - it has generous limits and full functionality.
 
 ### Paid Tier
 
 Upgrading to Groq's Dev Tier or higher provides:
 - Higher TPM limits (suitable for Crybot's full system prompt)
-- Tool use support (set `tools: true`)
+- Set `tooling: true` to enable tools and skills
 - Access to more models
 
 ---
@@ -275,17 +278,15 @@ agents:
 
 ### Option 2: Groq (Fastest - Paid Tier Recommended)
 
-> **Warning:** Groq's free tier (6000 TPM) is **too limited for Crybot**. The system prompt alone exceeds this limit.
+> **Free tier:** Set `tooling: false` to fit within 6000 TPM limit (no tools/skills)
 >
-> **Groq is only recommended if:**
-> - You upgrade to Dev Tier or higher ($0.59/million tokens)
-> - You want the fastest inference and don't mind paying
+> **Paid tier:** Set `tooling: true` for full functionality
 
 ```yaml
 providers:
   groq:
     api_key: "your_groq_api_key"
-    tools: true  # Enable tools with paid tier
+    tooling: false  # Set to true for paid tier
 
 agents:
   defaults:
