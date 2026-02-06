@@ -15,3 +15,4 @@
 - [MCP Integration](10-mcp.md)
 - [Built-in Tools](11-tools.md)
 - [Advanced Topics](12-advanced.md)
+- [Free AI Models](13-free-models.md)

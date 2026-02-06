@@ -74,3 +74,5 @@ You should see a response from the AI assistant.
 ## Next Steps
 
 Once installed, you need to configure Crybot with your API keys. Continue to [Configuration](02-configuration.md).
+
+> **Looking for free AI models?** Crybot supports several free-tier providers including Zhipu GLM, Groq, and more. See [Free AI Models](13-free-models.md) for options that don't require a paid subscription.
