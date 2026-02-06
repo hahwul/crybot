@@ -1303,6 +1303,8 @@ class CrybotWeb {
 
     const messageEl = document.createElement('div');
     messageEl.className = `message ${role}`;
+    // Store original content for resend functionality
+    messageEl.dataset.originalContent = content;
 
     const avatar = role === 'user' ? 'U' : role === 'assistant' ? 'C' : '!';
     const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -1322,12 +1324,54 @@ class CrybotWeb {
         <div class="message-bubble">${renderedContent}</div>
         <div class="message-time">${time}</div>
       </div>
+      <button class="resend-btn" title="Resend message">↻</button>
     `;
+
+    // Add resend button functionality for user messages
+    const resendBtn = messageEl.querySelector('.resend-btn');
+    if (resendBtn && role === 'user') {
+      resendBtn.addEventListener('click', () => {
+        this.resendMessage(content, containerId);
+      });
+    } else if (resendBtn) {
+      // For non-user messages, disable the button
+      resendBtn.style.display = 'none';
+    }
 
     console.log('Appending message element to container');
     container.appendChild(messageEl);
     console.log('Message appended, container now has', container.children.length, 'children');
     container.scrollTop = container.scrollHeight;
+  }
+
+  resendMessage(content, containerId) {
+    // Find the appropriate form and input based on container
+    let formId, inputSelector;
+    switch (containerId) {
+      case 'chat-messages':
+        formId = 'chat-form';
+        break;
+      case 'telegram-messages':
+        formId = 'telegram-form';
+        break;
+      case 'voice-messages':
+        formId = 'voice-form';
+        break;
+      default:
+        console.error('Unknown container:', containerId);
+        return;
+    }
+
+    const form = document.getElementById(formId);
+    if (form) {
+      const input = form.querySelector('input[type="text"]');
+      if (input) {
+        input.value = content;
+        input.focus();
+        // Optionally submit immediately
+        // form.dispatchEvent(new Event('submit'));
+      }
+    }
   }
 
   async loadTelegramConversations() {

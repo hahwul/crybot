@@ -263,6 +263,48 @@ body {
   margin-top: 4px;
 }
 
+/* Resend button - appears on hover next to user messages */
+.resend-btn {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: var(--bg-darker);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 16px;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  opacity: 0;
+  z-index: 10;
+}
+
+.message:hover .resend-btn {
+  display: flex;
+  opacity: 1;
+}
+
+.resend-btn:hover {
+  background-color: var(--accent-primary);
+  color: var(--text-primary);
+  border-color: var(--accent-primary);
+  transform: scale(1.1);
+}
+
+.resend-btn:active {
+  transform: scale(0.95);
+}
+
+/* Make messages relative for absolute positioning of resend button */
+.message {
+  position: relative;
+}
+
 /* Input Area */
 .input-area {
   padding: 16px;
