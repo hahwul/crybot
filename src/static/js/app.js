@@ -129,6 +129,9 @@ class CrybotWeb {
     // Save to localStorage
     localStorage.setItem('crybotTab', tabId);
 
+    // Clear unread counts for this tab when switching to it
+    this.clearTabUnreadCounts(tabId);
+
     // Load content based on tab
     if (tabId === 'telegram-tab') {
       this.loadTelegramConversations();
@@ -439,6 +442,25 @@ class CrybotWeb {
     this.saveUnreadCounts();
     this.saveLastSeenTimestamps();
     this.updateUnreadBadges();
+  }
+
+  clearTabUnreadCounts(tabId) {
+    // Clear all unread counts for chats in this tab
+    const prefix = tabId.replace('-tab', '');
+    let cleared = false;
+
+    Object.keys(this.unreadCounts).forEach(chatId => {
+      if (chatId.startsWith(prefix)) {
+        this.unreadCounts[chatId] = 0;
+        cleared = true;
+      }
+    });
+
+    if (cleared) {
+      this.saveUnreadCounts();
+      this.updateUnreadBadges();
+    }
+  }
   }
 
   markCurrentChatAsSeen() {
