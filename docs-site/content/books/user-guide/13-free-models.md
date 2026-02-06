@@ -2,6 +2,8 @@
 
 This chapter covers how to use Crybot with **free AI models** and providers that offer free tiers.
 
+> **Note:** AI model pricing and free tier availability change frequently. The information below reflects the state of these services at the time of writing. Always verify current pricing and terms directly with each provider before relying on them for your use case.
+
 ## Quick Start: Free Options
 
 | Provider | Model | Free Tier | How to Get |
