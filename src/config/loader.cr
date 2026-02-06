@@ -110,7 +110,7 @@ module Crybot
             api_key: ""  # Get from https://openrouter.ai/
           groq:
             api_key: ""  # Get from https://console.groq.com/
-            tooling: false  # Set to true if using paid tier (free tier has 6000 TPM limit)
+            lite: true  # Set to false if using paid tier (lite mode disables tools/skills for free tier compatibility)
           vllm:
             api_key: ""  # Often empty for local vLLM
             api_base: ""  # e.g., http://localhost:8000/v1

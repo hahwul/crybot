@@ -13,9 +13,9 @@ module Crybot
       @workspace_dir : Path
       @memory_manager : MemoryManager
       @skill_manager : SkillManager
-      @tooling_enabled : Bool
+      @lite_mode : Bool
 
-      def initialize(@config : Config::ConfigFile, @skill_manager : SkillManager, @tooling_enabled : Bool = true)
+      def initialize(@config : Config::ConfigFile, @skill_manager : SkillManager, @lite_mode : Bool = false)
         @workspace_dir = Config::Loader.workspace_dir
         @memory_manager = MemoryManager.new(@workspace_dir)
       end
@@ -23,11 +23,11 @@ module Crybot
       def build_system_prompt : String
         parts = [] of String
 
-        # Identity section (lite version when tooling disabled)
+        # Identity section (lite version when lite mode enabled)
         parts << build_identity_section
 
-        # Bootstrap files and memory only when tooling enabled
-        if @tooling_enabled
+        # Bootstrap files and memory only when NOT in lite mode
+        unless @lite_mode
           # Bootstrap files
           parts << build_bootstrap_section
 
@@ -35,8 +35,8 @@ module Crybot
           parts << build_memory_section
         end
 
-        # Skills (only if tooling is enabled)
-        if @tooling_enabled
+        # Skills (only when NOT in lite mode)
+        unless @lite_mode
           parts << build_skills_section
         end
 
@@ -99,7 +99,16 @@ module Crybot
       private def build_identity_section : String
         now = Time.local
 
-        if @tooling_enabled
+        if @lite_mode
+          # Lite identity for token-constrained providers
+          <<-TEXT
+          # Identity
+
+          You are a helpful AI assistant running as part of Crybot.
+
+          **Current Time:** #{now.to_s("%Y-%m-%d %H:%M:%S %Z")}
+          TEXT
+        else
           # Full identity with tool documentation
           memory_stats = @memory_manager.stats
 
@@ -138,15 +147,6 @@ module Crybot
           - Use `record_memory()` for session tracking (what you did, tasks completed, conversations)
           - Use `search_memory()` when you need to recall previous information
           - Use `list_recent_memories()` to review recent activity
-          TEXT
-        else
-          # Lite identity for token-constrained providers
-          <<-TEXT
-          # Identity
-
-          You are a helpful AI assistant running as part of Crybot.
-
-          **Current Time:** #{now.to_s("%Y-%m-%d %H:%M:%S %Z")}
           TEXT
         end
       end

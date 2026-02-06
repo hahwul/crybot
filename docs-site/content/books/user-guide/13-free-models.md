@@ -71,7 +71,7 @@ Groq offers free access to open-source models with incredibly fast inference.
 providers:
   groq:
     api_key: "your_groq_api_key"
-    tooling: false  # Disable tools and skills for free tier
+    lite: true  # Lite mode for free tier (disables tools/skills)
 
 agents:
   defaults:
@@ -100,9 +100,10 @@ agents:
 > **Important Limitation:** Groq's free tier has a **6000 tokens-per-minute (TPM)** limit.
 >
 > **For Groq free tier to work:**
-> - Set `tooling: false` in the Groq provider config (disables tools and skills)
-> - System prompt is reduced to ~150 tokens
-> - You can have short conversations, but long sessions will exceed the limit
+> - Set `lite: true` in the Groq provider config (enables lite mode)
+> - Lite mode disables tools, skills, bootstrap files, and memory
+> - System prompt reduced to ~150 tokens
+> - You can have short conversations; long sessions will exceed the limit
 > - Clear your session periodically: `rm ~/.crybot/sessions/YOUR_SESSION.jsonl`
 >
 > **Recommended:** Use Zhipu GLM for free instead - it has generous limits and full functionality.
@@ -111,7 +112,7 @@ agents:
 
 Upgrading to Groq's Dev Tier or higher provides:
 - Higher TPM limits (suitable for Crybot's full system prompt)
-- Set `tooling: true` to enable tools and skills
+- Set `lite: false` to enable full functionality
 - Access to more models
 
 ---
@@ -278,15 +279,15 @@ agents:
 
 ### Option 2: Groq (Fastest - Paid Tier Recommended)
 
-> **Free tier:** Set `tooling: false` to fit within 6000 TPM limit (no tools/skills)
+> **Free tier:** Set `lite: true` (no tools/skills, limited context)
 >
-> **Paid tier:** Set `tooling: true` for full functionality
+> **Paid tier:** Set `lite: false` for full functionality
 
 ```yaml
 providers:
   groq:
     api_key: "your_groq_api_key"
-    tooling: false  # Set to true for paid tier
+    lite: true  # Set to false for paid tier
 
 agents:
   defaults:

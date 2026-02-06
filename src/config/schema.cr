@@ -102,9 +102,9 @@ module Crybot
         include YAML::Serializable
 
         property api_key : String = ""
-        property tooling : Bool = false
+        property lite : Bool = false
 
-        def initialize(@api_key = "", @tooling = false)
+        def initialize(@api_key = "", @lite = false)
         end
       end
     end

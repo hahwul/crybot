@@ -112,7 +112,7 @@ module Crybot
       @max_iterations : Int32
       @mcp_manager : MCP::Manager?
       @skill_manager : SkillManager
-      @tooling_enabled : Bool
+      @lite_mode : Bool
 
       getter skill_manager
       getter mcp_manager
@@ -123,8 +123,8 @@ module Crybot
 
         @skill_manager = SkillManager.new(Config::Loader.skills_dir, @mcp_manager)
         @provider, @provider_name = create_provider
-        @tooling_enabled = tooling_enabled?
-        @context_builder = ContextBuilder.new(@config, @skill_manager, @tooling_enabled)
+        @lite_mode = lite_mode?
+        @context_builder = ContextBuilder.new(@config, @skill_manager, @lite_mode)
         @session_manager = Session::Manager.instance
         @max_iterations = @config.agents.defaults.max_tool_iterations
 
@@ -132,12 +132,12 @@ module Crybot
         register_tools
       end
 
-      private def tooling_enabled? : Bool
+      private def lite_mode? : Bool
         case @provider_name
         when "groq"
-          @config.providers.groq.tooling
+          @config.providers.groq.lite
         else
-          true  # Tooling enabled by default for other providers
+          false  # Lite mode off by default for other providers
         end
       end
 
@@ -193,7 +193,7 @@ module Crybot
           iteration += 1
 
           # Call LLM
-          tools_schemas = @tooling_enabled ? Tools::Registry.to_schemas : nil
+          tools_schemas = @lite_mode ? nil : Tools::Registry.to_schemas
           response = @provider.chat(messages, tools_schemas, @config.agents.defaults.model)
 
           # Add assistant message to history
