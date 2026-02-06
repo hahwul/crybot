@@ -34,6 +34,7 @@ providers:
 
 agents:
   defaults:
+    provider: zhipu
     model: "glm-4-flash"  # Fast and free
     # model: "glm-4-plus"   # More capable
     # model: "glm-4-alltools" # With function calling
@@ -73,6 +74,7 @@ providers:
 
 agents:
   defaults:
+    provider: groq
     model: "llama-3.3-70b-versatile"
     # model: "llama-3.1-8b-instant"
     # model: "qwen/qwen3-32b"
@@ -94,6 +96,8 @@ agents:
 - No credit card required
 - Check [Groq's docs](https://console.groq.com/docs/models) for current model list
 
+> **Note:** Groq's free tier has a 6000 tokens-per-minute (TPM) limit. Crybot's system prompt with tools may exceed this limit. For full functionality including tool use, consider Zhipu GLM or upgrading your Groq tier.
+
 ---
 
 ## 3. OpenRouter (Access to Many Providers)
@@ -113,6 +117,7 @@ providers:
 
 agents:
   defaults:
+    provider: openrouter
     model: "deepseek/deepseek-chat"
     # model: "qwen/qwen-2.5-72b-instruct"
 ```
@@ -250,11 +255,14 @@ providers:
 
 agents:
   defaults:
+    provider: zhipu
     model: "glm-4-flash"
     temperature: 0.7
 ```
 
 ### Option 2: Groq (Fastest)
+
+> **Note:** Groq's free tier (6000 TPM) may be too low for Crybot's full tool use. Best for simple conversations.
 
 ```yaml
 providers:
@@ -263,7 +271,8 @@ providers:
 
 agents:
   defaults:
-    model: "llama-3.3-70b-versatile"
+    provider: groq
+    model: "llama-3.1-8b-instant"
 ```
 
 ### Option 3: Local vLLM (No API needed)
@@ -276,6 +285,7 @@ providers:
 
 agents:
   defaults:
+    provider: vllm
     model: "meta-llama/Meta-Llama-3-8B-Instruct"
 ```
 
