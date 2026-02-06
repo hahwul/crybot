@@ -142,7 +142,22 @@ module Crybot
           - `record_memory(content)` - Record events, actions, or observations to the daily log
           - `memory_stats()` - Get memory usage statistics
 
-          **When to use memory:**
+          **File & System Tools Available:**
+          - `exec(command, timeout)` - Execute shell commands (IMPORTANT: Use this for running any terminal commands)
+          - `read_file(path)` - Read file contents
+          - `write_file(path, content)` - Write/create files
+          - `edit_file(path, old_content, new_content, count)` - Edit existing files
+          - `list_dir(path)` - List directory contents
+
+          **Web Tools Available:**
+          - `web_search(query, max_results)` - Search the web
+          - `web_fetch(url)` - Fetch and read web pages
+
+          **When to use tools:**
+          - Use `exec()` for ANY shell command or terminal operation (git, build tools, file operations, etc.)
+          - Use `write_file()` + `exec()` to create and run scripts
+          - Use `read_file()` to examine code, configs, and documentation
+          - Use `web_search()` and `web_fetch()` for current information
           - Use `save_memory()` for facts worth remembering indefinitely (user preferences, important decisions, project details)
           - Use `record_memory()` for session tracking (what you did, tasks completed, conversations)
           - Use `search_memory()` when you need to recall previous information
