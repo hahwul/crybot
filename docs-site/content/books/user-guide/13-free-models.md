@@ -11,8 +11,8 @@ This chapter covers how to use Crybot with **free AI models** and providers that
 
 | Provider | Models | Free Tier | Speed | Tool Support | Free Amount | How to Get |
 |----------|--------|-----------|-------|--------------|-------------|------------|
-| **OpenRouter** ⭐ | Step-3.5, GLM, DeepSeek, Qwen, Llama | Yes | Very Fast | ✅ Excellent | Multiple free options | [openrouter.ai](https://openrouter.ai/) |
-| **Zhipu GLM** | `glm-4-flash`, `glm-4-plus` | Generous | Fast | ✅ Excellent | High daily limit | [bigmodel.cn](https://open.bigmodel.cn/) |
+| **Zhipu GLM** ⭐ | `glm-4-flash`, `glm-4-plus` | Generous | Fast | ✅ Excellent | High daily limit | [bigmodel.cn](https://open.bigmodel.cn/) |
+| **OpenRouter** | Step-3.5, GLM, DeepSeek, Qwen, Llama | Yes | Very Fast | ✅ Excellent | 50 req/day‡ | [openrouter.ai](https://openrouter.ai/) |
 | **Groq** | `llama-3.3-70b-versatile` | Yes | Very Fast | ⚠️ Limited* | 12K TPM | [console.groq.com](https://console.groq.com/) |
 | **Google Gemini** | `gemini-2.5-flash` | **100% FREE** | Very Fast | ✅ Excellent | 20 req/day† | [ai.google.dev](https://ai.google.dev/gemini-api/docs) |
 | **Hugging Face** | Various | Yes | Medium | ✅ Good | Rate limits | [huggingface.co](https://huggingface.co/) |
@@ -20,6 +20,7 @@ This chapter covers how to use Crybot with **free AI models** and providers that
 
 *Groq's `llama-3.3-70b-versatile` has 12K TPM but generates malformed tool calls. Use `qwen/qwen3-32b` with `lite: true` for working tools (6K TPM).
 †Gemini free tier has a very low daily request limit (20/day). Better for occasional use.
+‡OpenRouter free models: 50 requests/day on free tier. Can add credits for more (1000 req/day for $10).
 
 ---
 
@@ -78,10 +79,13 @@ Most free models on OpenRouter support function calling, which means all Crybot 
 
 ### Free Tier Details
 
-- Multiple models with free tiers available
+- **Free model limit**: 50 requests per day on free tier (reset at midnight UTC)
+- **Increase limit**: Add $10 in credits for 1000 free model requests per day
 - Rate limits vary by model
 - No credit card required for free models
 - Can switch between models easily in config
+
+> **Important**: The 50 requests/day limit applies to ALL free models combined via OpenRouter. For regular daily use, consider using Zhipu GLM directly instead, which has much more generous limits.
 
 ---
 
@@ -350,16 +354,18 @@ huggingface-cli download meta-llama/Meta-Llama-3-8B-Instruct
 
 | Provider | Setup Difficulty | Speed | Quality | Cost | Daily Limit | Tool Support |
 |----------|-----------------|-------|----------|------|-------------|--------------|
-| **OpenRouter** ⭐ | Easy | Very Fast | Excellent | Free tiers | Multiple free models | ✅ Excellent |
-| **Zhipu** | Easy | Fast | Excellent | Free tier | High | ✅ Excellent |
-| **Gemini** | Easy | Very Fast | Excellent | **100% Free** | 20 req/day | ✅ Excellent |
+| **Zhipu GLM** ⭐ | Easy | Fast | Excellent | Free tier | High | ✅ Excellent |
+| **OpenRouter** | Easy | Very Fast | Excellent | Free tiers | 50 req/day‡ | ✅ Excellent |
+| **Gemini** | Easy | Very Fast | Excellent | **100% Free** | 20 req/day† | ✅ Excellent |
 | **Groq** | Easy | Very Fast | Good | Free tier | 12K TPM | ⚠️ Limited* |
 | **Hugging Face** | Easy | Medium | Good | Free tier | Rate limits | ✅ Good |
 | **vLLM** | Complex | Fastest | Varies | Free (hardware) | None | ✅ Good |
 
 *Groq's `llama-3.3-70b-versatile` has 12K TPM but generates malformed tool calls. Use `qwen/qwen3-32b` with `lite: true` for working tools (6K TPM).
+†Gemini free tier has a very low daily request limit (20/day). Better for occasional use.
+‡OpenRouter free models: 50 requests/day limit. Add $10 credits for 1000 req/day. For regular use, Zhipu GLM direct is recommended.
 
-> **Note on Arcee Trinity**: While fast and high quality, `arcee-ai/trinity-large-preview:free` does NOT support tool calling via OpenRouter. For tool use, stick with `stepfun/step-3.5-flash:free` or `z-ai/glm-4.5-air:free`.
+> **Important**: Zhipu GLM direct (via bigmodel.cn) has much more generous free tier limits than OpenRouter's 50 requests/day. Use OpenRouter for trying out different models, but switch to Zhipu direct for daily use.
 
 *Groq's `llama-3.3-70b-versatile` has 12K TPM but generates malformed tool calls. Use `qwen/qwen3-32b` with `lite: true` for working tools (6K TPM).
 
@@ -371,21 +377,21 @@ huggingface-cli download meta-llama/Meta-Llama-3-8B-Instruct
 
 ## Recommended Configuration for Free Use
 
-### Option 1: OpenRouter with Step-3.5 Flash ⭐ (Recommended)
+### Option 1: Zhipu GLM Direct ⭐ (Recommended for Daily Use)
 
 ```yaml
 providers:
-  openrouter:
-    api_key: "your_openrouter_key"
+  zhipu:
+    api_key: "your_zhipu_api_key"
 
 agents:
   defaults:
-    provider: openrouter
-    model: "stepfun/step-3.5-flash:free"
+    provider: zhipu
+    model: "glm-4-flash"
     temperature: 0.7
 ```
 
-### Option 2: OpenRouter with Zhipu GLM (Reliable Alternative)
+### Option 2: OpenRouter with Step-3.5 Flash (Very Fast, 50 req/day limit)
 
 ```yaml
 providers:
