@@ -342,6 +342,78 @@ body {
   transform: scale(0.95);
 }
 
+/* Tool usage messages */
+.message.tool {
+  flex-direction: row;
+  opacity: 0.85;
+  font-size: 13px;
+}
+
+.message.tool:hover {
+  opacity: 1;
+}
+
+.message.tool .message-avatar {
+  background-color: var(--accent-cyan);
+  color: var(--text-primary);
+}
+
+.message.tool .message-content {
+  flex: 1;
+  max-width: 85%;
+}
+
+.message.tool .tool-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.message.tool .tool-name {
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.message.tool .tool-status {
+  font-size: 14px;
+}
+
+.message.tool .tool-details {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.message.tool .tool-details code {
+  background-color: rgba(215, 171, 84, 0.2);
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.message.tool .tool-details em {
+  font-style: italic;
+}
+
+.message.tool.tool-success .tool-status {
+  color: #4ade80;
+}
+
+.message.tool.tool-error .tool-status {
+  color: #f87171;
+}
+
+.message.tool .tool-error-msg {
+  color: #f87171;
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
 /* Input Area */
 .input-area {
   padding: 16px;

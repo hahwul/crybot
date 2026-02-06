@@ -954,6 +954,11 @@ class CrybotWeb {
         // Hide typing indicator
         this.hideTypingIndicator(this.getCurrentContainer());
 
+        // Display tool executions if present
+        if (data.tool_executions && Array.isArray(data.tool_executions) && data.tool_executions.length > 0) {
+          this.displayToolExecutions(data.tool_executions, this.getCurrentContainer());
+        }
+
         // Reload the current session from backend to get the complete state
         // This ensures frontend is just a reflection of backend truth
         if (data.session_id) {
@@ -1393,6 +1398,127 @@ class CrybotWeb {
         // form.dispatchEvent(new Event('submit'));
       }
     }
+  }
+
+  displayToolExecutions(toolExecutions, containerId) {
+    if (!toolExecutions || toolExecutions.length === 0) return;
+
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    // Group consecutive tool executions
+    toolExecutions.forEach(exec => {
+      const toolName = exec.tool_name || 'unknown_tool';
+      const success = exec.success !== false;
+      const statusIcon = success ? '✓' : '✗';
+      const statusClass = success ? 'tool-success' : 'tool-error';
+
+      // Create a human-readable tool description
+      const toolDescription = this.getToolDescription(toolName, exec.arguments, exec.result, success);
+
+      const toolEl = document.createElement('div');
+      toolEl.className = `message tool ${statusClass}`;
+      toolEl.innerHTML = `
+        <div class="message-avatar">🔧</div>
+        <div class="message-content">
+          <div class="tool-header">
+            <span class="tool-name">${this.escapeHtml(toolName)}</span>
+            <span class="tool-status">${statusIcon}</span>
+          </div>
+          ${toolDescription ? `<div class="tool-details">${toolDescription}</div>` : ''}
+        </div>
+      `;
+
+      container.appendChild(toolEl);
+    });
+
+    // Scroll to bottom
+    container.scrollTop = container.scrollHeight;
+  }
+
+  getToolDescription(toolName, args, result, success) {
+    // Create a user-friendly description of what the tool did
+    const argEntries = args ? Object.entries(args) : [];
+    let description = '';
+
+    switch (toolName) {
+      case 'read_file':
+        const filePath = args['path'] || argEntries[0]?.[1] || 'unknown file';
+        description = `Reading <code>${this.escapeHtml(filePath)}</code>`;
+        if (!success && result) {
+          description += `<br><span class="tool-error-msg">${this.escapeHtml(result.substring(0, 200))}</span>`;
+        }
+        break;
+
+      case 'write_file':
+        const writePath = args['path'] || argEntries[0]?.[1] || 'unknown file';
+        description = `Writing to <code>${this.escapeHtml(writePath)}</code>`;
+        break;
+
+      case 'edit_file':
+        const editPath = args['file_path'] || args['path'] || 'unknown file';
+        description = `Editing <code>${this.escapeHtml(editPath)}</code>`;
+        break;
+
+      case 'list_dir':
+        const dirPath = args['path'] || argEntries[0]?.[1] || 'unknown directory';
+        description = `Listing directory: <code>${this.escapeHtml(dirPath)}</code>`;
+        break;
+
+      case 'exec':
+      case 'exec_shell':
+        const cmd = args['command'] || argEntries[0]?.[1] || 'unknown command';
+        description = `Running command: <code>${this.escapeHtml(cmd)}</code>`;
+        if (result && !success) {
+          const resultPreview = result.length > 300 ? result.substring(0, 300) + '...' : result;
+          description += `<br><span class="tool-error-msg">${this.escapeHtml(resultPreview)}</span>`;
+        }
+        break;
+
+      case 'web_search':
+        const query = args['query'] || argEntries[0]?.[1] || 'unknown query';
+        description = `Searching web for: <em>${this.escapeHtml(query)}</em>`;
+        break;
+
+      case 'web_fetch':
+        const url = args['url'] || argEntries[0]?.[1] || 'unknown URL';
+        description = `Fetching: <code>${this.escapeHtml(url)}</code>`;
+        break;
+
+      case 'save_memory':
+        const memContent = args['content'] || argEntries[0]?.[1] || '';
+        const preview = memContent.length > 50 ? memContent.substring(0, 50) + '...' : memContent;
+        description = `Saving memory: <em>${this.escapeHtml(preview)}</em>`;
+        break;
+
+      case 'search_memory':
+        const searchQuery = args['query'] || argEntries[0]?.[1] || '';
+        description = `Searching memory for: <em>${this.escapeHtml(searchQuery)}</em>`;
+        break;
+
+      case 'create_skill':
+        const skillCmd = args['command'] || argEntries[0]?.[1] || '';
+        description = `Creating skill for command: <code>${this.escapeHtml(skillCmd)}</code>`;
+        break;
+
+      default:
+        // Generic tool description
+        if (argEntries.length > 0) {
+          const argSummary = argEntries.slice(0, 2).map(([k, v]) => {
+            const val = String(v).length > 30 ? String(v).substring(0, 30) + '...' : v;
+            return `${k}: ${val}`;
+          }).join(', ');
+          description = `Using ${toolName} (${argSummary})`;
+        } else {
+          description = `Using ${toolName}`;
+        }
+        if (!success && result) {
+          const resultPreview = result.length > 200 ? result.substring(0, 200) + '...' : result;
+          description += `<br><span class="tool-error-msg">${this.escapeHtml(resultPreview)}</span>`;
+        }
+    }
+
+    return description;
   }
 
   async loadTelegramConversations() {

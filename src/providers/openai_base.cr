@@ -68,7 +68,9 @@ module Crybot
         }
 
         # Add tools if present
-        unless tools.nil? || tools.empty?
+        if tools.nil? || tools.empty?
+          puts "[Provider] No tools being sent (tools nil or empty)"
+        else
           tools_array = tools.map(&.to_h).map { |hash| JSON::Any.new(hash) }
           body["tools"] = JSON::Any.new(tools_array)
           # Explicitly set tool_choice to auto (model decides when to use tools)
@@ -81,8 +83,6 @@ module Crybot
           unless tools.empty?
             puts "[Provider] First tool schema: #{tools[0].to_h.to_json}"
           end
-        else
-          puts "[Provider] No tools being sent (tools nil or empty)"
         end
 
         body

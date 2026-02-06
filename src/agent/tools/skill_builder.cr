@@ -310,16 +310,14 @@ YAML
         end
 
         private def validate_yaml(yaml_content : String, file_path : Path) : Bool
-          begin
-            # Try to parse the YAML to validate it
-            skill_config = SkillConfig.from_yaml(yaml_content)
-            skill_config.validate
-            true
-          rescue e : Exception
-            puts "[SkillBuilder] YAML validation failed for #{file_path}: #{e.message}"
-            puts "[SkillBuilder] Generated YAML:\n#{yaml_content}"
-            false
-          end
+          # Try to parse the YAML to validate it
+          skill_config = SkillConfig.from_yaml(yaml_content)
+          skill_config.validate
+          true
+        rescue e : Exception
+          puts "[SkillBuilder] YAML validation failed for #{file_path}: #{e.message}"
+          puts "[SkillBuilder] Generated YAML:\n#{yaml_content}"
+          false
         end
 
         private def generate_skill_md(dir : Path, name : String, description : String, command : String, info : NamedTuple) : Nil
