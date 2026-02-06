@@ -203,12 +203,25 @@ body {
   overflow-x: hidden;
   padding: 20px;
   background-color: var(--bg-base);
+  display: flex;
+  flex-direction: column;
 }
 
 .message {
   margin-bottom: 16px;
   display: flex;
-  gap: 10px;
+  gap: 8px;
+  width: 100%;
+}
+
+/* User messages - right aligned */
+.message.user {
+  flex-direction: row-reverse;
+}
+
+/* Assistant messages - left aligned */
+.message.assistant {
+  flex-direction: row;
 }
 
 .message-avatar {
@@ -234,14 +247,23 @@ body {
 }
 
 .message-content {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 70%;
+}
+
+.message.user .message-content {
+  align-items: flex-end;
+}
+
+.message.assistant .message-content {
+  align-items: flex-start;
 }
 
 .message-bubble {
   display: inline-block;
   padding: 10px 14px;
-  border-radius: 8px;
-  max-width: 70%;
+  border-radius: 18px;
   word-wrap: break-word;
   overflow-x: hidden;
 }
@@ -249,25 +271,30 @@ body {
 .message.user .message-bubble {
   background-color: var(--accent-primary);
   color: var(--text-primary);
+  border-bottom-right-radius: 4px;
 }
 
 .message.assistant .message-bubble {
   background-color: var(--bg-darker);
   color: var(--text-secondary);
   border: 1px solid var(--border-color);
+  border-bottom-left-radius: 4px;
 }
 
 .message-time {
   font-size: 11px;
   color: var(--text-muted);
   margin-top: 4px;
+  padding: 0 4px;
+}
+
+.message.user .message-time {
+  text-align: right;
 }
 
 /* Resend button - appears on hover next to user messages */
 .resend-btn {
   position: absolute;
-  right: 8px;
-  top: 8px;
   width: 28px;
   height: 28px;
   border-radius: 50%;
@@ -284,9 +311,16 @@ body {
   z-index: 10;
 }
 
-.message:hover .resend-btn {
+/* Position resend button on left side for user messages (since they're right-aligned) */
+.message.user .resend-btn {
+  left: -40px;
+  top: 0;
+}
+
+.message.user:hover .resend-btn {
   display: flex;
   opacity: 1;
+  left: -36px;
 }
 
 .resend-btn:hover {
@@ -298,11 +332,6 @@ body {
 
 .resend-btn:active {
   transform: scale(0.95);
-}
-
-/* Make messages relative for absolute positioning of resend button */
-.message {
-  position: relative;
 }
 
 /* Input Area */
