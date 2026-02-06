@@ -71,9 +71,15 @@ module Crybot
         unless tools.nil? || tools.empty?
           tools_array = tools.map(&.to_h).map { |hash| JSON::Any.new(hash) }
           body["tools"] = JSON::Any.new(tools_array)
-          puts "[Provider] Sending #{tools.size} tools to API"
+          # Explicitly set tool_choice to auto (model decides when to use tools)
+          body["tool_choice"] = JSON::Any.new("auto")
+          puts "[Provider] Sending #{tools.size} tools to API with tool_choice=auto"
           tools.each do |tool|
-            puts "[Provider]   - #{tool.name}"
+            puts "[Provider]   - #{tool.name}: #{tool.description}"
+          end
+          # Log first tool schema for debugging
+          unless tools.empty?
+            puts "[Provider] First tool schema: #{tools[0].to_h.to_json}"
           end
         else
           puts "[Provider] No tools being sent (tools nil or empty)"
