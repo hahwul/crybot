@@ -7,7 +7,6 @@ authors:
 targets:
   crybot:
     main: src/main.cr
-    flags: -Dpreview_mt
 
 dependencies:
   docopt:

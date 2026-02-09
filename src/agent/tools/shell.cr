@@ -51,15 +51,18 @@ module Crybot
             output_str = output.to_s.strip
             error_str = error.to_s.strip
 
-            if output_str.empty? && error_str.empty?
-              "Command completed with exit code #{result.exit_code}"
-            elsif error_str.empty?
-              output_str
-            elsif output_str.empty?
-              error_str
-            else
-              "#{output_str}\n#{error_str}"
-            end
+            # Combine output and error
+            combined_output = if output_str.empty? && error_str.empty?
+                                "Command completed with exit code #{result.exit_code}"
+                              elsif error_str.empty?
+                                output_str
+                              elsif output_str.empty?
+                                error_str
+                              else
+                                "#{output_str}\n#{error_str}"
+                              end
+
+            combined_output
           rescue e : Exception
             "Error: #{e.message}"
           end

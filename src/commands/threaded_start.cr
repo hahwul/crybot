@@ -1,0 +1,110 @@
+require "../config/loader"
+require "../landlock_socket"
+require "../agent/tool_monitor"
+require "../agent/tools/registry"
+
+module Crybot
+  module Commands
+    # Threaded start command - runs agent and tool monitor fibers
+    #
+    # Architecture:
+    # - Single process, no Landlock on main process
+    # - Tool monitor fiber: spawns landlocked subprocesses for tool execution
+    # - Agent loop fiber: runs LLM and agent features
+    # - Landlock access monitor: handles user prompts for access requests
+    class ThreadedStart
+      # Use a forward reference to avoid circular dependency
+      alias AgentLoop = ::Crybot::Agent::Loop
+
+      def self.execute : Nil
+        # Start the Landlock access monitor server (for rofi/terminal prompts)
+        puts "[Crybot] Starting Landlock access monitor..."
+        LandlockSocket.start_monitor_server
+
+        # Start the tool execution monitor fiber
+        puts "[Crybot] Starting tool execution monitor..."
+        ToolMonitor.start_monitor
+
+        # Enable monitor mode for tools (routes through tool monitor)
+        Tools::Registry.enable_monitor_mode
+
+        # Load configuration
+        config = Config::Loader.load
+        config = Config::Loader.migrate_config(config)
+
+        # Start the agent loop
+        puts "[Crybot] Starting agent loop..."
+        run_agent_loop(config)
+
+        # Setup signal handlers for graceful shutdown
+        setup_signal_handlers
+
+        # Keep main thread alive while fibers run
+        puts "[Crybot] All fibers started. Press Ctrl+C to stop"
+        keep_alive
+      end
+
+      private def self.run_agent_loop(config : Config::ConfigFile) : Nil
+        # Spawn the agent fiber
+        spawn_agent_fiber(config)
+      end
+
+      # Spawn a new agent fiber
+      private def self.spawn_agent_fiber(config : Config::ConfigFile) : Fiber
+        spawn do
+          begin
+            puts "[Agent] Starting... (tools run in landlocked subprocesses)"
+
+            # Create agent loop
+            agent_loop = AgentLoop.new(config)
+
+            # Start normal agent features
+            start_agent_features(config, agent_loop)
+
+            puts "[Agent] Exiting"
+          rescue e : Exception
+            STDERR.puts "[Agent] Error: #{e.message}"
+            STDERR.puts e.backtrace.join("\n") if ENV["DEBUG"]?
+          end
+        end
+      end
+
+      private def self.start_agent_features(config : Config::ConfigFile, agent_loop : AgentLoop) : Nil
+        # Check if any features are enabled
+        features_config = config.features
+
+        if features_config.repl
+          puts "[Agent] Starting REPL feature..."
+          # Start REPL - this will block until REPL exits
+          Features::ReplFeature.new(config).start
+        elsif features_config.web
+          puts "[Agent] Starting web feature..."
+          # Start web server
+          Features::WebFeature.new(config).start(agent_loop)
+        else
+          puts "[Agent] No interactive features enabled."
+          puts "[Agent] Enable 'repl' or 'web' in config.yml"
+        end
+      end
+
+      private def self.setup_signal_handlers : Nil
+        # Handle SIGINT (Ctrl+C)
+        Signal::INT.trap do
+          puts "\n[Crybot] Shutting down..."
+          exit 0
+        end
+
+        # Handle SIGTERM
+        Signal::TERM.trap do
+          puts "\n[Crybot] Received shutdown signal"
+          exit 0
+        end
+      end
+
+      private def self.keep_alive : Nil
+        # Keep the main thread alive
+        sleep
+      end
+    end
+  end
+end

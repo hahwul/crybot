@@ -4,8 +4,9 @@ require "./schema"
 module Crybot
   module Config
     class Loader
-      CONFIG_DIR    = Path.home / ".crybot"
-      CONFIG_FILE   = CONFIG_DIR / "config.yml"
+      CONFIG_DIR = Path.home / ".crybot"
+      # config.yml is now in workspace/ so the agent can modify it
+      CONFIG_FILE   = CONFIG_DIR / "workspace" / "config.yml"
       WORKSPACE_DIR = CONFIG_DIR / "workspace"
       SESSIONS_DIR  = CONFIG_DIR / "sessions"
       MEMORY_DIR    = WORKSPACE_DIR / "memory"
@@ -40,6 +41,14 @@ module Crybot
       def self.load : ConfigFile
         cached = @@config
         return cached unless cached.nil?
+
+        # Migrate config.yml from old location (.crybot/config.yml) to new location (.crybot/workspace/config.yml)
+        old_config_file = CONFIG_DIR / "config.yml"
+        if File.exists?(old_config_file) && !File.exists?(CONFIG_FILE)
+          puts "[Config] Migrating config.yml to workspace/ directory..."
+          Dir.mkdir_p(WORKSPACE_DIR) unless Dir.exists?(WORKSPACE_DIR)
+          File.rename(old_config_file, CONFIG_FILE)
+        end
 
         unless File.exists?(CONFIG_FILE)
           raise "Config file not found: #{CONFIG_FILE}. Run 'crybot onboard' to initialize."

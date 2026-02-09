@@ -25,7 +25,7 @@ module Crybot
         # Create server instance with existing agent loop
         @server = Web::Server.new(@config, agent)
 
-        # Start Kemal in a fiber
+        # Start Kemal in a fiber - it will inherit Landlock from default context
         @server_fiber = spawn do
           @server.try(&.start)
         end
