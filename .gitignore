@@ -28,3 +28,5 @@ Thumbs.db
 *.local.json
 .croupier
 .kvstore/
+
+docs-site/output
