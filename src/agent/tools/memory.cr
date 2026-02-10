@@ -30,19 +30,30 @@ module Crybot
         def execute(args : Hash(String, JSON::Any)) : String
           content = args["content"].as_s
 
-          workspace_dir = Config::Loader.workspace_dir
-          memory_manager = MemoryManager.new(workspace_dir)
+          begin
+            workspace_dir = Config::Loader.workspace_dir
+            memory_manager = MemoryManager.new(workspace_dir)
 
-          # Read existing memory
-          existing = memory_manager.read
+            # Read existing memory
+            existing = memory_manager.read
 
-          # Append new memory with timestamp
-          timestamp = Time.local.to_s("%Y-%m-%d %H:%M:%S")
-          new_entry = "\n## #{timestamp}\n\n#{content}\n"
+            # Append new memory with timestamp
+            timestamp = Time.local.to_s("%Y-%m-%d %H:%M:%S")
+            new_entry = "\n## #{timestamp}\n\n#{content}\n"
 
-          memory_manager.write(existing + new_entry)
+            memory_manager.write(existing + new_entry)
 
-          "Saved to long-term memory."
+            "Saved to long-term memory."
+          rescue e : File::AccessDeniedError
+            # Check if this is a Landlock permission denied
+            if e.message.try(&.includes?("Permission denied"))
+              memory_path = File.join(Config::Loader.workspace_dir, "MEMORY.md")
+              raise LandlockDeniedException.new(memory_path, e.message)
+            end
+            raise e
+          rescue e : Exception
+            raise e
+          end
         end
       end
 
@@ -151,12 +162,23 @@ module Crybot
         def execute(args : Hash(String, JSON::Any)) : String
           content = args["content"].as_s
 
-          workspace_dir = Config::Loader.workspace_dir
-          memory_manager = MemoryManager.new(workspace_dir)
+          begin
+            workspace_dir = Config::Loader.workspace_dir
+            memory_manager = MemoryManager.new(workspace_dir)
 
-          memory_manager.append_to_daily_log(content)
+            memory_manager.append_to_daily_log(content)
 
-          "Recorded to daily log."
+            "Recorded to daily log."
+          rescue e : File::AccessDeniedError
+            # Check if this is a Landlock permission denied
+            if e.message.try(&.includes?("Permission denied"))
+              logs_dir = File.join(Config::Loader.workspace_dir, "logs")
+              raise LandlockDeniedException.new(logs_dir, e.message)
+            end
+            raise e
+          rescue e : Exception
+            raise e
+          end
         end
       end
 

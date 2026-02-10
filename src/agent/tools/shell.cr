@@ -51,6 +51,15 @@ module Crybot
             output_str = output.to_s.strip
             error_str = error.to_s.strip
 
+            # Check for permission denied in stderr (subprocess was blocked by Landlock)
+            if error_str.includes?("Permission denied") || error_str.includes?("permission denied")
+              # Try to extract path from error message
+              if match = error_str.match(/['"]?([\/][^\s'"]+)['"]?\s*:\s*Permission\s+denied/i)
+                path = match[1]
+                raise LandlockDeniedException.new(path, "Subprocess command blocked by Landlock: #{error_str}")
+              end
+            end
+
             # Combine output and error
             combined_output = if output_str.empty? && error_str.empty?
                                 "Command completed with exit code #{result.exit_code}"
@@ -63,8 +72,10 @@ module Crybot
                               end
 
             combined_output
+          rescue e : LandlockDeniedException
+            raise e
           rescue e : Exception
-            "Error: #{e.message}"
+            raise e
           end
         end
       end

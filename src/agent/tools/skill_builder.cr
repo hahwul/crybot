@@ -98,8 +98,15 @@ module Crybot
           "2. Click 'Reload Skills' to load the new skill\n" \
           "3. Ask me to use the #{tool_name} tool!\n\n" \
           "Skill description: #{description}"
+        rescue e : File::AccessDeniedError
+          # Check if this is a Landlock permission denied
+          if e.message.try(&.includes?("Permission denied"))
+            skills_dir = Config::Loader.skills_dir
+            raise LandlockDeniedException.new(skills_dir.to_s, e.message)
+          end
+          raise e
         rescue e : Exception
-          "Error creating skill: #{e.message}"
+          raise e
         end
 
         private def command_exists?(command : String) : Bool

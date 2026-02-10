@@ -147,8 +147,14 @@ module Crybot
             "Successfully edited #{path}"
           rescue e : File::NotFoundError
             "Error: File not found: #{path}"
+          rescue e : File::AccessDeniedError
+            # Check if this is a Landlock permission denied
+            if e.message.try(&.includes?("Permission denied"))
+              raise LandlockDeniedException.new(path, e.message)
+            end
+            raise e
           rescue e : Exception
-            "Error: #{e.message}"
+            raise e
           end
         end
       end
@@ -194,8 +200,14 @@ module Crybot
             result.join("\n")
           rescue e : File::NotFoundError
             "Error: Directory not found: #{path}"
+          rescue e : File::AccessDeniedError
+            # Check if this is a Landlock permission denied
+            if e.message.try(&.includes?("Permission denied"))
+              raise LandlockDeniedException.new(path, e.message)
+            end
+            raise e
           rescue e : Exception
-            "Error: #{e.message}"
+            raise e
           end
         end
       end
