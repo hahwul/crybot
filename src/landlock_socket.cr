@@ -96,6 +96,9 @@ module Crybot
         add_permanent_access(path)
         puts "[Monitor Socket] Access granted for: #{path}"
         send_response(client, {"message_type" => "granted", "path" => path}.to_json)
+      when :granted_once
+        puts "[Monitor Socket] Access granted once for: #{path}"
+        send_response(client, {"message_type" => "granted_once", "path" => path}.to_json)
       when :denied_suggest_playground
         puts "[Monitor Socket] Access denied, suggested playground for: #{path}"
         send_response(client, {"message_type" => "denied_suggest_playground", "path" => path}.to_json)
@@ -111,6 +114,7 @@ module Crybot
     # Access response result
     enum AccessResult
       Granted
+      GrantedOnce
       Denied
       DeniedSuggestPlayground
       Timeout
@@ -169,6 +173,8 @@ module Crybot
       case message_type
       when "granted"
         AccessResult::Granted
+      when "granted_once"
+        AccessResult::GrantedOnce
       when "denied"
         AccessResult::Denied
       when "denied_suggest_playground"
@@ -287,6 +293,7 @@ module Crybot
 
       options = [
         "Allow",
+        "Once Only",
         "Deny - Suggest using playground",
         "Deny",
       ]
@@ -301,7 +308,7 @@ module Crybot
           "-p", prompt,
           "-mesg", message,
           "-i",
-          "-lines", "3",
+          "-lines", "4",
           "-width", "60",
           "-location", "1",
         ],
@@ -314,6 +321,7 @@ module Crybot
       selection = result.to_s.strip
       case selection
       when "Allow"                           then :granted
+      when "Once Only"                       then :granted_once
       when "Deny - Suggest using playground" then :denied_suggest_playground
       when "Deny"                            then :denied
       else                                        nil
@@ -331,18 +339,21 @@ module Crybot
       puts ""
       puts "Options:"
       puts "  1) Allow"
-      puts "  2) Deny - Suggest using playground"
-      puts "  3) Deny"
-      print "Choice [1-3]: "
+      puts "  2) Once Only"
+      puts "  3) Deny - Suggest using playground"
+      puts "  4) Deny"
+      print "Choice [1-4]: "
 
       response = gets.try(&.strip) || ""
 
       case response
       when "1", "allow", "Allow"
         :granted
-      when "2", "playground", "Deny - Suggest using playground"
+      when "2", "once", "Once Only"
+        :granted_once
+      when "3", "playground", "Deny - Suggest using playground"
         :denied_suggest_playground
-      when "3", "deny", "Deny"
+      when "4", "deny", "Deny"
         :denied
       else
         :denied

@@ -130,7 +130,7 @@ module Crybot
               access_result = LandlockSocket.request_access(path)
 
               case access_result
-              when LandlockSocket::AccessResult::Granted
+              when LandlockSocket::AccessResult::Granted, LandlockSocket::AccessResult::GrantedOnce
                 puts "[ToolMonitor] Access granted, retrying..."
                 # Landlock works on directories, not files. Use parent directory.
                 dir_path = File.directory?(path) ? path : File.dirname(path)
