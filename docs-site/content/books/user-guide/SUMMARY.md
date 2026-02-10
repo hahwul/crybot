@@ -16,3 +16,4 @@
 - [Built-in Tools](11-tools.md)
 - [Advanced Topics](12-advanced.md)
 - [Free AI Models](13-free-models.md)
+- [Security and Landlock Sandbox](14-security.md)
