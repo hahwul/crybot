@@ -195,6 +195,137 @@ module HttpProxy
       end
     end
 
+    # Handle incoming HTTP request
+    private def self.handle_request(context : HTTP::Server::Context, config : Crybot::Config::ProxyConfig) : Nil
+      request = parse_request(context)
+
+      # Handle CONNECT method for HTTPS
+      if request.method == "CONNECT"
+        handle_connect(context, request, config)
+        return
+      end
+
+      # Extract domain from request
+      request_domain = extract_domain(request)
+
+      # Check if domain is empty
+      if request_domain.empty?
+        Log.warn { "Could not extract domain from request" }
+        context.response.status_code = 400
+        context.response.puts("Bad Request: Could not determine domain")
+        context.response.close
+        return
+      end
+
+      # Check whitelist
+      if config.domain_whitelist.includes?(request_domain)
+        # Whitelisted domain - allow through
+        log_access(request_domain, "allow", "Whitelisted")
+        forward_request(context, request)
+      else
+        # Non-whitelisted domain - prompt user
+        prompt_user_and_handle(context, request, request_domain, config)
+      end
+    end
+
+    # Handle HTTPS CONNECT method
+    private def self.handle_connect(context : HTTP::Server::Context, request : ProxyRequest, config : Crybot::Config::ProxyConfig) : Nil
+      # CONNECT format: CONNECT example.com:443 HTTP/1.1
+      # The path contains "hostname:port"
+      host_port = request.path
+
+      # Split hostname and port
+      if idx = host_port.index(':')
+        domain = host_port[0...idx]
+        port_str = host_port[(idx + 1)..]
+      else
+        Log.warn { "Invalid CONNECT request: #{host_port}" }
+        context.response.status_code = 400
+        context.response.puts("Bad Request: Invalid CONNECT format")
+        context.response.close
+        return
+      end
+
+      # Check whitelist
+      if config.domain_whitelist.includes?(domain)
+        log_access(domain, "connect", "Whitelisted HTTPS tunnel")
+        establish_tunnel(context, domain, port_str.to_i?)
+      else
+        prompt_user_and_handle_connect(context, request, domain, port_str.to_i?, config)
+      end
+    end
+
+    # Establish HTTPS tunnel
+    private def self.establish_tunnel(context : HTTP::Server::Context, domain : String, port : Int32?) : Nil
+      port = port || 443
+
+      begin
+        # Connect to upstream server
+        upstream = TCPSocket.new(domain, port)
+
+        # Send 200 Connection established to client
+        context.response.status_code = 200
+        context.response.puts("Connection established")
+
+        # Flush the response
+        context.response.flush
+
+        # Start bidirectional forwarding
+        spawn do
+          begin
+            # Copy from client to upstream
+            IO.copy(context.response, upstream)
+          rescue e : Exception
+            Log.debug { "Client to upstream copy ended: #{e.message}" }
+          ensure
+            upstream.close rescue nil
+          end
+        end
+
+        # Copy from upstream to client (blocking)
+        begin
+          IO.copy(upstream, context.response)
+        rescue e : Exception
+          Log.debug { "Upstream to client copy ended: #{e.message}" }
+        ensure
+          context.response.close rescue nil
+          upstream.close rescue nil
+        end
+
+        Log.debug { "HTTPS tunnel closed: #{domain}:#{port}" }
+      rescue e : Exception
+        Log.error(exception: e) { "Failed to establish tunnel to #{domain}:#{port}" }
+        context.response.status_code = 502
+        context.response.puts("Bad Gateway: #{e.message}")
+        context.response.close
+      end
+    end
+
+    # Prompt user for HTTPS CONNECT
+    private def self.prompt_user_and_handle_connect(context : HTTP::Server::Context, request : ProxyRequest, domain : String, port : Int32?, config : Crybot::Config::ProxyConfig) : Nil
+      # Use unified LandlockSocket for network access requests
+      result = Crybot::LandlockSocket.request_network_access(domain)
+
+      case result
+      when Crybot::LandlockSocket::AccessResult::Granted
+        log_access(domain, "connect", "Allowed HTTPS tunnel")
+        establish_tunnel(context, domain, port || 443)
+      when Crybot::LandlockSocket::AccessResult::GrantedOnce
+        log_access(domain, "connect_once", "Session-only HTTPS tunnel")
+        establish_tunnel(context, domain, port || 443)
+      when Crybot::LandlockSocket::AccessResult::Denied
+        log_access(domain, "connect_deny", "User denied HTTPS tunnel")
+        context.response.status_code = 403
+        context.response.puts("Access denied")
+        context.response.close
+      else
+        log_access(domain, "connect_deny", "Invalid response (#{result})")
+        context.response.status_code = 403
+        context.response.puts("Access denied")
+        context.response.close
+      end
+    end
+
     # Prompt user via unified IPC and handle decision
     private def self.prompt_user_and_handle(context : HTTP::Server::Context, request : ProxyRequest, request_domain : String, config : Crybot::Config::ProxyConfig) : Nil
       # Use unified LandlockSocket for network access requests
