@@ -23,17 +23,10 @@ module HttpProxy
       property headers : Hash(String, String)
       property body : String?
       property domain : String?
+      property query : String?
 
-      def initialize(@method = "GET", @path = "/", @headers = {} of String => String, @body = nil, @domain = nil)
+      def initialize(@method = "GET", @path = "/", @headers = {} of String => String, @body = nil, @domain = nil, @query = nil)
       end
-    end
-
-    struct ProxyConfig
-      property enabled : Bool = false
-      property host : String = "127.0.0.1"
-      property port : Int32 = 3004
-      property domain_whitelist : Array(String) = [] of String
-      property log_file : String = "~/.crybot/logs/proxy_access.log"
     end
 
     # Access log entry
@@ -47,29 +40,43 @@ module HttpProxy
       end
     end
 
-    @@config : ProxyConfig?
+    @@config : Crybot::Config::ProxyConfig?
     @@access_log : Array(AccessLog) = [] of AccessLog
     @@server : HTTP::Server?
 
     def self.start : Nil
-      config = Config::Loader.load
-      proxy_config = config.proxy?
+      config = Crybot::Config::Loader.load
+      proxy_config = config.proxy
 
-      unless proxy_config
-        Log.info { "HTTP proxy not enabled, starting server anyway for testing" }
+      unless proxy_config.enabled
+        Log.info { "HTTP proxy not enabled in config, skipping startup" }
+        return
       end
 
-      @@config = proxy_config || ProxyConfig.new
+      @@config = proxy_config
       @@access_log = [] of AccessLog
 
-      # Create HTTP server
-      @@server = HTTP::Server.new(@@config.host, @@config.port) do |context|
+      # Create HTTP server with handler proc
+      server = HTTP::Server.new do |context|
         handle_request(context, proxy_config)
       end
 
-      Log.info { "Proxy server started on http://#{@config.host}:#{@config.port}" }
-      Log.info { "Domain whitelist: #{@config.domain_whitelist.join(", ")}" }
-      Log.info { "Access log: #{@config.log_file}" }
+      @@server = server
+
+      # Start listening in background
+      spawn do
+        server.bind_tcp(proxy_config.host, proxy_config.port)
+        server.listen
+      rescue e : Exception
+        Log.error(exception: e) { "Proxy server error: #{e.message}" }
+      end
+
+      # Give the server a moment to start
+      sleep 0.1
+
+      Log.info { "Proxy server started on http://#{proxy_config.host}:#{proxy_config.port}" }
+      Log.info { "Domain whitelist: #{proxy_config.domain_whitelist.join(", ")}" }
+      Log.info { "Access log: #{proxy_config.log_file}" }
     end
 
     def self.stop : Nil
@@ -80,7 +87,7 @@ module HttpProxy
     end
 
     # Handle incoming HTTP request
-    private def self.handle_request(context : HTTP::Server::Context, config : ProxyConfig) : Nil
+    private def self.handle_request(context : HTTP::Server::Context, config : Crybot::Config::ProxyConfig) : Nil
       request = parse_request(context)
 
       # Extract domain from request
@@ -100,9 +107,23 @@ module HttpProxy
     # Parse HTTP request from context
     private def self.parse_request(context : HTTP::Server::Context) : ProxyRequest
       method = context.request.method || "GET"
-      path = context.request.path || "/"
-      headers = context.request.headers.try(&.to_h) || {} of String => String
-      body = context.request.body.try(&.as_s)
+      full_path = context.request.path || "/"
+
+      # Split path and query string
+      path, query = full_path.split('?', 2)
+
+      # Normalize headers to Hash(String, String)
+      raw_headers = context.request.headers.try(&.to_h) || {} of String => String | Array(String)
+      headers = {} of String => String
+      raw_headers.each do |key, value|
+        headers[key] = value.is_a?(Array) ? value.first.to_s : value.to_s
+      end
+
+      body = if body_io = context.request.body
+               body_io.gets_to_end
+             else
+               nil
+             end
 
       # Extract Host header for domain checking
       domain = if host_header = headers["Host"]?
@@ -111,7 +132,7 @@ module HttpProxy
                  nil
                end
 
-      ProxyRequest.new(method, path, headers, body, domain)
+      ProxyRequest.new(method, path, headers, body, domain, query)
     end
 
     # Extract domain from Host header or URL
@@ -138,9 +159,9 @@ module HttpProxy
       Log.info { "[#{log_entry.action}] #{log_entry.domain}: #{log_entry.details}" }
 
       # Also write to file if configured
-      if @@config.try(&.log_file)
+      if cfg = @@config
         begin
-          File.open(@@config.not_nil!.log_file, "a") do |file|
+          File.open(cfg.log_file, "a") do |file|
             @@access_log.each do |entry|
               file.puts("#{entry.timestamp} #{entry.action} #{entry.domain} - #{entry.details}")
             end
@@ -152,7 +173,7 @@ module HttpProxy
     end
 
     # Prompt user via rofi and handle decision
-    private def self.prompt_user_and_handle(context : HTTP::Server::Context, request : ProxyRequest, request_domain : String, config : ProxyConfig) : Nil
+    private def self.prompt_user_and_handle(context : HTTP::Server::Context, request : ProxyRequest, request_domain : String, config : Crybot::Config::ProxyConfig) : Nil
       # Show rofi prompt
       result = WhitelistPrompt.prompt(request_domain)
 
@@ -182,29 +203,38 @@ module HttpProxy
 
     # Forward request to upstream
     private def self.forward_request(context : HTTP::Server::Context, request : ProxyRequest) : Nil
-      # Build upstream URL
-      upstream_url = "http://#{request.domain}#{request.path}"
+      # Domain is required
+      domain = request.domain
+      return unless domain
+
+      # Build upstream path with query string
+      request_path = request.path
       if query = request.query
-        upstream_url += "?#{query}"
-      end
-      upstream_url = request.headers.to_h.reduce(upstream_url) do |url, (key, value)|
-        "#{url}&#{key}=#{URI.encode_component(value)}"
+        request_path = "#{request_path}?#{query}"
       end
 
       # Create upstream request
       begin
-        upstream_response = HTTP::Client.get(upstream_url)
+        # Convert headers to HTTP::Headers
+        http_headers = HTTP::Headers.new
+        request.headers.each do |key, value|
+          http_headers[key] = value
+        end
+
+        # Use HTTP::Client to forward the request
+        client = HTTP::Client.new(domain)
+        response = client.exec(request.method, request_path, http_headers, request.body)
 
         # Copy response headers to client response
-        upstream_response.headers.each do |key, value|
+        response.headers.each do |key, value|
           context.response.headers[key] = value
         end
 
         # Copy response body
-        context.response.puts(upstream_response.body)
+        context.response.puts(response.body)
         context.response.close
 
-        Log.debug { "Forwarded: #{request.method} #{request.path} -> #{upstream_response.status_code}" }
+        Log.debug { "Forwarded: #{request.method} #{request.path} -> #{response.status_code}" }
       rescue e : Exception
         Log.error(exception: e) { "Proxy error: #{e.message}" }
         context.response.status_code = 500

@@ -3,6 +3,7 @@ require "../config/loader"
 require "../landlock_socket"
 require "../agent/tool_monitor"
 require "../agent/tools/registry"
+require "../http_proxy/server"
 
 module Crybot
   module Commands
@@ -22,16 +23,22 @@ module Crybot
         Log.info { "[Crybot] Starting Landlock access monitor..." }
         LandlockSocket.start_monitor_server
 
+        # Load configuration early
+        config = Config::Loader.load
+        config = Config::Loader.migrate_config(config)
+
+        # Start HTTP proxy if enabled
+        if config.proxy.enabled
+          Log.info { "[Crybot] Starting HTTP proxy..." }
+          HttpProxy::Server.start
+        end
+
         # Start the tool execution monitor fiber
         Log.info { "[Crybot] Starting tool execution monitor..." }
         ToolMonitor.start_monitor
 
         # Enable monitor mode for tools (routes through tool monitor)
         Tools::Registry.enable_monitor_mode
-
-        # Load configuration
-        config = Config::Loader.load
-        config = Config::Loader.migrate_config(config)
 
         # Start the agent loop
         Log.info { "[Crybot] Starting agent loop..." }

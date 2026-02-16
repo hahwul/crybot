@@ -283,6 +283,19 @@ module Crybot
       end
     end
 
+    struct ProxyConfig
+      include YAML::Serializable
+
+      property enabled : Bool = false
+      property host : String = "127.0.0.1"
+      property port : Int32 = 3004
+      property domain_whitelist : Array(String) = [] of String
+      property log_file : String = "~/.crybot/logs/proxy_access.log"
+
+      def initialize(@enabled = false, @host = "127.0.0.1", @port = 3004, @domain_whitelist = [] of String, @log_file = "~/.crybot/logs/proxy_access.log")
+      end
+    end
+
     struct ConfigFile
       include YAML::Serializable
 
@@ -294,6 +307,7 @@ module Crybot
       property voice : VoiceConfig? = nil
       property web : WebServerConfig = WebServerConfig.new
       property features : FeaturesConfig = FeaturesConfig.new
+      property proxy : ProxyConfig = ProxyConfig.new
 
       def with_web(@web : WebServerConfig) : ConfigFile
         self

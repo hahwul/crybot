@@ -48,8 +48,16 @@ module Crybot
                    ACCESS_FS_MAKE_DIR | ACCESS_FS_MAKE_REG | ACCESS_FS_MAKE_SYM |
                    ACCESS_FS_REMOVE_FILE | ACCESS_FS_REMOVE_DIR | ACCESS_FS_TRUNCATE
 
+    # Network access rights (ABI v3 - Linux 6.7+)
+    ACCESS_NET_CONNECT_TCP = 1_u64 << 0
+    ACCESS_NET_BIND_TCP   = 1_u64 << 1
+
+    # All network rights we want to control
+    ACCESS_NET_TCP = ACCESS_NET_CONNECT_TCP | ACCESS_NET_BIND_TCP
+
     # Landlock rule types
     RULE_PATH_BENEATH = 1_u64
+    RULE_NET_PORT     = 2_u64
 
     # Syscall numbers from asm/unistd.h (x86_64)
     SYS_LANDLOCK_CREATE_RULESET = 444
@@ -69,11 +77,17 @@ module Crybot
     lib LibLandlock
       struct LandlockRulesetAttr
         handled_access_fs : UInt64
+        handled_access_net : UInt64
       end
 
       struct LandlockPathBeneathAttr
         allowed_access : UInt64
         parent_fd : LibC::Int
+      end
+
+      struct LandlockNetPortAttr
+        allowed_access : UInt64
+        port : UInt16
       end
 
       # syscall is provided by LibC
@@ -94,6 +108,30 @@ module Crybot
 
       # Try to create a minimal ruleset to verify Landlock works
       check_ruleset = create_ruleset(ACCESS_FS_READ_FILE)
+      return false unless check_ruleset
+
+      # Close the ruleset fd
+      LibC.close(check_ruleset)
+      true
+    rescue
+      false
+    end
+
+    # Check if Landlock network support is available (ABI v3, Linux 6.7+)
+    def self.supports_network? : Bool
+      # Check kernel version first
+      kv = kernel_version
+      return false unless kv
+
+      major, minor = kv.split(".").first(2).map(&.to_i?)
+      major ||= 0
+      minor ||= 0
+
+      # Check if kernel is 6.7 or later (for network access)
+      return false unless major > 6 || (major == 6 && minor >= 7)
+
+      # Try to create a network ruleset to verify it works
+      check_ruleset = create_network_ruleset(ACCESS_NET_CONNECT_TCP)
       return false unless check_ruleset
 
       # Close the ruleset fd
@@ -271,10 +309,21 @@ module Crybot
       false
     end
 
-    # Create a Landlock ruleset
+    # Create a Landlock ruleset (filesystem only for backward compatibility)
     private def self.create_ruleset(handled_access : UInt64) : LibC::Int?
+      create_comprehensive_ruleset(handled_access_fs: handled_access, handled_access_net: 0)
+    end
+
+    # Create a network-only Landlock ruleset
+    private def self.create_network_ruleset(handled_access_net : UInt64) : LibC::Int?
+      create_comprehensive_ruleset(handled_access_fs: 0, handled_access_net: handled_access_net)
+    end
+
+    # Create a comprehensive Landlock ruleset with both filesystem and network rules
+    private def self.create_comprehensive_ruleset(handled_access_fs : UInt64, handled_access_net : UInt64) : LibC::Int?
       attr = LibLandlock::LandlockRulesetAttr.new
-      attr.handled_access_fs = handled_access
+      attr.handled_access_fs = handled_access_fs
+      attr.handled_access_net = handled_access_net
 
       # syscall(SYS_landlock_create_ruleset, attr, size, flags)
       result = LibC.syscall(
@@ -323,6 +372,29 @@ module Crybot
       ensure
         LibC.close(fd)
       end
+    end
+
+    # Add a network port rule to a ruleset
+    private def self.add_port_rule(ruleset_fd : LibC::Int, port : UInt16, allowed_access : UInt64) : Bool
+      port_attr = LibLandlock::LandlockNetPortAttr.new
+      port_attr.allowed_access = allowed_access
+      port_attr.port = port
+
+      # syscall(SYS_landlock_add_rule, ruleset_fd, rule_type, rule_attr, flags)
+      result = LibC.syscall(
+        SYS_LANDLOCK_ADD_RULE,
+        ruleset_fd,
+        RULE_NET_PORT,
+        pointerof(port_attr),
+        0 # flags
+      )
+
+      if result != 0
+        Log.error { "[Landlock] Failed to add network rule for port: #{port} (errno: #{Errno.value})" }
+        return false
+      end
+
+      true
     end
 
     private def self.kernel_version : String?

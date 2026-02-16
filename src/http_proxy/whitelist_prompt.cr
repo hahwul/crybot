@@ -4,8 +4,6 @@ require "../config/loader"
 require "../landlock_socket"
 
 module HttpProxy
-  Log = ::Log.for("crybot.http_proxy")
-
   # Rofi prompt handler for domain access decisions
   module WhitelistPrompt
     # Prompt user for domain access decision via rofi
@@ -13,8 +11,6 @@ module HttpProxy
     # Returns: :allow, :deny, :allow_once
 
     def self.prompt(domain : String) : Symbol
-      config = Config::Loader.load
-
       # Build rofi prompt message
       message = "🔒 HTTP Proxy - Domain Access Request\n\n"
       message += "Domain: #{domain}\n\n"
@@ -44,10 +40,13 @@ module HttpProxy
       case choice
       when "Allow"
         handle_allow(domain)
+        :allow
       when "Once Only"
         handle_allow_once(domain)
+        :allow_once
       when "Deny"
         handle_deny(domain)
+        :deny
       else
         Log.warn { "Unexpected rofi choice: #{choice}" }
         :deny
@@ -56,27 +55,33 @@ module HttpProxy
 
     private def self.handle_allow(domain : String) : Nil
       # Add to whitelist and allow
-      proxy_config = Config::Loader.load
-      whitelist = proxy_config.proxy?.try(&.domain_whitelist) || [] of String
+      config = Crybot::Config::Loader.load
+      proxy_config = config.proxy
+      whitelist = proxy_config.domain_whitelist.dup
 
       unless whitelist.includes?(domain)
         whitelist << domain
         Log.info { "Added #{domain} to whitelist" }
 
-        # Update config
-        updated_config = if proxy_config.proxy?
-                           proxy_config.proxy.not_nil!.merge(ProxyConfig.from(domain_whitelist: whitelist))
-                         else
-                           Config::ProxyConfig.new(
-                             enabled: true,
-                             host: proxy_config.proxy.not_nil!.host,
-                             port: proxy_config.proxy.not_nil!.port,
-                             domain_whitelist: whitelist,
-                             log_file: proxy_config.proxy.not_nil!.log_file
-                           )
-                         end
+        # Update config with new whitelist
+        updated_proxy = Crybot::Config::ProxyConfig.new(
+          enabled: proxy_config.enabled,
+          host: proxy_config.host,
+          port: proxy_config.port,
+          domain_whitelist: whitelist,
+          log_file: proxy_config.log_file
+        )
 
-        Config::Loader.save_config(updated_config)
+        # Update the full config
+        updated_config = config
+        updated_config.proxy = updated_proxy
+
+        # Write updated config to file
+        config_path = Crybot::Config::Loader.config_file
+        File.write(config_path, updated_config.to_yaml)
+
+        # Reload config
+        Crybot::Config::Loader.reload
       end
 
       Log.info { "Allowed #{domain} - whitelisted now" }
@@ -89,11 +94,7 @@ module HttpProxy
 
     private def self.handle_deny(domain : String) : Nil
       Log.warn { "Denied access to #{domain}" }
-
-      # Request to stop proxy server to update config
-      if proxy_config = Config::Loader.load.proxy?
-        LandlockSocket.send_reload_signal
-      end
+      # TODO: Notify proxy server if needed for config reload
     end
   end
 end
