@@ -271,14 +271,19 @@ module Crybot
           yaml_params = build_yaml_params(properties, required)
           required_yaml = required.map { |req| "      - \"#{req}\"" }.join("\n")
 
+          # Escape description for YAML - quote if it contains special characters
+          safe_description = escape_yaml_string(description)
+          safe_name = escape_yaml_string(name)
+          safe_tool_desc = escape_yaml_string("Execute the #{command} command")
+
           skill_yml = <<-YAML
-name: #{name}
+name: #{safe_name}
 version: 1.0.0
-description: #{description}
+description: #{safe_description}
 
 tool:
   name: #{tool_name}
-  description: Execute the #{command} command
+  description: #{safe_tool_desc}
   parameters:
     type: object
     properties:#{yaml_params}
@@ -290,8 +295,8 @@ execution:
   command:
     command: #{command}
     args:
-      - "'{{options}}'"
-      - "'{{args}}'"
+      - "{{options}}"
+      - "{{args}}"
     working_dir: null
 YAML
 
@@ -303,16 +308,29 @@ YAML
           end
         end
 
+        private def escape_yaml_string(str : String) : String
+          # If string contains special YAML characters, quote it
+          needs_quoting = str =~ /[:\{\}\[\],&\*#?\|<>=!%@`']/
+          if needs_quoting
+            # Use double quotes and escape escape sequences
+            escaped = str.gsub(/\\/, "\\\\\\\\").gsub("\"", "\\\\\"")
+            "\"#{escaped}\""
+          else
+            str
+          end
+        end
+
         private def build_yaml_params(properties : Hash(String, JSON::Any), required : Array(String)) : String
           return "" if properties.empty?
 
           lines = [] of String
           properties.each do |key, prop|
             prop_h = prop.as_h
-            lines << "    #{key}:"
-            lines << "      type: #{prop_h["type"].as_s}"
+            lines << "    #{key}:"           # 4 spaces (properties: is at 4, so +2 = 6 total)
+            lines << "      type: #{prop_h["type"].as_s}"    # 6 spaces (2 more)
             if desc = prop_h["description"]?
-              lines << "      description: #{desc.as_s}"
+              safe_desc = escape_yaml_string(desc.as_s)
+              lines << "      description: #{safe_desc}"     # 6 spaces (2 more)
             end
           end
           lines.join("\n")
