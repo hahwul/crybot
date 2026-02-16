@@ -111,6 +111,19 @@ module Crybot
           end
         end
 
+        # Load proxy config to check if we should apply network restrictions
+        proxy_config = load_proxy_config
+
+        # If proxy is enabled, apply network Landlock restrictions
+        if proxy_config && proxy_config.enabled
+          # Allow TCP connections ONLY to the proxy port
+          # This forces all HTTP/HTTPS traffic through the proxy
+          restrictions.allow_tcp_connect(proxy_config.port.to_u16)
+
+          # Log that we're applying network restrictions
+          Log.info { "[ToolMonitor] Applying network Landlock: only allowing connections to proxy port #{proxy_config.port}" }
+        end
+
         max_retries = 2 # Allow one retry after access granted
         attempt = 0
 
@@ -119,7 +132,7 @@ module Crybot
 
           begin
             # Execute the tool directly in an isolated fiber with Landlock
-            result = execute_tool_in_isolated_context(tool_name, arguments, restrictions)
+            result = execute_tool_in_isolated_context(tool_name, arguments, restrictions, proxy_config)
             return result
           rescue e : Tools::LandlockDeniedException
             # Handle Landlock denial - we know the path from the exception
@@ -160,13 +173,10 @@ module Crybot
       end
 
       # Execute tool in an isolated context with Landlock
-      private def self.execute_tool_in_isolated_context(tool_name : String, arguments : Hash(String, JSON::Any), restrictions : ::ToolRunner::Landlock::Restrictions) : String
+      private def self.execute_tool_in_isolated_context(tool_name : String, arguments : Hash(String, JSON::Any), restrictions : ::ToolRunner::Landlock::Restrictions, proxy_config : Crybot::Config::ProxyConfig?) : String
         # Create channels for result and error
         result_channel = Channel(String).new
         error_channel = Channel(Exception).new
-
-        # Load proxy config if enabled
-        proxy_config = load_proxy_config
 
         # Create isolated execution context
         _isolated_context = Fiber::ExecutionContext::Isolated.new("ToolExecution", spawn_context: Fiber::ExecutionContext.default) do
