@@ -3,6 +3,7 @@ require "json"
 require "random/secure"
 require "../../session/manager"
 require "../../agent/loop"
+require "../../agent/cancellation"
 require "../handlers/logs_handler"
 
 module Crybot
@@ -79,6 +80,8 @@ module Crybot
           send_history(socket, session_id)
         when "session_switch"
           switch_session(socket, data)
+        when "cancel_request"
+          handle_cancel_request(socket)
         else
           socket.send({
             type:    "error",
@@ -190,6 +193,15 @@ module Crybot
         socket.send({
           type:       "session_switched",
           session_id: @session_id,
+        }.to_json)
+      end
+
+      private def handle_cancel_request(socket) : Nil
+        puts "[Web] [Chat] Cancel request received"
+        Agent::CancellationManager.cancel_current
+
+        socket.send({
+          type:   "cancel_acknowledged",
         }.to_json)
       end
     end

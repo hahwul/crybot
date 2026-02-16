@@ -1,5 +1,8 @@
+require "log"
+
 module Crybot
   module Providers
+    Log = ::Log.for("crybot.providers")
     struct Message
       property role : String # "system", "user", "assistant", "tool"
       property content : String?
@@ -83,7 +86,15 @@ module Crybot
     end
 
     abstract class LLMProvider
-      abstract def chat(messages : Array(Message), tools : Array(ToolDef)?, model : String?) : Response
+      abstract def chat(messages : Array(Message), tools : Array(ToolDef)?, model : String?, cancellation_token : ::Crybot::Agent::CancellationToken? = nil) : Response
+
+      # Check for cancellation during request (optional override)
+      def check_cancellation(token : ::Crybot::Agent::CancellationToken?) : Nil
+        if token && token.cancelled?
+          Log.info { "[Provider] Request cancelled by user" }
+          raise "Request cancelled by user"
+        end
+      end
     end
   end
 end

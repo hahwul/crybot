@@ -1,6 +1,7 @@
 require "http"
 require "json"
 require "./base"
+require "../agent/cancellation"
 
 module Crybot
   module Providers
@@ -14,7 +15,7 @@ module Crybot
       def initialize(@api_key : String, @default_model : String, @api_base : String)
       end
 
-      def chat(messages : Array(Message), tools : Array(ToolDef)?, model : String?) : Response
+      def chat(messages : Array(Message), tools : Array(ToolDef)?, model : String?, cancellation_token : ::Crybot::Agent::CancellationToken? = nil) : Response
         request_body = build_request_body(messages, tools, model)
         headers = build_headers
 
@@ -23,6 +24,9 @@ module Crybot
         base_delay = 1.0 # seconds
 
         max_retries.times do |attempt|
+          # Check for cancellation before making request
+          check_cancellation(cancellation_token)
+
           response = HTTP::Client.post(endpoint_url, headers, request_body.to_json)
 
           # Success - return response
@@ -37,7 +41,15 @@ module Crybot
               # Calculate exponential backoff with jitter
               delay = base_delay * (2 ** attempt) + (rand * 0.5)
               puts "[Provider] Rate limited (#{status}), retrying in #{delay.round(2)}s (attempt #{attempt + 1}/#{max_retries})"
-              sleep delay.seconds
+
+              # Sleep in smaller increments to check for cancellation
+              sleep_time = 0
+              while sleep_time < delay
+                sleep 0.1.seconds
+                sleep_time += 0.1
+                check_cancellation(cancellation_token)
+              end
+
               next
             end
           end

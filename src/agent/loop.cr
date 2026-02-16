@@ -18,6 +18,7 @@ require "./tools/skill_builder"
 require "./tools/web_scraper_skill"
 require "./skill_manager"
 require "./skill_tool_wrapper"
+require "./cancellation"
 require "../session/manager"
 require "../mcp/manager"
 require "json"
@@ -200,6 +201,9 @@ module Crybot
         puts "[Agent] Processing message for session_key: #{session_key}"
         messages = @context_builder.build_messages(user_message, history, session_key)
 
+        # Reset cancellation token for new request
+        CancellationManager.reset
+
         # Main loop
         iteration = 0
         final_response = ""
@@ -208,9 +212,22 @@ module Crybot
         while iteration < @max_iterations
           iteration += 1
 
-          # Call LLM
+          # Call LLM with cancellation token
           tools_schemas = @lite_mode ? nil : Tools::Registry.to_schemas
-          response = @provider.chat(messages, tools_schemas, @config.agents.defaults.model)
+          cancellation_token = CancellationManager.current_token
+
+          begin
+            response = @provider.chat(messages, tools_schemas, @config.agents.defaults.model, cancellation_token)
+          rescue ex : Exception
+            # Check if this was a cancellation
+            if ex.message.try(&.includes?("cancelled"))
+              puts "[Agent] Request cancelled by user"
+              final_response = "[Request cancelled by user]"
+              break
+            end
+            # Re-raise other exceptions
+            raise ex
+          end
 
           # Add assistant message to history
           messages = @context_builder.add_assistant_message(messages, response)
