@@ -13,6 +13,9 @@ class CrybotWeb {
     this.scheduledTasks = [];
     this.editingTaskId = null;
 
+    // Track if a request is currently processing
+    this.isProcessing = false;
+
     // Notification settings
     this.notificationsEnabled = localStorage.getItem('crybotNotificationsEnabled') !== 'false';
     this.unreadCounts = JSON.parse(localStorage.getItem('crybotUnreadCounts') || '{}');
@@ -64,6 +67,7 @@ class CrybotWeb {
     this.setupForms();
     this.setupSkillsHandlers();
     this.setupNotifications();
+    this.setupCancelButton();
     this.connectWebSocket();
     this.loadConfiguration();
     this.loadLogs();
@@ -387,6 +391,48 @@ class CrybotWeb {
           this.loadWebSessionsForForwarding();
         }
       });
+    }
+  }
+
+  setupCancelButton() {
+    const cancelBtn = document.getElementById('chat-cancel');
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+        this.cancelRequest();
+      });
+    }
+  }
+
+  cancelRequest() {
+    if (!this.isProcessing) {
+      return;
+    }
+
+    // Send cancel request via WebSocket
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify({
+        type: 'cancel_request'
+      }));
+    }
+
+    // Hide cancel button immediately
+    this.hideCancelButton();
+
+    // Show cancellation message
+    this.addMessage('Cancelling request...', 'system', this.getCurrentContainer());
+  }
+
+  showCancelButton() {
+    const cancelBtn = document.getElementById('chat-cancel');
+    if (cancelBtn) {
+      cancelBtn.classList.remove('hidden');
+    }
+  }
+
+  hideCancelButton() {
+    const cancelBtn = document.getElementById('chat-cancel');
+    if (cancelBtn) {
+      cancelBtn.classList.add('hidden');
     }
   }
 
@@ -974,11 +1020,19 @@ class CrybotWeb {
           // Show typing indicator - we'll show it in the current active chat
           // since that's where the user is waiting
           this.showTypingIndicator(this.getCurrentContainer());
+
+          // Show cancel button
+          this.isProcessing = true;
+          this.showCancelButton();
         }
         break;
       case 'response':
         // Hide typing indicator
         this.hideTypingIndicator(this.getCurrentContainer());
+
+        // Hide cancel button and reset processing state
+        this.isProcessing = false;
+        this.hideCancelButton();
 
         // Display tool executions if present
         if (data.tool_executions && Array.isArray(data.tool_executions) && data.tool_executions.length > 0) {
@@ -1005,8 +1059,15 @@ class CrybotWeb {
         // New message arrived via Voice
         this.handleExternalMessage('voice', data);
         break;
+      case 'cancel_acknowledged':
+        // Cancel request was received by backend
+        console.log('Cancel request acknowledged by backend');
+        this.isProcessing = false;
+        break;
       case 'error':
         this.hideTypingIndicator(this.getCurrentContainer());
+        this.isProcessing = false;
+        this.hideCancelButton();
         this.addMessage(`Error: ${data.message}`, 'system', this.getCurrentContainer());
         break;
     }

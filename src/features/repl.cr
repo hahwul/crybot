@@ -1,4 +1,5 @@
 require "../agent/loop"
+require "../agent/cancellation"
 require "fancyline"
 require "./base"
 
@@ -134,11 +135,24 @@ module Crybot
                 spinner = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
                 spinner_idx = 0
                 spinning = true
-                spawn do
+                spinner_fiber = spawn do
                   while spinning
-                    print "\r#{spinner[spinner_idx % spinner.size]} Thinking..."
+                    print "\r#{spinner[spinner_idx % spinner.size]} Thinking... (Ctrl+K to cancel)"
                     spinner_idx += 1
                     sleep 0.1.seconds
+                  end
+                end
+
+                # Check for cancellation during processing
+                cancel_check = spawn do
+                  # Check for cancellation every 0.1s
+                  loop do
+                    sleep 0.1.seconds
+                    if spinning && Agent::CancellationManager.cancelled?
+                      print "\r" + " " * 50 + "\r"  # Clear spinner line
+                      puts "⚠ Cancelling request..."
+                      break
+                    end
                   end
                 end
 
@@ -172,7 +186,8 @@ module Crybot
                   # Stop spinner
                   spinning = false
                   sleep 0.15.seconds
-                  # Ctrl+C pressed during input
+                  # Ctrl+C/Esc pressed during input - cancel any pending request
+                  Agent::CancellationManager.cancel_current
                   puts ""
                   puts "Use 'quit' or 'exit' to exit, or Ctrl+D"
                   puts
@@ -219,6 +234,17 @@ module Crybot
         end
 
         private def setup_autocompletion : Nil
+          # Add Ctrl+K key binding for cancellation (K for Kill)
+          @fancy.actions.set Fancyline::Key::Control::CtrlK do
+            # Trigger cancellation
+            Agent::CancellationManager.cancel_current
+            # Note: This sets the flag that the agent loop will check
+            # on the next iteration or during retry delays
+            puts "\n⚠ Cancelling..."
+            # Raise interrupt to exit readline
+            raise Fancyline::Interrupt.new("Request cancelled")
+          end
+
           @fancy.autocomplete.add do |ctx, range, word, yielder|
             completions = yielder.call(ctx, range, word)
 
@@ -283,6 +309,7 @@ module Crybot
           puts "  Up/Down - Navigate command history"
           puts "  Ctrl+R - Search history"
           puts "  Ctrl+L - Clear screen"
+          puts "  Ctrl+K - Cancel current LLM request (during processing)"
           puts
         end
 
