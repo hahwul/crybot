@@ -121,6 +121,43 @@ mcp:
       command: npx -y @modelcontextprotocol/server-filesystem /allowed/path
 ```
 
+## Proxy Configuration
+
+Configure the HTTP/HTTPS proxy for network access control:
+
+```yaml
+proxy:
+  enabled: true
+  host: "127.0.0.1"
+  port: 3004
+  domain_whitelist:
+    - "example.com"
+    - "api.github.com"
+    - "cdn.jsdelivr.net"
+  log_file: "~/.crybot/logs/proxy_access.log"
+```
+
+### Proxy Settings
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| `enabled` | Enable/disable proxy | `false` |
+| `host` | Proxy bind address | `127.0.0.1` |
+| `port` | Proxy port | `3004` |
+| `domain_whitelist` | Pre-approved domains | `[]` |
+| `log_file` | Access log path | `~/.crybot/logs/proxy_access.log` |
+
+### How the Proxy Works
+
+When enabled, all HTTP requests from tools are routed through the proxy:
+
+1. **Whitelisted domains** - Automatically allowed without prompts
+2. **User prompts** - Non-whitelisted domains trigger approval dialogs
+3. **Session-only access** - Grant temporary or permanent access
+4. **Access logging** - All attempts logged for auditing
+
+See [Security and Landlock Sandbox](14-security.md#network-access-control) for details.
+
 ## Reloading Configuration
 
 Crybot automatically reloads configuration when `~/.crybot/config.yml` changes. No restart needed!

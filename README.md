@@ -16,6 +16,7 @@ Crybot is a modular personal AI assistant built in Crystal. It provides multiple
 - **Multiple Interfaces**: REPL, Web UI, Telegram bot, and Voice interaction modes
 - **Real-time Updates**: WebSocket support for live message streaming in web UI
 - **Unified Channels**: Forward messages to any channel (Telegram, Web, Voice, REPL)
+- **Secure Proxy**: HTTP/HTTPS proxy with domain whitelisting and user access control for network requests
 
 ## Installation
 
@@ -320,7 +321,91 @@ Run specific modes:
 │   ├── memory/             # Daily logs
 │   └── scheduled_tasks.yml # Scheduled tasks
 ├── sessions/               # Chat history
+├── logs/
+│   └── proxy_access.log    # Proxy access logs
+├── monitor/
+│   └── allowed_paths.yml   # Landlock filesystem permissions
 └── repl_history.txt        # REPL command history
+```
+
+## HTTP Proxy for Network Access Control
+
+Crybot includes a built-in HTTP/HTTPS proxy server that controls which domains the AI agent can access.
+
+### How It Works
+
+1. **Proxy runs on localhost:3004** (configurable)
+2. **Domain whitelist** - Pre-approved domains bypass prompts
+3. **User prompts** - Non-whitelisted domains trigger rofi/terminal prompts
+4. **Access logging** - All network access attempts logged
+5. **Landlock integration** - Network restrictions controlled via unified access system
+
+### Configuration
+
+Enable and configure the proxy in `~/.crybot/config.yml`:
+
+```yaml
+proxy:
+  enabled: true
+  host: "127.0.0.1"
+  port: 3004
+  domain_whitelist:
+    - "example.com"
+    - "api.example.com"
+  log_file: "~/.crybot/logs/proxy_access.log"
+```
+
+### Using the Proxy
+
+Tools automatically use the proxy when it's enabled. The environment variables `http_proxy` and `https_proxy` are set for tool execution.
+
+### Domain Whitelist
+
+Domains in the whitelist are automatically allowed without prompting:
+
+```yaml
+proxy:
+  domain_whitelist:
+    - "example.com"        # Allows any subdomain
+    - "api.github.com"     # Specific domain
+    - "cdn.jsdelivr.net"  # CDN resources
+```
+
+### Access Prompts
+
+When the agent tries to access a non-whitelisted domain:
+
+```
+🔒 Agent requests network access to: example.com
+
+Options:
+• Allow          - Add to whitelist permanently
+• Once Only      - Allow for this session only
+• Deny           - Block the request
+```
+
+### Access Logs
+
+All proxy access attempts are logged:
+
+```
+2026-02-16 19:09:29 allow example.com - Whitelisted
+2026-02-16 19:10:26 connect kde.org - Whititelisted HTTPS tunnel
+2026-02-16 19:11:45 deny suspicious-site.com - User denied
+```
+
+### Testing the Proxy
+
+Test HTTP requests:
+
+```bash
+curl -x http://localhost:3004 http://example.com
+```
+
+Test HTTPS tunneling:
+
+```bash
+curl -x http://localhost:3004 https://example.com
 ```
 
 ## License

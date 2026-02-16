@@ -4,26 +4,26 @@ Crybot uses **Landlock** - Linux kernel-level sandboxing - to restrict what the 
 
 ## Architecture Overview
 
-Crybot's security model uses a **three-component architecture**:
+Crybot's security model uses a **multi-component architecture**:
 
 ```
-┌─────────────────────────────────────────────────┐
-│              Single Process (crybot)            │
-│                                                 │
-│  ┌──────────────────┐      ┌──────────────────┐ │
-│  │   Agent Loop     │      │  Tool Monitor    │ │
-│  │  (no Landlock)   │─────▶│  (no Landlock)   │ │
-│  │                  │      │                  │ │
-│  └──────────────────┘      └─────┬────────────┘ │
-│                                  │              │
-│                                  ▼              │
-│                    ┌───────────────────────┐    │
-│                    │  Tool Runner          │    │
-│                    │  (Landlocked)         │    │
-│                    │  subprocess           │    │
-│                    └───────────────────────┘    │
-│                                                 │
-└─────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                    Single Process (crybot)                  │
+│                                                             │
+│  ┌──────────────┐      ┌──────────────┐      ┌──────────┐ │
+│  │ Agent Loop   │─────▶│Tool Monitor  │─────▶│   HTTP   │ │
+│  │ (no Landlock)│      │ (no Landlock)│      │  Proxy   │ │
+│  │              │      │              │      │          │ │
+│  └──────────────┘      └──────┬───────┘      └────┬─────┘ │
+│                                │                   │        │
+│                                ▼                   ▼        │
+│                    ┌──────────────────┐  ┌──────────────┐  │
+│                    │  Tool Runner     │  │ Landlock     │  │
+│                    │  (Landlocked)    │  │ Socket IPC   │  │
+│                    │  subprocess      │  │ (monitor)    │  │
+│                    └──────────────────┘  └──────────────┘  │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ### Components
@@ -31,6 +31,8 @@ Crybot's security model uses a **three-component architecture**:
 1. **Agent Loop** - Runs the LLM and decides what tools to call. No Landlock restrictions.
 2. **Tool Monitor** - Manages tool execution, handles access requests, shows user prompts.
 3. **Tool Runner** - Subprocess that executes a single tool call under Landlock sandbox.
+4. **HTTP Proxy** - Intercepts HTTP/HTTPS requests for domain-based access control.
+5. **Landlock Socket** - Unix socket for IPC between monitor and agent processes.
 
 ## How Landlock Works
 
@@ -207,9 +209,116 @@ rm ~/.crybot/monitor/allowed_paths.yml
 
 ### What Landlock doesn't prevent:
 
-- ❌ Network access (agent can still make HTTP requests)
+- ❌ **Network access** - Tools can still make HTTP requests to any domain (use the HTTP proxy to control this)
 - ❌ Resource exhaustion (agent could spawn many processes)
 - ❌ Side-channel attacks (timing, cache attacks)
+
+## Network Access Control
+
+Crybot provides an **HTTP/HTTPS proxy** for controlling network access. All HTTP requests from tools are routed through the proxy when enabled.
+
+### Enabling the Proxy
+
+Configure in `~/.crybot/config.yml`:
+
+```yaml
+proxy:
+  enabled: true
+  host: "127.0.0.1"
+  port: 3004
+  domain_whitelist:
+    - "example.com"
+    - "api.github.com"
+  log_file: "~/.crybot/logs/proxy_access.log"
+```
+
+### How Network Access Control Works
+
+1. Tools execute with `http_proxy` and `https_proxy` environment variables set
+2. Proxy intercepts all HTTP/HTTPS requests
+3. Domain whitelist checked first
+4. Non-whitelisted domains trigger user prompt (rofi/terminal)
+5. Access decisions logged to `~/.crybot/logs/proxy_access.log`
+
+### Access Request Flow
+
+```
+Agent calls web_search → Proxy intercepts request
+                          ↓
+                    Check whitelist
+                          ↓
+              ┌───────────┴───────────┐
+              │                       │
+         Whitelisted?             Not in list
+              │                       │
+              ▼                       ▼
+       Allow request            User prompt:
+       (no interaction)         🔒 Allow network access to: example.com
+
+                              Options:
+                              • Allow          - Add to whitelist permanently
+                              • Once Only      - Allow for this session only
+                              • Deny           - Block the request
+```
+
+### Domain Whitelist
+
+Pre-approve domains to avoid prompts:
+
+```yaml
+proxy:
+  domain_whitelist:
+    - "example.com"        # Exact domain match
+    - "*.github.com"       # Wildcard subdomains
+    - "cdn.jsdelivr.net"  # CDN resources
+```
+
+### Access Logs
+
+All network access attempts are logged:
+
+```bash
+~/.crybot/logs/proxy_access.log
+```
+
+Example log entries:
+
+```
+2026-02-16 19:09:29 allow example.com - Whitelisted
+2026-02-16 19:10:26 connect kde.org:443 - Whitelisted HTTPS tunnel
+2026-02-16 19:11:45 allow_once api.openai.com - Session-only allowance
+2026-02-16 19:12:03 deny suspicious-site.com - User denied
+```
+
+### Security Benefits
+
+The proxy provides:
+
+- ✅ **Domain-level control** - Block or allow specific domains
+- ✅ **User prompts** - Approve network access in real-time
+- ✅ **Audit logging** - Track all network access attempts
+- ✅ **Session vs permanent** - Grant temporary or permanent access
+- ✅ **HTTPS tunneling** - Full CONNECT method support for HTTPS
+
+### Testing the Proxy
+
+Test HTTP requests:
+
+```bash
+curl -x http://localhost:3004 http://example.com
+```
+
+Test HTTPS tunneling:
+
+```bash
+curl -x http://localhost:3004 https://kde.org
+```
+
+Check proxy logs:
+
+```bash
+tail -f ~/.crybot/logs/proxy_access.log
+```
 
 ### Threat model
 
