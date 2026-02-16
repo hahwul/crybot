@@ -109,7 +109,9 @@ module HttpProxy
       full_path = context.request.path || "/"
 
       # Split path and query string
-      path, query = full_path.split('?', 2)
+      parts = full_path.split('?', 2)
+      path = parts[0]?
+      query = parts[1]?
 
       # Normalize headers to Hash(String, String)
       raw_headers = context.request.headers.try(&.to_h) || {} of String => String | Array(String)
@@ -131,20 +133,35 @@ module HttpProxy
                  nil
                end
 
-      ProxyRequest.new(method, path, headers, body, domain, query)
+      ProxyRequest.new(method, path || "/", headers, body, domain, query)
     end
 
-    # Extract domain from Host header or URL
+    # Extract domain from Host header or URL path
     private def self.extract_domain(request : ProxyRequest) : String
       # Check Host header first
       if domain = request.domain
         return domain
       end
 
-      # Try to extract from request path if URL
-      if request.path.size > 1 && request.path.starts_with?("/")
-        uri = URI.parse("http://dummy#{request.path}")
-        return uri.hostname || ""
+      # Try to extract from request path if it's a full URL
+      # When using curl -x, the path is like "https://example.com/" or "http://example.com/"
+      path = request.path
+      if path.size > 1
+        # Check if path looks like a URL (starts with http:// or https://)
+        if path =~ %r{^https?://}
+          begin
+            uri = URI.parse(path)
+            if hostname = uri.hostname
+              return hostname
+            end
+          rescue
+            # If URI parsing fails, try to extract domain manually
+            # Remove scheme and path, keep domain
+            if match = path.match(%r{^https?://([^/:]+)})
+              return match[1]
+            end
+          end
+        end
       end
 
       ""
@@ -206,10 +223,30 @@ module HttpProxy
       domain = request.domain
       return unless domain
 
-      # Build upstream path with query string
-      request_path = request.path
+      # Extract the actual path from the request
+      # When using curl -x, the path might be a full URL like "https://example.com/"
+      # We need to extract just the path component
+      upstream_path = request.path
+
+      # If path looks like a full URL, extract just the path part
+      if upstream_path =~ %r{^https?://}
+        begin
+          uri = URI.parse(upstream_path)
+          upstream_path = uri.path || "/"
+          # Add back query string if present in URI
+          if uri.query && !request.query
+            upstream_path = "#{upstream_path}?#{uri.query}"
+          end
+        rescue
+          # If URI parsing fails, just use the path as-is
+        end
+      end
+
+      # Add query string if present and not already in path
       if query = request.query
-        request_path = "#{request_path}?#{query}"
+        unless upstream_path.includes?("?")
+          upstream_path = "#{upstream_path}?#{query}"
+        end
       end
 
       # Create upstream request
@@ -217,12 +254,13 @@ module HttpProxy
         # Convert headers to HTTP::Headers
         http_headers = HTTP::Headers.new
         request.headers.each do |key, value|
-          http_headers[key] = value
+          # Skip proxy-related headers that shouldn't be forwarded
+          http_headers[key] = value unless key.downcase == "proxy-connection"
         end
 
         # Use HTTP::Client to forward the request
         client = HTTP::Client.new(domain)
-        response = client.exec(request.method, request_path, http_headers, request.body)
+        response = client.exec(request.method, upstream_path, http_headers, request.body)
 
         # Copy response headers to client response
         response.headers.each do |key, value|
@@ -233,7 +271,7 @@ module HttpProxy
         context.response.puts(response.body)
         context.response.close
 
-        Log.debug { "Forwarded: #{request.method} #{request.path} -> #{response.status_code}" }
+        Log.debug { "Forwarded: #{request.method} #{upstream_path} -> #{domain} (#{response.status_code})" }
       rescue e : Exception
         Log.error(exception: e) { "Proxy error: #{e.message}" }
         context.response.status_code = 500
