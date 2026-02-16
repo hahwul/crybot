@@ -165,9 +165,20 @@ module Crybot
         result_channel = Channel(String).new
         error_channel = Channel(Exception).new
 
+        # Load proxy config if enabled
+        proxy_config = load_proxy_config
+
         # Create isolated execution context
         _isolated_context = Fiber::ExecutionContext::Isolated.new("ToolExecution", spawn_context: Fiber::ExecutionContext.default) do
           begin
+            # Set proxy environment variables if proxy is enabled
+            if proxy_config && proxy_config.enabled
+              proxy_url = "http://#{proxy_config.host}:#{proxy_config.port}"
+              ENV["http_proxy"] = proxy_url
+              ENV["https_proxy"] = proxy_url
+              Log.debug { "[ToolMonitor] Set proxy environment: #{proxy_url}" }
+            end
+
             # Apply Landlock restrictions first
             if restrictions.path_rules.empty? || !::ToolRunner::Landlock.available?
               # No restrictions to apply or Landlock not available - continue without sandboxing
@@ -188,6 +199,12 @@ module Crybot
             result_channel.send(result)
           rescue e : Exception
             error_channel.send(e)
+          ensure
+            # Clean up proxy environment variables
+            if proxy_config && proxy_config.enabled
+              ENV.delete("http_proxy")
+              ENV.delete("https_proxy")
+            end
           end
         end
 
@@ -206,6 +223,14 @@ module Crybot
       private def self.load_allowed_paths : Array(String)?
         # TODO: Load from config.yml landlock.allowed_paths
         [] of String
+      end
+
+      # Load proxy configuration
+      private def self.load_proxy_config : Crybot::Config::ProxyConfig?
+        config = Crybot::Config::Loader.load
+        config.proxy
+      rescue
+        nil
       end
     end
   end

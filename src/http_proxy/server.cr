@@ -2,7 +2,6 @@ require "http"
 require "log"
 require "../config/loader"
 require "../landlock_socket"
-require "./whitelist_prompt"
 
 module HttpProxy
   Log = ::Log.for("crybot.http_proxy")
@@ -172,28 +171,28 @@ module HttpProxy
       end
     end
 
-    # Prompt user via rofi and handle decision
+    # Prompt user via unified IPC and handle decision
     private def self.prompt_user_and_handle(context : HTTP::Server::Context, request : ProxyRequest, request_domain : String, config : Crybot::Config::ProxyConfig) : Nil
-      # Show rofi prompt
-      result = WhitelistPrompt.prompt(request_domain)
+      # Use unified LandlockSocket for network access requests
+      result = Crybot::LandlockSocket.request_network_access(request_domain)
 
       case result
-      when :allow
+      when Crybot::LandlockSocket::AccessResult::Granted
         # Whitelisted - allow through and log
         log_access(request_domain, "allow", "Whitelisted")
         forward_request(context, request)
-      when :allow_once
+      when Crybot::LandlockSocket::AccessResult::GrantedOnce
         # Allow once - allow through but don't save to whitelist
         log_access(request_domain, "allow_once", "Session-only allowance")
         forward_request(context, request)
-      when :deny
+      when Crybot::LandlockSocket::AccessResult::Denied
         # Denied - return 403
         log_access(request_domain, "deny", "User denied")
         context.response.status_code = 403
         context.response.puts("Access denied")
         context.response.close
       else
-        # Unexpected response - log and deny
+        # Unexpected response (timeout, etc.) - log and deny
         log_access(request_domain, "deny", "Invalid response (#{result})")
         context.response.status_code = 403
         context.response.puts("Access denied")

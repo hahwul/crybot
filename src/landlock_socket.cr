@@ -16,10 +16,11 @@ module Crybot
 
     # Message types
     enum MessageType
-      RequestAccess # Agent -> Monitor: Request access to a path
-      Granted       # Monitor -> Agent: Access granted, will restart
-      Denied        # Monitor -> Agent: Access denied
-      Timeout       # Monitor -> Agent: Request timed out
+      RequestAccess        # Agent -> Monitor: Request access to a path
+      RequestNetworkAccess # Agent -> Monitor: Request access to a domain
+      Granted              # Monitor -> Agent: Access granted, will restart
+      Denied               # Monitor -> Agent: Access denied
+      Timeout              # Monitor -> Agent: Request timed out
     end
 
     struct AccessRequest
@@ -29,6 +30,17 @@ module Crybot
 
       def initialize(@path : String)
         @message_type = MessageType::RequestAccess
+        @response_channel = Channel(String).new
+      end
+    end
+
+    struct NetworkAccessRequest
+      property message_type : MessageType
+      property domain : String
+      property response_channel : Channel(String)?
+
+      def initialize(@domain : String)
+        @message_type = MessageType::RequestNetworkAccess
         @response_channel = Channel(String).new
       end
     end
@@ -64,14 +76,20 @@ module Crybot
       return unless request
 
       message_type = request["message_type"]?.try(&.as_s)
-      path = request["path"]?.try(&.as_s)
-
-      return unless message_type && path
 
       case message_type
       when "request_access"
-        Log.info { "[Monitor Socket] Access request for: #{path}" }
-        handle_access_request(client, path)
+        path = request["path"]?.try(&.as_s)
+        if path
+          Log.info { "[Monitor Socket] Path access request for: #{path}" }
+          handle_access_request(client, path)
+        end
+      when "request_network_access"
+        domain = request["domain"]?.try(&.as_s)
+        if domain
+          Log.info { "[Monitor Socket] Network access request for: #{domain}" }
+          handle_network_access_request(client, domain)
+        end
       else
         Log.warn { "[Monitor Socket] Unknown message type: #{message_type}" }
       end
@@ -109,6 +127,35 @@ module Crybot
       when :timeout
         Log.info { "[Monitor Socket] Request timed out for: #{path}" }
         send_response(client, {"message_type" => "timeout", "path" => path}.to_json)
+      end
+    end
+
+    # Handle network access request
+    private def self.handle_network_access_request(client : UNIXSocket, domain : String) : Nil
+      # Check if already whitelisted
+      if domain_whitelisted?(domain)
+        Log.info { "[Monitor Socket] Domain already whitelisted: #{domain}" }
+        send_response(client, {"message_type" => "granted", "domain" => domain}.to_json)
+        return
+      end
+
+      # Show prompt and get user decision
+      response = prompt_user_for_domain(domain)
+
+      case response
+      when :granted
+        add_domain_to_whitelist(domain)
+        Log.info { "[Monitor Socket] Domain access granted for: #{domain}" }
+        send_response(client, {"message_type" => "granted", "domain" => domain}.to_json)
+      when :granted_once
+        Log.info { "[Monitor Socket] Domain access granted once for: #{domain}" }
+        send_response(client, {"message_type" => "granted_once", "domain" => domain}.to_json)
+      when :denied
+        Log.info { "[Monitor Socket] Domain access denied for: #{domain}" }
+        send_response(client, {"message_type" => "denied", "domain" => domain}.to_json)
+      when :timeout
+        Log.info { "[Monitor Socket] Domain request timed out for: #{domain}" }
+        send_response(client, {"message_type" => "timeout", "domain" => domain}.to_json)
       end
     end
 
@@ -180,6 +227,70 @@ module Crybot
         AccessResult::Denied
       when "denied_suggest_playground"
         AccessResult::DeniedSuggestPlayground
+      when "timeout"
+        AccessResult::Timeout
+      else
+        AccessResult::Denied
+      end
+    end
+
+    def self.request_network_access(domain : String, timeout : Time::Span = 5.minutes) : AccessResult
+      # Connect to monitor socket
+      client = UNIXSocket.new(socket_path)
+
+      # Send request
+      request = {
+        "message_type" => "request_network_access",
+        "domain"       => domain,
+      }.to_json
+
+      client.puts(request)
+
+      # Receive response (with timeout using channel)
+      response_channel = Channel(String?).new
+
+      # Spawn fiber to read response
+      spawn do
+        begin
+          response = client.gets
+          response_channel.send(response)
+        rescue e : Exception
+          response_channel.send(nil)
+        ensure
+          client.close
+        end
+      end
+
+      # Spawn fiber for timeout
+      timeout_channel = Channel(Nil).new
+      spawn do
+        sleep timeout
+        timeout_channel.send(nil)
+      end
+
+      # Wait for either response or timeout
+      select
+      when r = response_channel.receive
+        # Parse response
+        return AccessResult::Timeout unless r
+
+        parsed = JSON.parse(r) rescue nil
+        return AccessResult::Timeout unless parsed
+      when timeout_channel.receive
+        # Timeout occurred
+        client.close rescue nil
+        return AccessResult::Timeout
+      end
+
+      message_type = parsed["message_type"]?.try(&.as_s)
+
+      case message_type
+      when "granted"
+        AccessResult::Granted
+      when "granted_once"
+        AccessResult::GrantedOnce
+      when "denied"
+        AccessResult::Denied
       when "timeout"
         AccessResult::Timeout
       else
@@ -355,6 +466,132 @@ module Crybot
       when "3", "playground", "Deny - Suggest using playground"
         :denied_suggest_playground
       when "4", "deny", "Deny"
+        :denied
+      else
+        :denied
+      end
+    end
+
+    # Check if domain is already whitelisted
+    private def self.domain_whitelisted?(domain : String) : Bool
+      config = Crybot::Config::Loader.load
+      config.proxy.domain_whitelist.includes?(domain)
+    rescue
+      false
+    end
+
+    # Add domain to whitelist
+    private def self.add_domain_to_whitelist(domain : String) : Nil
+      config = Crybot::Config::Loader.load
+      proxy_config = config.proxy
+      whitelist = proxy_config.domain_whitelist.dup
+
+      return if whitelist.includes?(domain)
+
+      whitelist << domain
+
+      # Update config with new whitelist
+      updated_proxy = Crybot::Config::ProxyConfig.new(
+        enabled: proxy_config.enabled,
+        host: proxy_config.host,
+        port: proxy_config.port,
+        domain_whitelist: whitelist,
+        log_file: proxy_config.log_file
+      )
+
+      # Update the full config
+      updated_config = config
+      updated_config.proxy = updated_proxy
+
+      # Write updated config to file
+      config_path = Crybot::Config::Loader.config_file
+      File.write(config_path, updated_config.to_yaml)
+
+      # Reload config
+      Crybot::Config::Loader.reload
+
+      Log.info { "[LandlockSocket] Added domain to whitelist: #{domain}" }
+    rescue e : Exception
+      Log.error(exception: e) { "[LandlockSocket] Failed to add domain to whitelist: #{e.message}" }
+    end
+
+    # Prompt user for domain access (rofi or terminal)
+    private def self.prompt_user_for_domain(domain : String) : Symbol
+      # Check for graphical environment
+      has_display = ENV.has_key?("DISPLAY") || ENV.has_key?("WAYLAND_DISPLAY")
+
+      if has_display && Process.find_executable("rofi")
+        result = prompt_domain_with_rofi(domain)
+        return result if result
+      end
+
+      # Fall back to terminal prompt
+      prompt_domain_with_terminal(domain)
+    end
+
+    # Prompt using rofi for domain access
+    private def self.prompt_domain_with_rofi(domain : String) : Symbol?
+      prompt = "Allow domain?"
+      message = "🔒 Agent requests network access to: #{domain}"
+
+      options = [
+        "Allow",
+        "Once Only",
+        "Deny",
+      ]
+
+      menu_text = options.join("\n")
+      result = IO::Memory.new
+
+      status = Process.run(
+        "rofi",
+        [
+          "-dmenu",
+          "-p", prompt,
+          "-mesg", message,
+          "-i",
+          "-lines", "3",
+          "-width", "60",
+          "-location", "1",
+        ],
+        input: IO::Memory.new(menu_text),
+        output: result
+      )
+
+      return nil unless status.success?
+
+      selection = result.to_s.strip
+      case selection
+      when "Allow"     then :granted
+      when "Once Only" then :granted_once
+      when "Deny"      then :denied
+      else                  nil
+      end
+    rescue e : Exception
+      nil
+    end
+
+    # Prompt using terminal for domain access
+    private def self.prompt_domain_with_terminal(domain : String) : Symbol
+      puts "\n" + "=" * 60
+      puts "🔒 Network Access Request"
+      puts "=" * 60
+      puts "The agent wants to connect to: #{domain}"
+      puts ""
+      puts "Options:"
+      puts "  1) Allow"
+      puts "  2) Once Only"
+      puts "  3) Deny"
+      print "Choice [1-3]: "
+
+      response = gets.try(&.strip) || ""
+
+      case response
+      when "1", "allow", "Allow"
+        :granted
+      when "2", "once", "Once Only"
+        :granted_once
+      when "3", "deny", "Deny"
         :denied
       else
         :denied
