@@ -26,6 +26,8 @@ dependencies:
     github: ralsina/mcp-client
   tool_runner:
     path: ./tool_runner
+  markd:
+    github: icyleaf/markd
 
 development_dependencies:
   ameba:

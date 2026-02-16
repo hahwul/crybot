@@ -56,6 +56,10 @@ shards:
     git: https://github.com/kemalcr/kemal.git
     version: 1.9.0+git.commit.676a35f0893d8d754ece6fc008e937c202872670
 
+  markd:
+    git: https://github.com/icyleaf/markd.git
+    version: 0.5.0
+
   mcp-client:
     git: https://github.com/ralsina/mcp-client.git
     version: 0.1.0+git.commit.fcfae88398c131c58df04f9c87e634dbab632779
