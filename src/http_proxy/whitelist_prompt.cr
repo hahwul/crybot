@@ -65,15 +65,16 @@ module HttpProxy
 
         # Update config
         updated_config = if proxy_config.proxy?
-          proxy_config.proxy.not_nil!.merge(ProxyConfig.from(domain_whitelist: whitelist))
-        else
-          Config::ProxyConfig.new(
-            enabled: true,
-            host: proxy_config.proxy.not_nil!.host,
-            port: proxy_config.proxy.not_nil!.port,
-            domain_whitelist: whitelist,
-            log_file: proxy_config.proxy.not_nil!.log_file
-          )
+                           proxy_config.proxy.not_nil!.merge(ProxyConfig.from(domain_whitelist: whitelist))
+                         else
+                           Config::ProxyConfig.new(
+                             enabled: true,
+                             host: proxy_config.proxy.not_nil!.host,
+                             port: proxy_config.proxy.not_nil!.port,
+                             domain_whitelist: whitelist,
+                             log_file: proxy_config.proxy.not_nil!.log_file
+                           )
+                         end
 
         Config::Loader.save_config(updated_config)
       end

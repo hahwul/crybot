@@ -106,10 +106,10 @@ module HttpProxy
 
       # Extract Host header for domain checking
       domain = if host_header = headers["Host"]?
-               URI.parse(host_header).hostname
-             else
-               nil
-        end
+                 URI.parse(host_header).hostname
+               else
+                 nil
+               end
 
       ProxyRequest.new(method, path, headers, body, domain)
     end
@@ -128,26 +128,28 @@ module HttpProxy
       end
 
       ""
+    end
 
-      # Log access attempt
-      private def self.log_access(domain : String, action : String, details : String = "") : Nil
-        log_entry = AccessLog.new(domain, action, details)
+    # Log access attempt
+    private def self.log_access(domain : String, action : String, details : String = "") : Nil
+      log_entry = AccessLog.new(domain, action, details)
 
-        @@access_log << log_entry
-        Log.info { "[#{log_entry.action}] #{log_entry.domain}: #{log_entry.details}" }
+      @@access_log << log_entry
+      Log.info { "[#{log_entry.action}] #{log_entry.domain}: #{log_entry.details}" }
 
-        # Also write to file if configured
-        if @@config.try(&.log_file)
-          begin
-            File.open(@@config.not_nil!.log_file, "a") do |file|
-              @@access_log.each do |entry|
-                file.puts("#{entry.timestamp} #{entry.action} #{entry.domain} - #{entry.details}")
-              end
+      # Also write to file if configured
+      if @@config.try(&.log_file)
+        begin
+          File.open(@@config.not_nil!.log_file, "a") do |file|
+            @@access_log.each do |entry|
+              file.puts("#{entry.timestamp} #{entry.action} #{entry.domain} - #{entry.details}")
             end
-          rescue e : Exception
-            Log.error(exception: e) { "Failed to write access log: #{e.message}" }
           end
+        rescue e : Exception
+          Log.error(exception: e) { "Failed to write access log: #{e.message}" }
+        end
       end
+    end
 
     # Prompt user via rofi and handle decision
     private def self.prompt_user_and_handle(context : HTTP::Server::Context, request : ProxyRequest, request_domain : String, config : ProxyConfig) : Nil
@@ -159,19 +161,16 @@ module HttpProxy
         # Whitelisted - allow through and log
         log_access(request_domain, "allow", "Whitelisted")
         forward_request(context, request)
-
       when :allow_once
         # Allow once - allow through but don't save to whitelist
         log_access(request_domain, "allow_once", "Session-only allowance")
         forward_request(context, request)
-
       when :deny
         # Denied - return 403
         log_access(request_domain, "deny", "User denied")
         context.response.status_code = 403
         context.response.puts("Access denied")
         context.response.close
-
       else
         # Unexpected response - log and deny
         log_access(request_domain, "deny", "Invalid response (#{result})")
@@ -185,9 +184,10 @@ module HttpProxy
     private def self.forward_request(context : HTTP::Server::Context, request : ProxyRequest) : Nil
       # Build upstream URL
       upstream_url = "http://#{request.domain}#{request.path}"
-      if request.query = request.query
-        upstream_url += "?#{request.query}"
-      upstream_url = request.headers.to_h.reduce(upstream_url) do |url, |key, value|
+      if query = request.query
+        upstream_url += "?#{query}"
+      end
+      upstream_url = request.headers.to_h.reduce(upstream_url) do |url, (key, value)|
         "#{url}&#{key}=#{URI.encode_component(value)}"
       end
 

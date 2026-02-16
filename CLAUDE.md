@@ -35,11 +35,14 @@ ameba --fix           # Auto-fix linting issues
 ### Running
 ```bash
 ./bin/crybot              # Start all enabled features (default: threaded mode)
-./bin/crybot onboard       # Initialize configuration
+./bin/crybot onboard      # Initialize configuration
 ./bin/crybot agent [-m <msg>]  # Direct agent interaction
-./bin/crybot status        # Show configuration status
-./bin/crybot profile      # Profile startup performance
+./bin/crybot status       # Show configuration status
+./bin/crybot profile     # Profile startup performance
+./bin/crybot tool-runner <tool_name> <json_args>  # Internal: execute tool in Landlocked subprocess
 ```
+
+**Note**: There is only one binary (`bin/crybot`). The `ameba` file in `bin/` is just the development linter.
 
 ### Testing
 No test suite exists yet in this repository.
@@ -69,11 +72,13 @@ No test suite exists yet in this repository.
 
 **Tool Execution & Landlock Sandboxing** (CRITICAL)
 - Tools execute in **isolated fibers** using `Fiber::ExecutionContext::Isolated`
+- Built-in tools run under **Landlock restrictions** (Linux kernel 5.13+ sandboxing)
 - **Landlock denied exceptions** trigger access request via rofi/terminal prompt
-- Built-in tools use `Tools::LandlockDeniedException` for path access requests
+- Built-in tools raise `Tools::LandlockDeniedException` for path access requests
 - MCP tools (`tool_name.includes?("/")`) execute **directly** (not in Landlocked context)
 - **MCP servers require subprocess spawning**, so agent itself cannot run under Landlock
 - Access requests go through `LandlockSocket` to monitor process
+- Default path rules: read-only (/usr, /bin, /lib, /etc), read-write (~/.crybot/playground, ~/.crybot/workspace, /tmp)
 
 **Providers** (`src/providers/`)
 - Abstract `Base` provider interface (`chat` method with streaming support)
@@ -138,6 +143,7 @@ Located at `~/.crybot/`:
 4. **Isolated Execution**: Tools run in `Fiber::ExecutionContext::Isolated` with Landlock restrictions
 5. **Configuration Hot-Reload**: Watcher triggers Process.exec to restart with new config
 6. **Channel Unification**: Messages can be forwarded to any channel (Telegram, Web, Voice, REPL)
+7. **Tool Monitor Pattern**: Agent sends tool requests to a channel, monitor fiber handles execution/retries
 
 ## Code Style Notes
 
