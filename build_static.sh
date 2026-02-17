@@ -14,7 +14,7 @@ echo "Building for AMD64..."
 docker build . -f Dockerfile.static -t crybot-builder-amd64 \
   --platform linux/amd64
 
-docker run -ti --rm \
+docker run --rm \
   -v "$PWD":/app \
   --user="$(id -u):$(id -g)" \
   crybot-builder-amd64 \
@@ -31,7 +31,7 @@ echo "Building for ARM64..."
 docker build . -f Dockerfile.static -t crybot-builder-arm64 \
   --platform linux/arm64
 
-docker run -ti --rm \
+docker run --rm \
   -v "$PWD":/app \
   --user="$(id -u):$(id -g)" \
   crybot-builder-arm64 \
