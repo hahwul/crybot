@@ -54,7 +54,6 @@ Usage:
   crybot onboard
   crybot agent [-m <message>]
   crybot status
-  crybot profile
   crybot tool-runner <tool_name> <json_args>
   crybot [-h | --help]
 
@@ -66,7 +65,6 @@ Commands:
   onboard       Initialize configuration and workspace
   agent         Interact with the AI agent directly
   status        Show configuration status
-  profile       Profile startup performance
   tool-runner   Internal: Execute a tool in a Landlocked subprocess (used by monitor)
 
 Running Crybot:
@@ -101,8 +99,6 @@ module Crybot
       Commands::Onboard.execute
     when "status"
       Commands::Status.execute
-    when "profile"
-      Commands::Profile.execute
     when "tool-runner"
       # Internal tool-runner command for Landlocked subprocess execution
       tool_name = args[1]?

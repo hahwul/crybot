@@ -148,7 +148,7 @@ module Crybot
     # Ensure we're running under Landlock sandbox
     def self.ensure_sandbox(args : Array(String)) : Nil
       # Skip if we're just running setup/status commands
-      if args.includes?("onboard") || args.includes?("status") || args.includes?("profile") || args.includes?("monitor")
+      if args.includes?("onboard") || args.includes?("status") || args.includes?("monitor")
         return
       end
 

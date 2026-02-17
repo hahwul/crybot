@@ -106,7 +106,7 @@ module Crybot
 
       # ameba:disable Metrics/CyclomaticComplexity
       private def handle_update(ctx : Tourmaline::Context) : Nil
-        start_time = Time.instant
+        start_time = Time.utc
 
         # Check if this update was already processed
         update_id = ctx.update.update_id
@@ -152,11 +152,11 @@ module Crybot
           puts "[#{Time.local.to_s("%H:%M:%S")}] [Telegram] Chat: #{inbound.chat_id}"
           puts "[#{Time.local.to_s("%H:%M:%S")}] [Telegram] User: #{inbound.content}"
           puts "[#{Time.local.to_s("%H:%M:%S")}] Processing..."
-          process_start = Time.instant
+          process_start = Time.utc
 
           agent_response = @agent.process(inbound.session_key, inbound.content)
 
-          process_time = Time.instant - process_start
+          process_time = Time.utc - process_start
           puts "[#{Time.local.to_s("%H:%M:%S")}] Response ready (took #{process_time.total_seconds.to_i}s)"
 
           # Log tool executions
@@ -181,14 +181,14 @@ module Crybot
 
           # Send response back
           puts "[#{Time.local.to_s("%H:%M:%S")}] Sending to Telegram..."
-          send_start = Time.instant
+          send_start = Time.utc
 
           send_response(ctx, response)
 
-          send_time = Time.instant - send_start
+          send_time = Time.utc - send_start
           puts "[#{Time.local.to_s("%H:%M:%S")}] Sent! (took #{send_time.total_seconds.to_i}s)"
 
-          total_time = Time.instant - start_time
+          total_time = Time.utc - start_time
           puts "[#{Time.local.to_s("%H:%M:%S")}] Total time: #{total_time.total_seconds.to_i}s"
         rescue e : Exception
           puts "[ERROR] #{e.message}"
@@ -207,9 +207,9 @@ module Crybot
           chunks = text.scan(/.{1,#{max_length}}/m).map { |match| match[0] }
           puts "[#{Time.local.to_s("%H:%M:%S")}] Sending response in #{chunks.size} chunk(s)"
           chunks.each_with_index do |chunk, index|
-            chunk_start = Time.instant
+            chunk_start = Time.utc
             ctx.respond(chunk)
-            chunk_time = Time.instant - chunk_start
+            chunk_time = Time.utc - chunk_start
             puts "[#{Time.local.to_s("%H:%M:%S")}] Chunk #{index + 1}/#{chunks.size} sent (took #{chunk_time.total_seconds.to_i}s)"
           end
         end
