@@ -1394,6 +1394,9 @@ body {
   border-radius: 8px;
   width: 90%;
   max-width: 500px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   border: 1px solid var(--border-color);
 }
@@ -1433,6 +1436,8 @@ body {
 
 .modal-body {
   padding: 20px;
+  overflow-y: auto;
+  flex: 1;
 }
 
 .modal-footer {
