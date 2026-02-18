@@ -1068,6 +1068,10 @@ class CrybotWeb {
         // New message arrived via Voice
         this.handleExternalMessage('voice', data);
         break;
+      case 'web_message':
+        // New message arrived via scheduled task forwarding to web session
+        this.handleExternalMessage('web', data);
+        break;
       case 'cancel_acknowledged':
         // Cancel request was received by backend
         console.log('Cancel request acknowledged by backend');
@@ -1176,7 +1180,8 @@ class CrybotWeb {
     // Check if we should show notification
     const isCurrentChat = this.currentTab === `${source}-tab` &&
                           ((source === 'telegram' && this.currentTelegramChat === chatId) ||
-                           (source === 'voice'));
+                           (source === 'voice') ||
+                           (source === 'web' && this.currentViewSessions['chat-messages'] === chatId));
 
     // Show desktop notification if:
     // - Page is not visible OR
@@ -1188,7 +1193,8 @@ class CrybotWeb {
       this.incrementUnreadCount(fullChatId);
 
       // Show desktop notification
-      const title = source === 'telegram' ? 'New Telegram Message' : 'New Voice Message';
+      const title = source === 'telegram' ? 'New Telegram Message' :
+                     source === 'voice' ? 'New Voice Message' : 'New Web Chat Message';
       const content = data.content || '';
       const preview = content.length > 100 ? content.substring(0, 100) + '...' : content;
 
@@ -1227,6 +1233,14 @@ class CrybotWeb {
       } else if (source === 'voice') {
         // Reload voice conversation
         this.loadVoiceConversation();
+      } else if (source === 'web') {
+        // Reload web session if we're viewing it
+        if (this.currentViewSessions['chat-messages'] === chatId) {
+          console.log('Reloading web session:', chatId);
+          this.reloadSessionFromBackend(chatId);
+        } else {
+          console.log('Not viewing web session:', chatId, ', currently viewing:', this.currentViewSessions['chat-messages']);
+        }
       }
 
       // Mark as seen since we're viewing it
@@ -3332,11 +3346,11 @@ execution:
         return;
       }
 
-      // Filter out telegram and scheduled sessions
-      const webSessions = data.sessions.filter(s => !s.startsWith('telegram_') && !s.startsWith('scheduled/'));
+      // Only show actual web chat sessions (starting with 'web_')
+      const webSessions = data.sessions.filter(s => s.startsWith('web_'));
 
       if (webSessions.length === 0) {
-        listContainer.innerHTML = '<p style="color: #999;">No web sessions found (only showing non-Telegram/scheduled).</p>';
+        listContainer.innerHTML = '<p style="color: #999;">No web chat sessions found. Start a conversation in the chat tab first.</p>';
         return;
       }
 

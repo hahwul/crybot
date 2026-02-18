@@ -40,24 +40,29 @@ module Crybot
 
       private def setup_session_callbacks : Nil
         @sessions.on_save do |session_key, messages|
-          # Broadcast update to connected clients
-          # Only broadcast for telegram and voice sessions (not web chat)
-          if session_key.starts_with?("telegram:") || session_key == "voice"
-            last_message = messages.last?
-            if last_message && last_message.role == "assistant"
+          last_message = messages.last?
+          if last_message && last_message.role == "assistant"
+            # Broadcast for telegram, voice, and web chat sessions
+            if session_key.starts_with?("telegram:") || session_key == "voice" || session_key.starts_with?("web_")
               # Get the chat ID for telegram sessions
               chat_id = session_key
+              message_type = "external_message"
+
               if session_key.starts_with?("telegram:")
                 parts = session_key.split(":", 2)
                 chat_id = parts.size >= 2 ? parts[1] : session_key
+                message_type = "telegram_message"
+              elsif session_key == "voice"
+                message_type = "voice_message"
+              elsif session_key.starts_with?("web_")
+                # For web sessions, use the session_id as chat_id
+                chat_id = session_key
+                message_type = "web_message"
               end
 
               # Sanitize the session key to match what the web UI expects
               # The Session::Manager sanitizes keys by replacing special chars with underscore
               sanitized_key = session_key.gsub(/[^a-zA-Z0-9_-]/, "_")
-
-              # Determine the message type based on session
-              message_type = session_key == "voice" ? "voice_message" : "telegram_message"
 
               puts "[Web] Broadcasting #{message_type} for sanitized_key=#{sanitized_key}, chat_id=#{chat_id}"
 
@@ -65,6 +70,7 @@ module Crybot
               data = Hash(String, JSON::Any).new
               data["session_key"] = JSON::Any.new(sanitized_key)
               data["chat_id"] = JSON::Any.new(chat_id)
+              data["source"] = JSON::Any.new(message_type == "telegram_message" ? "telegram" : message_type == "voice_message" ? "voice" : "web")
               data["role"] = JSON::Any.new(last_message.role)
               data["content"] = JSON::Any.new(last_message.content || "")
               data["timestamp"] = JSON::Any.new(Time.local.to_s("%Y-%m-%dT%H:%M:%S%:z"))
