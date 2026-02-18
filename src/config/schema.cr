@@ -146,7 +146,6 @@ module Crybot
       struct TelegramConfig
         include YAML::Serializable
 
-        # ameba:disable Naming/QueryBoolMethods
         property? enabled : Bool = false
         property token : String = ""
         property allow_from : Array(String) = [] of String

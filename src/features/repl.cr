@@ -270,27 +270,17 @@ module Crybot
               puts "Error: #{e.message}"
               puts e.backtrace.join("\n") if ENV["DEBUG"]?
               puts
-            rescue e : Fancyline::Interrupt
-              # Ctrl+C pressed during input
-              puts ""
-              puts "Use 'quit' or 'exit' to exit, or Ctrl+D"
-              puts
-            rescue e : Exception
-              puts ""
-              puts "Error: #{e.message}"
-              puts e.backtrace.join("\n") if ENV["DEBUG"]?
-              puts
             end
           end
-        rescue e : Fancyline::Interrupt
+        rescue ex : Fancyline::Interrupt
           # Ctrl+C pressed during input
           puts ""
           puts "Use 'quit' or 'exit' to exit, or Ctrl+D"
           puts
-        rescue e : Exception
+        rescue error : Exception
           puts ""
-          puts "Error: #{e.message}"
-          puts e.backtrace.join("\n") if ENV["DEBUG"]?
+          puts "Error: #{error.message}"
+          puts error.backtrace.join("\n") if ENV["DEBUG"]?
           puts
 
           # Save history before exiting
