@@ -1008,6 +1008,8 @@ class CrybotWeb {
       case 'session_switched':
         this.sessionId = data.session_id;
         localStorage.setItem('crybotChatSession', data.session_id);
+        // Update current view session to match the new session
+        this.currentViewSessions['chat-messages'] = data.session_id;
         // Clear the chat container and show it's a new session
         document.getElementById('chat-messages').innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">New conversation started</p>';
         // Show chat view
