@@ -137,6 +137,7 @@ module Crybot
               # Channels for fiber communication
               response_channel = Channel(Agent::AgentResponse?).new
               cancel_channel = Channel(Nil).new
+              done_channel = Channel(Nil).new
 
               # Spawn the agent request in a background fiber
               spawn do
@@ -201,7 +202,7 @@ module Crybot
 
                   # Check if request is done or cancelled
                   select
-                  when _ = response_channel.receive?
+                  when _ = done_channel.receive?
                     done = true
                   when _ = cancel_channel.receive?
                     cancelled = true
@@ -216,12 +217,17 @@ module Crybot
               select
               when r = response_channel.receive
                 agent_response = r
+                # Signal spinner fiber to stop
+                done_channel.send(nil)
               when cancel_channel.receive
                 cancelled = true
               end
 
               # Ensure terminal is restored
               system("stty sane 2>/dev/null")
+
+              # Give spinner fiber a moment to stop
+              sleep 0.15.seconds
 
               if cancelled
                 # Request was cancelled - wait for response to arrive but discard it
